@@ -295,7 +295,8 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        // Database seeding/sync (JSON, hashing, 64 inserts) must never run on the main thread.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             repository.ensureTemplatesInitialized()
         }
 

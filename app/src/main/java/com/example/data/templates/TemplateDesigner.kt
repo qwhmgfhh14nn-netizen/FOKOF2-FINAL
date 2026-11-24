@@ -52,7 +52,7 @@ object TemplateDesigner {
         val panel = t.bgStartHex
         val soft = if (light) "#FFFFFF" else "#000000"
         val small = h < 250f
-        val fs = if (small) 0.85f else 1f
+        val fs = if (small) 0.85f else if (h > 500f) 1.25f else 1f
 
         val ys = t.elements.map { it.y }
         val ymin = (ys.minOrNull() ?: 0f)

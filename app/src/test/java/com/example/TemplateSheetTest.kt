@@ -60,7 +60,7 @@ class TemplateSheetTest {
         var failedLabels = 0
         for (p in 0 until 4) {
             rule.runOnUiThread { page = p }
-            repeat(8) {
+            repeat(30) {
                 rule.mainClock.advanceTimeBy(400)
                 ShadowLooper.idleMainLooper()
                 Thread.sleep(300)
