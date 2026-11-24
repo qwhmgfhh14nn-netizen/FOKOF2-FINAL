@@ -14,6 +14,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import org.robolectric.shadows.ShadowLooper
 import java.io.File
 
 /** Review tour: saves a PNG of each screen (light and dark). It never fails the build. */
@@ -32,7 +33,9 @@ class ScreenshotTourTest {
     private fun settle() {
         repeat(6) {
             rule.mainClock.advanceTimeBy(400)
+            ShadowLooper.idleMainLooper()
             Thread.sleep(300)
+            ShadowLooper.idleMainLooper()
         }
     }
 
@@ -65,7 +68,7 @@ class ScreenshotTourTest {
         settle()
         val v = vm!!
         var waited = 0
-        while (v.publishedTemplates.value.isEmpty() && waited < 40) { Thread.sleep(500); rule.mainClock.advanceTimeBy(500); waited++ }
+        while (v.publishedTemplates.value.isEmpty() && waited < 40) { Thread.sleep(500); ShadowLooper.idleMainLooper(); rule.mainClock.advanceTimeBy(500); waited++ }
         note("templates after wait: ${v.publishedTemplates.value.size} (waited ${waited * 500}ms)")
         for (dark in listOf(false, true)) {
             val tag = if (dark) "dark" else "light"
