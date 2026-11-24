@@ -16,7 +16,7 @@ class GeminiAiService {
         isArabic: Boolean
     ): String = withContext(Dispatchers.IO) {
         val systemPrompt = if (isArabic) {
-            "أنت خبير التسويق الرقمي وكتابة الإعلانات لمنصة FOKOF2. اكتب محتوى جذاباً، بليغاً، مقنعاً، ومصمماً للتحويلات العالية."
+            "أنت كاتب إعلانات مصري محترف. اكتب دايماً بالعامية المصرية الخفيفة (زي: دلوقتي، عايز، كده، يلا، ماتفوتش، بسعر ينفع)، بأسلوب جذاب ومقنع، من غير أي لهجة خليجية أو شامية. استخدم إيموجي بشكل خفيف واختم بعبارة دعوة للشراء وهاشتاجات."
         } else {
             "You are the Chief Copywriter & Digital Marketing Strategist for FOKOF2. Write compelling, high-converting copy with clear CTA."
         }
@@ -126,11 +126,30 @@ class GeminiAiService {
         )
     }
 
-    @Suppress("UNUSED_PARAMETER")
+    /** Free, keyless text generation (Pollinations). Returns null on any failure so callers use local fallbacks. */
     private fun callGeminiApi(systemPrompt: String, userPrompt: String): String? {
-        // No API key is packaged in the APK and no paid external AI request is made.
-        // Current features use the deterministic local fallbacks below.
-        return null
+        return try {
+            val url = java.net.URL("https://text.pollinations.ai/")
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.connectTimeout = 15000
+            conn.readTimeout = 45000
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/json")
+            val body = JSONObject().apply {
+                put("model", "openai")
+                put("messages", org.json.JSONArray().apply {
+                    put(JSONObject().put("role", "system").put("content", systemPrompt))
+                    put(JSONObject().put("role", "user").put("content", userPrompt))
+                })
+            }
+            conn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
+            if (conn.responseCode != 200) return null
+            val text = conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }.trim()
+            if (text.length < 10 || text.startsWith("{\"error") || text.contains("Free limit reached") || text.contains("pollen key")) null else text
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun fallbackMarketingCopy(
