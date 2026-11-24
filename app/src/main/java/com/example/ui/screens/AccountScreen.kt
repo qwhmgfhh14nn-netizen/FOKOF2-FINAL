@@ -191,9 +191,12 @@ fun AccountScreen(
 
                         Spacer(modifier = Modifier.width(14.dp))
 
-                        Column {
+                        Column(modifier = Modifier.weight(1f, fill = false)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
+                                    modifier = Modifier.weight(1f, fill = false),
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                     text = currentUser.name,
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold,
@@ -210,6 +213,8 @@ fun AccountScreen(
                                     ) {
                                         Text(
                                             text = strings.guestBadge,
+                                            softWrap = false,
+                                            maxLines = 1,
                                             fontSize = 9.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -717,8 +722,8 @@ fun AccountScreen(
                         }
                     }
 
-                    // Secure Admin Dashboard Portal
-                    Card(
+                    // Secure Admin Dashboard Portal (visible to owner/admin accounts only)
+                    if (!currentUser.isGuest && (currentUser.role == "OWNER" || currentUser.role == "ADMIN")) Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(12.dp))

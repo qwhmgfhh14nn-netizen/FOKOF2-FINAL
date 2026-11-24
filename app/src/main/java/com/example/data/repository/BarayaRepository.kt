@@ -42,6 +42,8 @@ import com.example.data.model.WebsiteFeatureToggles
 import com.example.data.model.WebsiteItem
 import com.example.data.model.WebsiteTemplate
 import com.example.data.templates.BundlesData
+import com.example.data.templates.FreeTemplatesData
+import com.example.data.templates.ProTemplatesData
 import com.example.data.templates.WebsiteTemplatesData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -465,6 +467,12 @@ class BarayaRepository(context: Context) {
             categoryDao.insertAll(initialCategories)
         }
 
+        // 2. Seed the designed template library (50 free + 14 pro) when it is empty
+        if (templateDao.getTemplateCount() == 0) {
+            val seedTemplates = FreeTemplatesData.getTemplates() + ProTemplatesData.getTemplates()
+            templateDao.insertAll(seedTemplates.map { templateToEntity(it) })
+        }
+
         // 3. Seed Bundles if empty
         if (bundleDao.getBundleCount() == 0) {
             val defaultBundles = listOf(
@@ -637,7 +645,7 @@ class BarayaRepository(context: Context) {
             featureAvailabilityDao.insertAll(initialFeatures)
         }
         // Keep capability labels honest without changing owner-configured enable/disable statuses.
-        featureAvailabilityDao.updateFeatureTitle("AI_IMAGE", "معاينات تصميم محلية", "Local Design Previews")
+        featureAvailabilityDao.updateFeatureTitle("AI_IMAGE", "توليد الصور بالذكاء الاصطناعي", "AI Image Generation")
         featureAvailabilityDao.updateFeatureTitle("AI_COPYWRITER", "اقتراحات تسويقية محلية", "Local Marketing Suggestions")
         featureAvailabilityDao.updateFeatureTitle("AI_BRAND_KIT", "اقتراحات هوية محلية", "Local Brand Suggestions")
 

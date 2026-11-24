@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.components.AiDirectorChatDialog
 import com.example.ui.components.BarayaHeader
+import com.example.ui.components.FeatureOffPanel
 import com.example.ui.components.BundleBuyDialog
 import com.example.ui.components.TemplateBuyDialog
 import com.example.ui.components.TemplatePreviewDialog
@@ -148,6 +149,8 @@ fun BarayaApp(
     val qrSelectedWebsite by viewModel.qrSelectedWebsite.collectAsState()
 
     val strings = viewModel.strings
+    val blockedFeature = blockedFeatureFor(currentNav, allFeatures)
+    val shownNav = if (!isOwnerAuthenticated && blockedFeature != null) AppNavDestination.FEATURE_OFF else currentNav
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(toastMessage) {
@@ -205,7 +208,11 @@ fun BarayaApp(
                         }
 
                         Box(modifier = Modifier.weight(1f)) {
-                            when (currentNav) {
+                            when (shownNav) {
+                                AppNavDestination.FEATURE_OFF -> FeatureOffPanel(
+                                    feature = blockedFeature,
+                                    onBack = { viewModel.setDestination(AppNavDestination.HOME) }
+                                )
                                 // 1. Home – الرئيسية
                                 AppNavDestination.HOME -> {
                                     HomeScreen(

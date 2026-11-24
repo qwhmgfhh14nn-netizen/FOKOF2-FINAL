@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ai.GeminiAiService
+import com.example.data.remote.Fokof2AuthApi
 import com.example.data.local.PaymentEntity
 import com.example.data.local.UserEntity
 import com.example.data.model.BrandIdentityResult
@@ -64,7 +65,8 @@ enum class AppNavDestination {
     WEBSITES,
     WEBSITE_EDITOR,
     MOCKUP_STUDIO,
-    STORE_QR_STUDIO
+    STORE_QR_STUDIO,
+    FEATURE_OFF
 }
 
 data class GeneratedImageItem(
@@ -75,12 +77,14 @@ data class GeneratedImageItem(
     val timestamp: String,
     val isLocalHeroAsset: Boolean = false,
     val isBrandKitAsset: Boolean = false,
-    val isLogoAsset: Boolean = false
+    val isLogoAsset: Boolean = false,
+    val imageUrl: String? = null
 )
 
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
     private val aiService = GeminiAiService()
+    private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
     private val _currentNav = MutableStateFlow(AppNavDestination.HOME)
@@ -613,13 +617,26 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isOwnerAuthenticated.value = false
             repository.lockOwnerControl()
-            val result = repository.loginUser(email, password)
+            var result = repository.loginUser(email, password)
+            var remoteError: String? = null
+            if (result.isFailure) {
+                // Not found / wrong password on this device: try the online account (cloud login).
+                try {
+                    val remote = authApi.login(email, password)
+                    val mirrored = repository.registerUser(remote.name, remote.email, password, remote.phone)
+                    result = if (mirrored.isSuccess) mirrored else repository.loginUser(email, password)
+                } catch (e: java.io.IOException) {
+                    remoteError = if (_currentLanguage.value == AppLanguage.ARABIC) "تعذر الاتصال بالخادم. تحقق من الإنترنت." else "Could not reach the server. Check your internet."
+                } catch (e: Exception) {
+                    remoteError = e.message
+                }
+            }
             if (result.isSuccess) {
                 val user = result.getOrThrow()
                 showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "مرحباً بك مجدداً ${user.name}!" else "Welcome back, ${user.name}!")
                 onComplete(true, "")
             } else {
-                val err = result.exceptionOrNull()?.message ?: "فشل تسجيل الدخول"
+                val err = remoteError ?: result.exceptionOrNull()?.message ?: "فشل تسجيل الدخول"
                 onComplete(false, err)
             }
         }
@@ -636,6 +653,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isOwnerAuthenticated.value = false
             repository.lockOwnerControl()
+            var remoteFailure: String? = null
+            try {
+                authApi.register(name, email, password, phone)
+            } catch (e: java.io.IOException) {
+                // offline: keep going with a device-only account
+            } catch (e: Exception) {
+                remoteFailure = e.message ?: "تعذر إنشاء الحساب على الخادم"
+            }
+            if (remoteFailure != null) {
+                onComplete(false, remoteFailure)
+                return@launch
+            }
             val result = repository.registerUser(name, email, password, phone, bio)
             if (result.isSuccess) {
                 val user = result.getOrThrow()
@@ -651,6 +680,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     fun logout() {
         _isOwnerAuthenticated.value = false
         repository.lockOwnerControl()
+        viewModelScope.launch { try { authApi.logout() } catch (_: Exception) { } }
         repository.logout()
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تسجيل الخروج. أنت الآن في وضع الزائر." else "Logged out. You are now browsing as guest.")
     }
@@ -711,22 +741,37 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch {
             _isGeneratingImage.value = true
-            kotlinx.coroutines.delay(1600)
+            val ratio = _selectedAspectRatio.value
+            val (w, h) = when (ratio) {
+                "16:9" -> 1024 to 576
+                "9:16" -> 576 to 1024
+                "4:5" -> 816 to 1020
+                else -> 1024 to 1024
+            }
+            val fullPrompt = prompt + ", " + _selectedStyle.value + ", high quality"
+            val url = "https://image.pollinations.ai/prompt/" +
+                URLEncoder.encode(fullPrompt, "UTF-8").replace("+", "%20") +
+                "?width=" + w + "&height=" + h + "&nologo=true&seed=" + (System.currentTimeMillis() % 1000000)
             val newItem = GeneratedImageItem(
                 prompt = prompt,
                 style = _selectedStyle.value,
-                aspectRatio = _selectedAspectRatio.value,
+                aspectRatio = ratio,
                 timestamp = "الآن",
-                isLocalHeroAsset = _selectedStyle.value.contains("Cinematic", ignoreCase = true)
+                imageUrl = url
             )
             _generatedImages.value = listOf(newItem) + _generatedImages.value
             _isGeneratingImage.value = false
-            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم إنشاء معاينة شكلية محلية. لم يتم توليد صورة فعلية." else "Local preview created. No actual image was generated.")
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "جاري توليد الصورة بالذكاء الاصطناعي... قد تستغرق ثواني" else "Generating AI image... may take a few seconds")
         }
     }
 
     fun sendGeneratedImageToStudio(item: GeneratedImageItem) {
-        addTextElement(item.prompt.take(28))
+        if (!item.imageUrl.isNullOrBlank()) {
+            _canvasBgImageRes.value = null
+            _canvasBgImageUri.value = item.imageUrl
+        } else {
+            addTextElement(item.prompt.take(28))
+        }
         _currentNav.value = AppNavDestination.STUDIO
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في المرسم" else "Opened in Studio")
     }

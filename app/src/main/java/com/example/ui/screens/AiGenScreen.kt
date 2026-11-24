@@ -48,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.example.ui.GeneratedImageItem
 import com.example.ui.locale.TranslationStrings
 import com.example.ui.theme.CairoFontFamily
@@ -329,6 +331,8 @@ fun ArtworkCard(
                     .height(200.dp)
                     .background(Color(0xFF0F0F13))
             ) {
+                // placeholder drawn below; the real generated image loads on top
+                
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -358,6 +362,14 @@ fun ArtworkCard(
                             maxLines = 2
                         )
                     }
+                }
+                if (!item.imageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = item.imageUrl,
+                        contentDescription = item.prompt,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
 

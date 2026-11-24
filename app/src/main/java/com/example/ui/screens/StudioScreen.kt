@@ -281,6 +281,14 @@ fun StudioScreen(
                     .clickable { onSelectElement(null) }
             ) {
                 // If a real photographic background is configured, render it as background layer
+                if (canvasBgImageRes == null && !canvasBgImageUri.isNullOrBlank()) {
+                    coil.compose.AsyncImage(
+                        model = canvasBgImageUri,
+                        contentDescription = "Canvas Background Photo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
                 if (canvasBgImageRes != null) {
                     Image(
                         painter = painterResource(id = canvasBgImageRes),

@@ -254,8 +254,8 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             AiToolMiniCard(
-                title = "معاينة التصميم",
-                subtitle = "معاينات محلية مجانية",
+                title = "توليد الصور",
+                subtitle = "صور بالذكاء الاصطناعي مجانًا",
                 icon = Icons.Default.AutoAwesome,
                 onClick = { onNavigate(AppNavDestination.AI_IMAGE) },
                 modifier = Modifier.weight(1f)

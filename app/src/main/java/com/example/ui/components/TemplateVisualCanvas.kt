@@ -379,7 +379,7 @@ private fun SocialMediaCanvasLayout(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Baraya Creative",
+                            text = "FOKOF2",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = textColor,
