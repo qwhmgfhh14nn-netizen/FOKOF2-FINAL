@@ -115,6 +115,24 @@ class ScreenshotTourTest {
                 }
             }
         }
+        // Studio edit fidelity: select, move, duplicate, delete on a real template
+        try {
+            val t = v.publishedTemplates.value.first { it.aspectRatio == "9:16" }
+            rule.runOnUiThread { v.setDestination(AppNavDestination.STUDIO); v.loadTemplate(t) }
+            val n0 = v.canvasElements.value.size
+            val target = v.canvasElements.value.firstOrNull { it.type.name == "TEXT" } ?: v.canvasElements.value.first()
+            rule.runOnUiThread { v.selectElement(target.id) }
+            rule.runOnUiThread { v.updateElementById(target.id) { it.copy(x = it.x + 30f, y = it.y + 40f) } }
+            val moved = v.canvasElements.value.first { it.id == target.id }
+            if (moved.x != target.x + 30f) note("FAIL studio move did not apply")
+            rule.runOnUiThread { v.duplicateSelectedElement() }
+            if (v.canvasElements.value.size != n0 + 1) note("FAIL studio duplicate: ${'$'}n0 -> ${'$'}{v.canvasElements.value.size}")
+            shot("studio_after_duplicate")
+            rule.runOnUiThread { v.deleteSelectedElement() }
+            if (v.canvasElements.value.size != n0) note("FAIL studio delete: expected ${'$'}n0 got ${'$'}{v.canvasElements.value.size}")
+            shot("studio_after_delete")
+            note("studio_edit_check n0=${'$'}n0 ok")
+        } catch (t: Throwable) { note("FAIL studio edit: ${'$'}{t.message?.take(200)}") }
         // English UI pass
         try {
             rule.runOnUiThread { v.toggleLanguage() }
