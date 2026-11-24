@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ai.GeminiAiService
 import com.example.data.remote.Fokof2AuthApi
-import com.example.data.remote.Fokof2AuthApi
 import com.example.data.local.PaymentEntity
 import com.example.data.local.UserEntity
 import com.example.data.model.BrandIdentityResult
@@ -85,7 +84,6 @@ data class GeneratedImageItem(
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
     private val aiService = GeminiAiService()
-    private val authApi = Fokof2AuthApi(application)
     private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
