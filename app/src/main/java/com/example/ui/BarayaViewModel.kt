@@ -76,7 +76,8 @@ data class GeneratedImageItem(
     val timestamp: String,
     val isLocalHeroAsset: Boolean = false,
     val isBrandKitAsset: Boolean = false,
-    val isLogoAsset: Boolean = false
+    val isLogoAsset: Boolean = false,
+    val imageUrl: String? = null
 )
 
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
@@ -712,22 +713,37 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         }
         viewModelScope.launch {
             _isGeneratingImage.value = true
-            kotlinx.coroutines.delay(1600)
+            val ratio = _selectedAspectRatio.value
+            val (w, h) = when (ratio) {
+                "16:9" -> 1024 to 576
+                "9:16" -> 576 to 1024
+                "4:5" -> 816 to 1020
+                else -> 1024 to 1024
+            }
+            val fullPrompt = prompt + ", " + _selectedStyle.value + ", high quality"
+            val url = "https://image.pollinations.ai/prompt/" +
+                URLEncoder.encode(fullPrompt, "UTF-8").replace("+", "%20") +
+                "?width=" + w + "&height=" + h + "&nologo=true&seed=" + (System.currentTimeMillis() % 1000000)
             val newItem = GeneratedImageItem(
                 prompt = prompt,
                 style = _selectedStyle.value,
-                aspectRatio = _selectedAspectRatio.value,
+                aspectRatio = ratio,
                 timestamp = "الآن",
-                isLocalHeroAsset = _selectedStyle.value.contains("Cinematic", ignoreCase = true)
+                imageUrl = url
             )
             _generatedImages.value = listOf(newItem) + _generatedImages.value
             _isGeneratingImage.value = false
-            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم إنشاء معاينة شكلية محلية. لم يتم توليد صورة فعلية." else "Local preview created. No actual image was generated.")
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "جاري توليد الصورة بالذكاء الاصطناعي... قد تستغرق ثواني" else "Generating AI image... may take a few seconds")
         }
     }
 
     fun sendGeneratedImageToStudio(item: GeneratedImageItem) {
-        addTextElement(item.prompt.take(28))
+        if (!item.imageUrl.isNullOrBlank()) {
+            _canvasBgImageRes.value = null
+            _canvasBgImageUri.value = item.imageUrl
+        } else {
+            addTextElement(item.prompt.take(28))
+        }
         _currentNav.value = AppNavDestination.STUDIO
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في المرسم" else "Opened in Studio")
     }
