@@ -1,0 +1,69 @@
+name: Dev build (branch dev)
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dev-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply patch.tgz if present
+        run: |
+          if [ -f patch.tgz ]; then
+            tar -xzf patch.tgz
+            rm -f patch.tgz
+            git config user.name "FOKOF2 build"
+            git config user.email "actions@users.noreply.github.com"
+            git add -A
+            git commit -m "Apply patch" || true
+            git push origin HEAD:dev
+          fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Android SDK platform 36.1
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36.1" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.3.1
+
+      - name: Tests and debug APK
+        run: gradle --no-daemon --stacktrace --continue testDebugUnitTest assembleDebug
+
+      - name: Upload screenshots and reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-results
+          path: |
+            app/build/screenshots/
+            app/build/reports/tests/
+          if-no-files-found: warn
+
+      - name: Upload debug APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: ignore
