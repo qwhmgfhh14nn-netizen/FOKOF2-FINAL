@@ -66,6 +66,7 @@ import com.example.R
 import com.example.data.model.DesignTemplate
 import com.example.ui.AppNavDestination
 import com.example.ui.components.TemplateVisualCanvas
+import com.example.ui.components.TemplateThumb
 import com.example.ui.locale.TranslationStrings
 import com.example.ui.theme.CairoFontFamily
 import com.example.ui.theme.CinzelFontFamily
@@ -163,7 +164,7 @@ fun HomeScreen(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f))
+                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.28f))
                             )
                         )
                 )
@@ -536,17 +537,13 @@ fun HomeTemplateCard(
     ) {
         Column {
             // Visual Preview Thumbnail Box with Rich Graphic Canvas
-            Box(
+            TemplateThumb(
+                template = template,
+                maxHeight = 220.dp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(135.dp)
                     .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
                     .clickable { onPreview() }
             ) {
-                TemplateVisualCanvas(
-                    template = template,
-                    modifier = Modifier.fillMaxSize()
-                )
 
                 // Price Badge (Egyptian Pounds)
                 Box(

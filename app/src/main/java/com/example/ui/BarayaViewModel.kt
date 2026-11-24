@@ -516,6 +516,10 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun updateElementById(id: String, update: (CanvasElement) -> CanvasElement) {
+        _canvasElements.value = _canvasElements.value.map { if (it.id == id) update(it) else it }
+    }
+
     fun deleteSelectedElement() {
         val id = _selectedElementId.value ?: return
         _canvasElements.value = _canvasElements.value.filterNot { it.id == id }
@@ -573,6 +577,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _canvasBgImageRes.value = template.previewDrawableRes
         _canvasBgImageUri.value = template.imageUri
         _activeTemplateTitle.value = template.titleAr
+        _canvasAspectRatio.value = template.aspectRatio
         _selectedElementId.value = template.elements.firstOrNull()?.id
         _currentNav.value = AppNavDestination.STUDIO
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في المرسم" else "Project opened in Studio")

@@ -17,7 +17,7 @@ import org.robolectric.annotation.GraphicsMode
 import org.robolectric.shadows.ShadowLooper
 import java.io.File
 
-/** Review tour: saves a PNG of each screen (light and dark). It never fails the build. */
+/** Review tour: saves a PNG of each screen (light/dark, AR/EN, every aspect ratio) and FAILS on real errors. */
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34], qualifiers = "w411dp-h891dp-xxhdpi")
@@ -28,7 +28,8 @@ class ScreenshotTourTest {
     private val out = File("build/screenshots").also { it.mkdirs() }
     private val log = File(out, "log.txt")
 
-    private fun note(s: String) { log.appendText(s + "\n") }
+    private val failures = ArrayList<String>()
+    private fun note(s: String) { log.appendText(s + "\n"); if (s.startsWith("FAIL") || s.startsWith("FATAL")) failures += s }
 
     private fun settle() {
         repeat(6) {
@@ -55,6 +56,7 @@ class ScreenshotTourTest {
     @Test
     fun tour() {
         try { runTour() } catch (t: Throwable) { note("FATAL ${t.javaClass.simpleName}: ${t.message?.take(500)}") }
+        org.junit.Assert.assertTrue("Tour errors:\n" + failures.joinToString("\n"), failures.isEmpty())
     }
 
     private fun runTour() {
@@ -95,6 +97,29 @@ class ScreenshotTourTest {
             } catch (t: Throwable) {
                 note("FAIL preview: ${t.message?.take(200)}")
             }
+            // One template per aspect ratio: gallery preview + open in Studio
+            val tpls = v.publishedTemplates.value
+            if (tpls.size < 64) note("FAIL only ${tpls.size} templates published (expected 64)")
+            for (ratio in listOf("1:1", "4:5", "9:16", "16:9")) {
+                val t = tpls.firstOrNull { it.aspectRatio == ratio }
+                if (t == null) { note("FAIL no template with ratio $ratio"); continue }
+                try {
+                    rule.runOnUiThread { v.setDestination(AppNavDestination.TEMPLATES); v.setPreviewTemplate(t) }
+                    shot("${tag}_preview_${ratio.replace(":", "x")}")
+                    rule.runOnUiThread { v.setPreviewTemplate(null); v.loadTemplate(t); v.setDestination(AppNavDestination.STUDIO) }
+                    shot("${tag}_studio_${ratio.replace(":", "x")}")
+                } catch (t2: Throwable) {
+                    note("FAIL ratio $ratio: ${t2.message?.take(200)}")
+                }
+            }
         }
+        // English UI pass
+        try {
+            rule.runOnUiThread { v.toggleLanguage() }
+            for (d in listOf(AppNavDestination.HOME, AppNavDestination.TEMPLATES, AppNavDestination.STUDIO)) {
+                rule.runOnUiThread { v.setDestination(d) }
+                shot("en_${d.name}")
+            }
+        } catch (t: Throwable) { note("FAIL english pass: ${t.message?.take(200)}") }
     }
 }

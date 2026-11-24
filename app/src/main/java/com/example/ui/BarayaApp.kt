@@ -271,6 +271,7 @@ fun BarayaApp(
                                         onAddGraphicSticker = { viewModel.addGraphicSticker(it) },
                                         onSetCanvasBgPhoto = { resId, uri -> viewModel.setCanvasBgPhoto(resId, uri) },
                                         onUpdateElement = { viewModel.updateSelectedElement(it) },
+                                        onUpdateElementById = { id, f -> viewModel.updateElementById(id, f) },
                                         onDeleteElement = { viewModel.deleteSelectedElement() },
                                         onDuplicateElement = { viewModel.duplicateSelectedElement() },
                                         onClearCanvas = { viewModel.clearCanvas() },

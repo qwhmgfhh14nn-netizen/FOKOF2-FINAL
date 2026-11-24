@@ -88,6 +88,10 @@ import com.example.ui.theme.GoldBorder
 import com.example.ui.theme.GoldLight
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.util.parseColor
+import com.example.ui.components.DESIGN_W
+import com.example.ui.components.DesignBackground
+import com.example.ui.components.DesignLayer
+import com.example.ui.components.aspectRatioValue
 import kotlin.math.roundToInt
 
 @Composable
@@ -108,6 +112,7 @@ fun StudioScreen(
     onAddGraphicSticker: (String) -> Unit,
     onSetCanvasBgPhoto: (Int?, String?) -> Unit = { _, _ -> },
     onUpdateElement: ((CanvasElement) -> CanvasElement) -> Unit,
+    onUpdateElementById: (String, (CanvasElement) -> CanvasElement) -> Unit = { _, f -> onUpdateElement(f) },
     onDeleteElement: () -> Unit,
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
@@ -250,127 +255,54 @@ fun StudioScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // THE INTERACTIVE DESIGN CANVAS
-        val canvasRatio = when (canvasAspectRatio) {
-            "16:9" -> 16f / 9f
-            "9:16" -> 9f / 16f
-            "4:5" -> 4f / 5f
-            else -> 1f
-        }
+        // THE INTERACTIVE DESIGN CANVAS (same element renderer + design space as gallery/preview)
+        val canvasRatio = aspectRatioValue(canvasAspectRatio)
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(canvasRatio.coerceIn(0.7f, 1.6f))
-                .clip(RoundedCornerShape(16.dp))
-                .border(2.dp, GoldBorder, RoundedCornerShape(16.dp))
-                .testTag("interactive_design_canvas"),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
-            BoxWithConstraints(
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+            val maxCanvasH = 560.dp
+            val fullH = maxWidth / canvasRatio
+            val canvasH = if (fullH > maxCanvasH) maxCanvasH else fullH
+            val canvasW = canvasH * canvasRatio
+            val k = canvasW.value / DESIGN_W
+            Card(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                parseColor(bgStartHex, Color(0xFF0C0C10)),
-                                parseColor(bgEndHex, Color(0xFF1D1912))
-                            )
-                        )
-                    )
-                    .clickable { onSelectElement(null) }
+                    .size(canvasW, canvasH)
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(2.dp, GoldBorder, RoundedCornerShape(16.dp))
+                    .testTag("interactive_design_canvas"),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                // If a real photographic background is configured, render it as background layer
-                if (canvasBgImageRes == null && !canvasBgImageUri.isNullOrBlank()) {
-                    coil.compose.AsyncImage(
-                        model = canvasBgImageUri,
-                        contentDescription = "Canvas Background Photo",
+                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }) {
+                    DesignBackground(
+                        bgStartHex, bgEndHex, canvasBgImageUri, canvasBgImageRes,
+                        Modifier.fillMaxSize()
+                    )
+                    DesignLayer(
+                        elements = canvasElements,
+                        k = k,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-                if (canvasBgImageRes != null) {
-                    Image(
-                        painter = painterResource(id = canvasBgImageRes),
-                        contentDescription = "Canvas Background Photo",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                    // High-contrast Canva dark vignette overlay for headline & price readability
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        Color.Black.copy(alpha = 0.55f),
-                                        Color.Black.copy(alpha = 0.15f),
-                                        Color.Black.copy(alpha = 0.88f)
-                                    )
-                                )
-                            )
-                    )
-                }
-
-                // Render Canvas Elements
-                canvasElements.forEach { element ->
-                    val isSelected = element.id == selectedElementId
-
-                    Box(
-                        modifier = Modifier
-                            .offset {
-                                IntOffset(
-                                    element.x.roundToInt(),
-                                    element.y.roundToInt()
+                        selectedId = selectedElementId,
+                        onSelect = onSelectElement,
+                        onMove = { id, dx, dy ->
+                            onUpdateElementById(id) { cur ->
+                                cur.copy(
+                                    x = (cur.x + dx).coerceIn(0f, DESIGN_W),
+                                    y = (cur.y + dy).coerceIn(0f, DESIGN_W / canvasRatio)
                                 )
                             }
-                            .rotate(element.rotation)
-                            .scale(element.scale)
-                            .pointerInput(element.id) {
-                                detectDragGestures { change, dragAmount ->
-                                    change.consume()
-                                    onSelectElement(element.id)
-                                    onUpdateElement { current ->
-                                        current.copy(
-                                            x = (current.x + dragAmount.x).coerceIn(0f, 600f),
-                                            y = (current.y + dragAmount.y).coerceIn(0f, 600f)
-                                        )
-                                    }
-                                }
-                            }
-                            .clickable { onSelectElement(element.id) }
-                            .then(
-                                if (isSelected) {
-                                    Modifier
-                                        .border(
-                                            width = 1.5.dp,
-                                            color = GoldPrimary,
-                                            shape = RoundedCornerShape(6.dp)
-                                        )
-                                        .padding(4.dp)
-                                } else {
-                                    Modifier.padding(4.dp)
-                                }
+                        }
+                    )
+                    if (canvasElements.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = strings.selectElementPrompt,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    textAlign = TextAlign.Center
+                                ),
+                                modifier = Modifier.padding(24.dp)
                             )
-                    ) {
-                        RenderElement(element)
-                    }
-                }
-
-                // Empty canvas prompt
-                if (canvasElements.isEmpty()) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = strings.selectElementPrompt,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                textAlign = TextAlign.Center
-                            ),
-                            modifier = Modifier.padding(24.dp)
-                        )
+                        }
                     }
                 }
             }
