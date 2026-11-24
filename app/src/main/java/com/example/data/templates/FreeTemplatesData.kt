@@ -28,6 +28,7 @@ object FreeTemplatesData {
         // ---------------- 1. Social Media Posts (5) ----------------
         DesignTemplate(
             id = "free_social_01",
+            imageUri = "file:///android_asset/templates/art/free_social_01.webp",
             titleAr = "بوست ترحيبي لمتجر إلكتروني راقي",
             titleEn = "Luxury E-Commerce Welcome Post",
             category = "منشورات السوشيال ميديا",
@@ -48,6 +49,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_social_02",
+            imageUri = "file:///android_asset/templates/art/free_social_02.webp",
             titleAr = "اقتباس تحفيزي يومي بالخط العربي",
             titleEn = "Daily Motivational Quote Poster",
             category = "منشورات السوشيال ميديا",
@@ -67,6 +69,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_social_03",
+            imageUri = "file:///android_asset/templates/art/free_social_03.webp",
             titleAr = "إعلان حلقة بودكاست ومقابلة أسبوعية",
             titleEn = "Weekly Podcast Episode Announcement",
             category = "منشورات السوشيال ميديا",
@@ -86,6 +89,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_social_04",
+            imageUri = "file:///android_asset/templates/art/free_social_04.webp",
             titleAr = "نصيحة تسويقية سريعة للمصممين",
             titleEn = "Design Tips & Creative Hacks",
             category = "منشورات السوشيال ميديا",
@@ -105,6 +109,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_social_05",
+            imageUri = "file:///android_asset/templates/art/free_social_05.webp",
             titleAr = "سؤال واستفتاء تفاعلي للمتابعين",
             titleEn = "Interactive Community Q&A Poll",
             category = "منشورات السوشيال ميديا",
@@ -126,6 +131,7 @@ object FreeTemplatesData {
         // ---------------- 2. Advertisements (5) ----------------
         DesignTemplate(
             id = "free_ad_01",
+            imageUri = "file:///android_asset/templates/art/free_ad_01.webp",
             titleAr = "إعلان افتتاح فرع جديد بالقاهرة",
             titleEn = "Grand Opening Ad - New Cairo Branch",
             category = "الإعلانات الممولة",
@@ -146,6 +152,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_ad_02",
+            imageUri = "file:///android_asset/templates/art/free_ad_02.webp",
             titleAr = "إعلان دورة تدريبية في الذكاء الاصطناعي",
             titleEn = "AI & Modern Design Masterclass",
             category = "الإعلانات الممولة",
@@ -165,6 +172,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_ad_03",
+            imageUri = "file:///android_asset/templates/art/free_ad_03.webp",
             titleAr = "إعلان ترويجي لتطبيق توصيل سريع",
             titleEn = "Ultra-Fast Delivery App Campaign",
             category = "الإعلانات الممولة",
@@ -185,6 +193,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_ad_04",
+            imageUri = "file:///android_asset/templates/art/free_ad_04.webp",
             titleAr = "إعلان استشارات مالية وتطوير أعمال",
             titleEn = "Business Growth & Financial Advisory",
             category = "الإعلانات الممولة",
@@ -203,6 +212,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_ad_05",
+            imageUri = "file:///android_asset/templates/art/free_ad_05.webp",
             titleAr = "إعلان خدمات التسويق الرقمي وإدارة الحملات",
             titleEn = "Digital Marketing & Ads Management",
             category = "الإعلانات الممولة",
@@ -224,6 +234,7 @@ object FreeTemplatesData {
         // ---------------- 3. Logos (5) ----------------
         DesignTemplate(
             id = "free_logo_01",
+            imageUri = "file:///android_asset/templates/art/free_logo_01.webp",
             titleAr = "شعار ريادي عصري لشركة تقنية ناشئة",
             titleEn = "Modern Tech Monogram Logo",
             category = "الشعارات والهويات",
@@ -243,6 +254,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_logo_02",
+            imageUri = "file:///android_asset/templates/art/free_logo_02.webp",
             titleAr = "شعار خط عربي كلاسيكي لدار عطور",
             titleEn = "Royal Arabic Calligraphy Perfume Logo",
             category = "الشعارات والهويات",
@@ -261,6 +273,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_logo_03",
+            imageUri = "file:///android_asset/templates/art/free_logo_03.webp",
             titleAr = "شعار مقهى ومخبز حرفي عصري",
             titleEn = "Artisan Specialty Cafe & Bakery Logo",
             category = "الشعارات والهويات",
@@ -279,6 +292,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_logo_04",
+            imageUri = "file:///android_asset/templates/art/free_logo_04.webp",
             titleAr = "شعار استوديو معماري وتصميم داخلي",
             titleEn = "Minimal Architecture & Interior Logo",
             category = "الشعارات والهويات",
@@ -297,6 +311,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_logo_05",
+            imageUri = "file:///android_asset/templates/art/free_logo_05.webp",
             titleAr = "شعار عيادة صحية وتجميلية متخصصة",
             titleEn = "Medical & Aesthetic Wellness Clinic Logo",
             category = "الشعارات والهويات",
@@ -317,6 +332,7 @@ object FreeTemplatesData {
         // ---------------- 4. Business Cards (5) ----------------
         DesignTemplate(
             id = "free_card_01",
+            imageUri = "file:///android_asset/templates/art/free_card_01.webp",
             titleAr = "كارت شخصي تنفيذي للمدراء والاستشاريين",
             titleEn = "Executive Minimal Business Card",
             category = "كروت العمل الشخصية",
@@ -335,6 +351,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_card_02",
+            imageUri = "file:///android_asset/templates/art/free_card_02.webp",
             titleAr = "كارت مصمم ومطور ويب فريلانسر",
             titleEn = "Creative Freelancer Tech Card",
             category = "كروت العمل الشخصية",
@@ -353,6 +370,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_card_03",
+            imageUri = "file:///android_asset/templates/art/free_card_03.webp",
             titleAr = "كارت ذهبي فاخر للمجوهرات والعقارات",
             titleEn = "Luxury Gilded Real Estate Card",
             category = "كروت العمل الشخصية",
@@ -371,6 +389,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_card_04",
+            imageUri = "file:///android_asset/templates/art/free_card_04.webp",
             titleAr = "كارت طبي لعيادة أسنان تخصصية",
             titleEn = "Dental & Healthcare Modern Card",
             category = "كروت العمل الشخصية",
@@ -389,6 +408,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_card_05",
+            imageUri = "file:///android_asset/templates/art/free_card_05.webp",
             titleAr = "كارت محامي ومستشار قانوني معتمد",
             titleEn = "Legal Advisor & Corporate Law Card",
             category = "كروت العمل الشخصية",
@@ -409,6 +429,7 @@ object FreeTemplatesData {
         // ---------------- 5. Restaurant Menus (5) ----------------
         DesignTemplate(
             id = "free_menu_01",
+            imageUri = "file:///android_asset/templates/art/free_menu_01.webp",
             titleAr = "قائمة طعام مطعم شرقي ومشاوي فاخرة",
             titleEn = "Oriental Grill & Traditional Cuisine Menu",
             category = "قوائم طعام ومطاعم",
@@ -428,6 +449,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_menu_02",
+            imageUri = "file:///android_asset/templates/art/free_menu_02.webp",
             titleAr = "منيو مقهى ومشروبات ساخنة وعصائر",
             titleEn = "Specialty Coffee & Beverages Menu",
             category = "قوائم طعام ومطاعم",
@@ -447,6 +469,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_menu_03",
+            imageUri = "file:///android_asset/templates/art/free_menu_03.webp",
             titleAr = "إعلان برجر الفحم الملكي المشوي",
             titleEn = "Royal Charcoal Burger Restaurant Ad",
             category = "قوائم طعام ومطاعم",
@@ -534,6 +557,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_menu_04",
+            imageUri = "file:///android_asset/templates/art/free_menu_04.webp",
             titleAr = "قائمة حلويات شرقية وتورتات مناسبات",
             titleEn = "Patisserie & Wedding Cakes Menu",
             category = "قوائم طعام ومطاعم",
@@ -553,6 +577,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_menu_05",
+            imageUri = "file:///android_asset/templates/art/free_menu_05.webp",
             titleAr = "قائمة مأكولات بحرية وطواجن إسكندراني",
             titleEn = "Alexandria Seafood & Fresh Catch Menu",
             category = "قوائم طعام ومطاعم",
@@ -574,6 +599,7 @@ object FreeTemplatesData {
         // ---------------- 6. Banners (5) ----------------
         DesignTemplate(
             id = "free_banner_01",
+            imageUri = "file:///android_asset/templates/art/free_banner_01.webp",
             titleAr = "بانر مؤتمر تقني وملتقى المطورين",
             titleEn = "Tech Summit & Developer Meetup Banner",
             category = "بانرات ومطبوعات",
@@ -592,6 +618,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_banner_02",
+            imageUri = "file:///android_asset/templates/art/free_banner_02.webp",
             titleAr = "بانر رول أب لمعرض المنتجات المصرية",
             titleEn = "Egyptian Heritage Trade Fair Rollup",
             category = "بانرات ومطبوعات",
@@ -611,6 +638,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_banner_03",
+            imageUri = "file:///android_asset/templates/art/free_banner_03.webp",
             titleAr = "بانر إعلاني لموقع إلكتروني وحملة تسويقية",
             titleEn = "Digital Web Hero Banner Campaign",
             category = "بانرات ومطبوعات",
@@ -629,6 +657,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_banner_04",
+            imageUri = "file:///android_asset/templates/art/free_banner_04.webp",
             titleAr = "بانر ورشة عمل الفنون التشكيلية والخط",
             titleEn = "Calligraphy & Visual Arts Workshop Banner",
             category = "بانرات ومطبوعات",
@@ -647,6 +676,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_banner_05",
+            imageUri = "file:///android_asset/templates/art/free_banner_05.webp",
             titleAr = "بانر نادي رياضي وبطولة كرة قدم",
             titleEn = "Fitness Club & Champions League Banner",
             category = "بانرات ومطبوعات",
@@ -667,6 +697,7 @@ object FreeTemplatesData {
         // ---------------- 7. Sales and Discounts (5) ----------------
         DesignTemplate(
             id = "free_sale_01",
+            imageUri = "file:///android_asset/templates/art/free_sale_01.webp",
             titleAr = "بوستر تخفيضات الجمعة البيضاء 50%",
             titleEn = "White Friday Mega Sale Poster",
             category = "عروض وتخفيضات",
@@ -687,6 +718,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_sale_02",
+            imageUri = "file:///android_asset/templates/art/free_sale_02.webp",
             titleAr = "عرض تصفيات نهاية الموسم الصيفي",
             titleEn = "Summer Clearance Final Countdown",
             category = "عروض وتخفيضات",
@@ -706,6 +738,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_sale_03",
+            imageUri = "file:///android_asset/templates/art/free_sale_03.webp",
             titleAr = "عرض اشتري واحد واحصل على الثاني مجاناً",
             titleEn = "Buy 1 Get 1 Free Promo Post",
             category = "عروض وتخفيضات",
@@ -725,6 +758,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_sale_04",
+            imageUri = "file:///android_asset/templates/art/free_sale_04.webp",
             titleAr = "فلاش سيل لمدة 24 ساعة فقط",
             titleEn = "24-Hour Flash Sale Mega Offer",
             category = "عروض وتخفيضات",
@@ -744,6 +778,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_sale_05",
+            imageUri = "file:///android_asset/templates/art/free_sale_05.webp",
             titleAr = "خصم حصري لحاملي بطاقات البنك الأهلي",
             titleEn = "Bank Card Exclusive Cashback Discount",
             category = "عروض وتخفيضات",
@@ -765,6 +800,7 @@ object FreeTemplatesData {
         // ---------------- 8. Invitations (5) ----------------
         DesignTemplate(
             id = "free_invite_01",
+            imageUri = "file:///android_asset/templates/art/free_invite_01.webp",
             titleAr = "بطاقة دعوة زفاف ملكية راقية بالخط الذهبي",
             titleEn = "Royal Wedding Gold Foliage Invitation",
             category = "دعوات ومناسبات",
@@ -785,6 +821,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_invite_02",
+            imageUri = "file:///android_asset/templates/art/free_invite_02.webp",
             titleAr = "دعوة حفل تخرج وتكريم أوائل الطلبة",
             titleEn = "Academic Graduation & Honor Ceremony",
             category = "دعوات ومناسبات",
@@ -804,6 +841,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_invite_03",
+            imageUri = "file:///android_asset/templates/art/free_invite_03.webp",
             titleAr = "بطاقة تهنئة عيد الفطر والأعياد المباركة",
             titleEn = "Eid Mubarak Luxury Floral Greeting",
             category = "دعوات ومناسبات",
@@ -823,6 +861,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_invite_04",
+            imageUri = "file:///android_asset/templates/art/free_invite_04.webp",
             titleAr = "دعوة عشاء عمل واستقبال شخصيات عامة",
             titleEn = "VIP Corporate Gala Dinner Invitation",
             category = "دعوات ومناسبات",
@@ -842,6 +881,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_invite_05",
+            imageUri = "file:///android_asset/templates/art/free_invite_05.webp",
             titleAr = "بطاقة عقيقة ومولود جديد بتصميم هادئ",
             titleEn = "Baby Shower & Welcome Newborn Card",
             category = "دعوات ومناسبات",
@@ -863,6 +903,7 @@ object FreeTemplatesData {
         // ---------------- 9. CV Templates (5) ----------------
         DesignTemplate(
             id = "free_cv_01",
+            imageUri = "file:///android_asset/templates/art/free_cv_01.webp",
             titleAr = "سيرة ذاتية عصرية لمهندسي البرمجيات",
             titleEn = "Modern Software Engineer ATS Resume",
             category = "سير ذاتية احترافية",
@@ -882,6 +923,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_cv_02",
+            imageUri = "file:///android_asset/templates/art/free_cv_02.webp",
             titleAr = "سيرة ذاتية إبداعية لمصممي الجرافيك والـ UI",
             titleEn = "Creative Graphic & UI/UX Designer CV",
             category = "سير ذاتية احترافية",
@@ -901,6 +943,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_cv_03",
+            imageUri = "file:///android_asset/templates/art/free_cv_03.webp",
             titleAr = "سيرة ذاتية تنفيذية لمدراء المبيعات والتسويق",
             titleEn = "Executive Sales & Marketing Director CV",
             category = "سير ذاتية احترافية",
@@ -920,6 +963,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_cv_04",
+            imageUri = "file:///android_asset/templates/art/free_cv_04.webp",
             titleAr = "سيرة ذاتية أكاديمية للأطباء والباحثين",
             titleEn = "Medical Doctor & Academic Researcher CV",
             category = "سير ذاتية احترافية",
@@ -939,6 +983,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_cv_05",
+            imageUri = "file:///android_asset/templates/art/free_cv_05.webp",
             titleAr = "سيرة ذاتية حديث التخرج لجميع التخصصات",
             titleEn = "Fresh Graduate Entry-Level Clean CV",
             category = "سير ذاتية احترافية",
@@ -960,6 +1005,7 @@ object FreeTemplatesData {
         // ---------------- 10. Product Advertisements (5) ----------------
         DesignTemplate(
             id = "free_product_01",
+            imageUri = "file:///android_asset/templates/art/free_product_01.webp",
             titleAr = "إعلان ساعة يد سويسرية فاخرة",
             titleEn = "Luxury Chronograph Watch Ad",
             category = "إعلانات المنتجات التجارية",
@@ -979,6 +1025,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_product_02",
+            imageUri = "file:///android_asset/templates/art/free_product_02.webp",
             titleAr = "إعلان عطر شرقي وبخور ملكي",
             titleEn = "Royal Amber & Oud Perfume Campaign",
             category = "إعلانات المنتجات التجارية",
@@ -998,6 +1045,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_product_03",
+            imageUri = "file:///android_asset/templates/art/free_product_03.webp",
             titleAr = "إعلان هاتف ذكي وسماعات لاسلكية",
             titleEn = "Wireless Earbuds & Tech Flagship Ad",
             category = "إعلانات المنتجات التجارية",
@@ -1017,6 +1065,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_product_04",
+            imageUri = "file:///android_asset/templates/art/free_product_04.webp",
             titleAr = "إعلان مستحضرات عناية طبيعية بالبشرة",
             titleEn = "Organic Skincare & Glow Serum Poster",
             category = "إعلانات المنتجات التجارية",
@@ -1036,6 +1085,7 @@ object FreeTemplatesData {
         ),
         DesignTemplate(
             id = "free_product_05",
+            imageUri = "file:///android_asset/templates/art/free_product_05.webp",
             titleAr = "إعلان حذاء رياضي كوتشي كاجوال عصري",
             titleEn = "Urban Athletic Sneakers Poster",
             category = "إعلانات المنتجات التجارية",

@@ -123,15 +123,18 @@ fun TemplateVisualCanvas(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
+            // Palette-matched scrim: keeps each template's color identity while
+            // guaranteeing the same text contrast direction as the gradient design
+            // (light palette = light scrim for dark text, dark palette = dark scrim).
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                Color.Black.copy(alpha = 0.55f),
-                                Color.Black.copy(alpha = 0.15f),
-                                Color.Black.copy(alpha = 0.88f)
+                                bgStart.copy(alpha = 0.62f),
+                                bgStart.copy(alpha = 0.18f),
+                                bgEnd.copy(alpha = 0.88f)
                             )
                         )
                     )

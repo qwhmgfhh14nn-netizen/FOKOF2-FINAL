@@ -20,6 +20,7 @@ object ProTemplatesData {
         // ----------- BASIC TIER (5 EGP) -----------
         DesignTemplate(
             id = "pro_basic_01",
+            imageUri = "file:///android_asset/templates/art/pro_basic_01.webp",
             titleAr = "شعار مونوغرام هندسي مينيمال",
             titleEn = "Geometric Minimal Monogram Logo",
             category = "الشعارات والهويات",
@@ -39,6 +40,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_basic_02",
+            imageUri = "file:///android_asset/templates/art/pro_basic_02.webp",
             titleAr = "بوست سوشيال ميديا ترويجي بخصم ذهبي",
             titleEn = "Golden Glow Discount Social Post",
             category = "منشورات السوشيال ميديا",
@@ -59,6 +61,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_basic_03",
+            imageUri = "file:///android_asset/templates/art/pro_basic_03.webp",
             titleAr = "كارت شخصي مودرن كيو آر كود",
             titleEn = "Modern QR Code Digital Business Card",
             category = "كروت العمل الشخصية",
@@ -78,6 +81,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_basic_04",
+            imageUri = "file:///android_asset/templates/art/pro_basic_04.webp",
             titleAr = "إعلان ستوري تفاعلي عروض السفر والسياحة",
             titleEn = "Travel Agency Story & Reel Ad",
             category = "الإعلانات الممولة",
@@ -100,6 +104,7 @@ object ProTemplatesData {
         // ----------- PROFESSIONAL TIER (10 EGP) -----------
         DesignTemplate(
             id = "pro_prof_01",
+            imageUri = "file:///android_asset/templates/art/pro_prof_01.webp",
             titleAr = "شعار الصقر الملكي الذهبي الفاخر",
             titleEn = "Royal Golden Falcon Logo",
             category = "الشعارات والهويات",
@@ -120,6 +125,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_prof_02",
+            imageUri = "file:///android_asset/templates/art/pro_prof_02.webp",
             titleAr = "قائمة طعام ستيك ومشاوي فاخرة",
             titleEn = "Prime Steakhouse & Grill Dinner Menu",
             category = "قوائم طعام ومطاعم",
@@ -140,6 +146,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_prof_03",
+            imageUri = "file:///android_asset/templates/art/pro_prof_03.webp",
             titleAr = "سيرة ذاتية ثنائية اللغة للمهندسين والمطورين",
             titleEn = "Bilingual Executive Engineering CV",
             category = "سير ذاتية احترافية",
@@ -160,6 +167,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_prof_04",
+            imageUri = "file:///android_asset/templates/art/pro_prof_04.webp",
             titleAr = "إعلان مبيعات عقارات كمبوند راقي بالقاهرة",
             titleEn = "Luxury Real Estate Compound Ad",
             category = "الإعلانات الممولة",
@@ -182,6 +190,7 @@ object ProTemplatesData {
         // ----------- PREMIUM TIER (15 EGP) -----------
         DesignTemplate(
             id = "pro_prem_01",
+            imageUri = "file:///android_asset/templates/art/pro_prem_01.webp",
             titleAr = "شهادة شكر وتقدير رسمية ذهبية معتمدة",
             titleEn = "Official Golden Award Certificate",
             category = "بانرات ومطبوعات",
@@ -201,6 +210,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_prem_02",
+            imageUri = "file:///android_asset/templates/art/pro_prem_02.webp",
             titleAr = "حزمة هوية بصرية متكاملة لعيادة تجميل",
             titleEn = "Cosmetics & Aesthetics Clinic Brand Kit",
             category = "الشعارات والهويات",
@@ -221,6 +231,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_prem_03",
+            imageUri = "file:///android_asset/templates/art/pro_prem_03.webp",
             titleAr = "إعلان فيديو تشويقي إطلاق منتج فاخر",
             titleEn = "Luxury Product Launch Cinematic Teaser",
             category = "إعلانات المنتجات التجارية",
@@ -243,6 +254,7 @@ object ProTemplatesData {
         // ----------- EXCLUSIVE TIER (20 EGP) -----------
         DesignTemplate(
             id = "pro_excl_01",
+            imageUri = "file:///android_asset/templates/art/pro_excl_01.webp",
             titleAr = "الهوية التجارية الملكية الكاملة لمجموعة النخبة",
             titleEn = "FOKOF2 Ultra Exclusive Enterprise Identity",
             category = "الشعارات والهويات",
@@ -263,6 +275,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_excl_02",
+            imageUri = "file:///android_asset/templates/art/pro_excl_02.webp",
             titleAr = "حزمة حملة تسويقية 360 متكاملة للشركات الكبرى",
             titleEn = "360 Enterprise Marketing Campaign Kit",
             category = "الإعلانات الممولة",
@@ -282,6 +295,7 @@ object ProTemplatesData {
         ),
         DesignTemplate(
             id = "pro_excl_03",
+            imageUri = "file:///android_asset/templates/art/pro_excl_03.webp",
             titleAr = "دعوة زفاف إلكترونية تفاعلية VIP لكبار الشخصيات",
             titleEn = "VIP Interactive Royal Wedding Invitation",
             category = "دعوات ومناسبات",
