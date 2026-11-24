@@ -42,6 +42,8 @@ import com.example.data.model.WebsiteFeatureToggles
 import com.example.data.model.WebsiteItem
 import com.example.data.model.WebsiteTemplate
 import com.example.data.templates.BundlesData
+import com.example.data.templates.FreeTemplatesData
+import com.example.data.templates.ProTemplatesData
 import com.example.data.templates.WebsiteTemplatesData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -463,6 +465,12 @@ class BarayaRepository(context: Context) {
                 CategoryEntity("cat_other", "أخرى ومتنوعة", "Other categories", "more_horiz", 9, true)
             )
             categoryDao.insertAll(initialCategories)
+        }
+
+        // 2. Seed the designed template library (50 free + 14 pro) when it is empty
+        if (templateDao.getTemplateCount() == 0) {
+            val seedTemplates = FreeTemplatesData.getTemplates() + ProTemplatesData.getTemplates()
+            templateDao.insertAll(seedTemplates.map { templateToEntity(it) })
         }
 
         // 3. Seed Bundles if empty

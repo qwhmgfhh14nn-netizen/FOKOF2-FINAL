@@ -85,19 +85,7 @@ fun TemplatesScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("ALL") }
 
-    val dynamicCategories = if (categories.isNotEmpty()) {
-        categories.map { it.nameAr to it.nameAr }
-    } else {
-        listOf(
-            "مطاعم ومأكولات" to "مطاعم ومأكولات",
-            "أزياء وجمال" to "أزياء وجمال",
-            "سيارات ومحركات" to "سيارات ومحركات",
-            "عقارات وإنشاءات" to "عقارات وإنشاءات",
-            "سوشيال ميديا" to "سوشيال ميديا",
-            "أعمال وتسويق" to "أعمال وتسويق",
-            "مناسبات واحتفالات" to "مناسبات واحتفالات"
-        )
-    }
+    val dynamicCategories = templates.map { it.category }.filter { it.isNotBlank() }.distinct().map { it to it }
 
     val filterOptions = listOf(
         "ALL" to strings.filterAll,
