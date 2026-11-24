@@ -70,8 +70,10 @@ class ScreenshotTourTest {
         settle()
         val v = vm!!
         var waited = 0
-        while (v.publishedTemplates.value.isEmpty() && waited < 40) { Thread.sleep(500); ShadowLooper.idleMainLooper(); rule.mainClock.advanceTimeBy(500); waited++ }
-        note("templates after wait: ${v.publishedTemplates.value.size} (waited ${waited * 500}ms)")
+        val t0 = System.currentTimeMillis()
+        while (v.publishedTemplates.value.size < 64 && waited < 240) { Thread.sleep(250); ShadowLooper.idleMainLooper(); rule.mainClock.advanceTimeBy(250); waited++ }
+        note("STARTUP_TEMPLATES_READY_MS=${System.currentTimeMillis() - t0} count=${v.publishedTemplates.value.size}")
+        if (v.publishedTemplates.value.size < 64) note("FAIL templates not ready: ${v.publishedTemplates.value.size}/64")
         for (dark in listOf(false, true)) {
             val tag = if (dark) "dark" else "light"
             if (v.isDarkTheme.value != dark) { rule.runOnUiThread { v.toggleTheme() } }

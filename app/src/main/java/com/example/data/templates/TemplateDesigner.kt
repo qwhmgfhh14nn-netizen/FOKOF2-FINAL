@@ -58,18 +58,18 @@ object TemplateDesigner {
         val ymin = (ys.minOrNull() ?: 0f)
         val ymax = (ys.maxOrNull() ?: 0f)
         val span = max(ymax - ymin, 1f)
-        val rh = min(h * 0.52f, 250f).coerceAtLeast(110f)
+        val rh = min(h * 0.40f, 175f).coerceAtLeast(84f)
         val centre = when (arch) {
             2 -> h - 22f - rh / 2f
             3 -> h * 0.58f
             4 -> h * 0.42f
             5 -> h * 0.62f
             else -> h * 0.5f
-        }.coerceIn(rh / 2f + 36f, h - rh / 2f - 22f)
+        }.coerceIn(rh / 2f + 30f, h - rh / 2f - 20f)
         val top = centre - rh / 2f
         val bottom = centre + rh / 2f
-        val pTop = (top - 26f).coerceAtLeast(10f)
-        val pBottom = if (arch == 2) h else (bottom + 26f).coerceAtMost(h - 10f)
+        val pTop = (top - 20f).coerceAtLeast(10f)
+        val pBottom = if (arch == 2) h else (bottom + 20f).coerceAtMost(h - 10f)
         val pH = pBottom - pTop
         val pMid = (pTop + pBottom) / 2f
 
@@ -88,24 +88,24 @@ object TemplateDesigner {
                 deco += shape(ShapeType.RECTANGLE, w / 2, h - g, w - 2 * g, th, accent, 0.95f)
                 deco += shape(ShapeType.RECTANGLE, g, h / 2, th, h - 2 * g, accent, 0.95f)
                 deco += shape(ShapeType.RECTANGLE, w - g, h / 2, th, h - 2 * g, accent, 0.95f)
-                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 300f, pH, panel, 0.74f)
+                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 300f, pH, panel, 0.66f)
             }
             1 -> { // corner circles + centre card
                 deco += shape(ShapeType.CIRCLE, w - 20f, 10f, 190f, 190f, accent, 0.38f)
                 deco += shape(ShapeType.CIRCLE, 20f, h - 10f, 170f, 170f, soft, 0.28f)
-                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 316f, pH, panel, 0.8f)
+                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 316f, pH, panel, 0.68f)
             }
             2 -> { // bottom band
-                deco += shape(ShapeType.RECTANGLE, w / 2, pMid, w, pH, panel, 0.88f)
+                deco += shape(ShapeType.RECTANGLE, w / 2, pMid, w, pH, panel, 0.8f)
                 deco += shape(ShapeType.RECTANGLE, w / 2, pTop, w, 4f, accent, 1f)
             }
             3 -> { // side bar + card
-                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 304f, pH, panel, 0.8f)
+                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 304f, pH, panel, 0.68f)
                 deco += shape(ShapeType.RECTANGLE, 32f, pMid, 5f, pH - 30f, accent, 1f)
                 deco += shape(ShapeType.CIRCLE, 32f, pTop + 12f, 14f, 14f, accent, 1f)
             }
             4 -> { // centre card + diamond
-                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 316f, pH, panel, 0.82f)
+                deco += shape(ShapeType.ROUNDED_RECT, w / 2, pMid, 316f, pH, panel, 0.7f)
                 deco += shape(ShapeType.DIAMOND, w / 2, pTop, 20f, 20f, accent, 1f)
                 deco += shape(ShapeType.DIAMOND, w / 2, pBottom, 20f, 20f, accent, 1f)
             }
@@ -116,8 +116,8 @@ object TemplateDesigner {
         }
         // stars above the text area, placed differently per template
         val sx = 40f + (seed % 5) * 62f
-        deco += shape(ShapeType.STAR, sx, max(26f, pTop - 6f), 18f, 18f, accent, 0.95f)
-        deco += shape(ShapeType.STAR, w - sx, max(40f, pTop - 22f), 12f, 12f, accent, 0.8f)
+        deco += shape(ShapeType.STAR, sx, max(26f, pTop - 6f), 18f, 18f, "#F5D77A", 0.95f)
+        deco += shape(ShapeType.STAR, w - sx, max(40f, pTop - 22f), 12f, 12f, "#FFFFFF", 0.85f)
 
         val mapped = t.elements.map { e ->
             val ny = top + rh * ((e.y - ymin) / span)
