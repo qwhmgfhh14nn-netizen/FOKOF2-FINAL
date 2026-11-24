@@ -76,7 +76,7 @@ fun TemplateVisualCanvas(
     val isLightBg = isColorLight(bgStart) || isColorLight(bgEnd) || ((startLum + endLum) / 2f > 0.45f)
 
     val primaryTextColor = if (isLightBg) Color(0xFF0F172A) else Color(0xFFFFFFFF)
-    val secondaryTextColor = if (isLightBg) Color(0xFF334155) else Color(0xFFF1F5F9).copy(alpha = 0.9f)
+    val secondaryTextColor = if (isLightBg) Color(0xFF0F172A) else Color(0xFFFFFFFF)
     val goldAccent = if (isLightBg) Color(0xFFB45309) else Color(0xFFFDE047)
     val subtleContainerBg = if (isLightBg) Color(0xFF0F172A).copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.22f)
     val subtleContainerBorder = if (isLightBg) Color(0xFF0F172A).copy(alpha = 0.12f) else Color.White.copy(alpha = 0.2f)
@@ -132,8 +132,8 @@ fun TemplateVisualCanvas(
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                bgStart.copy(alpha = 0.62f),
-                                bgStart.copy(alpha = 0.18f),
+                                bgStart.copy(alpha = 0.70f),
+                                bgStart.copy(alpha = 0.40f),
                                 bgEnd.copy(alpha = 0.88f)
                             )
                         )
@@ -358,7 +358,7 @@ private fun SocialMediaCanvasLayout(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(12.dp),
+            .padding(start = 12.dp, end = 12.dp, bottom = 12.dp, top = 34.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         // Top Social Header
