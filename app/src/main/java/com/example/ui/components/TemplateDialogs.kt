@@ -126,18 +126,13 @@ fun TemplatePreviewDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Visual Graphic Canvas Preview
-                Box(
+                TemplateThumb(
+                    template = template,
+                    maxHeight = 380.dp,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .border(1.5.dp, GoldBorder, RoundedCornerShape(12.dp))
-                ) {
-                    TemplateVisualCanvas(
-                        template = template,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                )
 
                 // Metadata Details
                 Card(

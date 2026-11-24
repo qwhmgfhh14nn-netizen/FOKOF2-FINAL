@@ -66,6 +66,7 @@ import com.example.R
 import com.example.data.model.DesignTemplate
 import com.example.ui.AppNavDestination
 import com.example.ui.components.TemplateVisualCanvas
+import com.example.ui.components.TemplateThumb
 import com.example.ui.locale.TranslationStrings
 import com.example.ui.theme.CairoFontFamily
 import com.example.ui.theme.CinzelFontFamily
@@ -145,35 +146,18 @@ fun HomeScreen(
                 .testTag("featured_offer_banner"),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(190.dp)
+                    .background(Brush.horizontalGradient(listOf(Color(0xFFFFFDF7), Color(0xFFF6EBCB))))
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.hero_baraya),
-                    contentDescription = "Baraya Hero",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Dark Gradient Scrim
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f))
-                            )
-                        )
-                )
-
-                // Banner Overlay Copy & CTA
                 Column(
                     modifier = Modifier
+                        .weight(1.05f)
                         .fillMaxSize()
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.Bottom
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Box(
                         modifier = Modifier
@@ -188,13 +172,11 @@ fun HomeScreen(
                             color = Color(0xFF101014)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = strings.featuredOffersTitle,
                         style = MaterialTheme.typography.titleMedium.copy(
-                            color = Color.White,
+                            color = Color(0xFF2B2417),
                             fontWeight = FontWeight.Bold,
                             fontFamily = CairoFontFamily
                         )
@@ -202,35 +184,63 @@ fun HomeScreen(
                     Text(
                         text = strings.featuredOffersSubtitle,
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = GoldLight,
+                            color = Color(0xFF7A5C0A),
                             fontSize = 11.sp
                         ),
-                        maxLines = 1
+                        maxLines = 2
                     )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(
-                            onClick = { onNavigate(AppNavDestination.TEMPLATES) },
-                            colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            modifier = Modifier.height(34.dp)
-                        ) {
-                            Text(
-                                text = "تصفح العروض الآن",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF101014)
-                            )
-                        }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = { onNavigate(AppNavDestination.TEMPLATES) },
+                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(
+                            text = "تصفح العروض الآن",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF101014)
+                        )
                     }
                 }
+                Image(
+                    painter = painterResource(id = R.drawable.hero_baraya),
+                    contentDescription = "FOKOF2 Hero",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                )
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+
+        // Featured templates (owner-featured first, then top free ones)
+        val featuredList = (templates.filter { it.isFeatured } + freeTemplates).distinctBy { it.id }.take(8)
+        if (featuredList.isNotEmpty()) {
+            Text(
+                text = "قوالب مميزة",
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(featuredList) { tpl ->
+                    HomeTemplateCard(
+                        template = tpl,
+                        strings = strings,
+                        isFavorite = favoriteIds.contains(tpl.id),
+                        onPreview = { onPreviewTemplate(tpl) },
+                        onUse = { onUseTemplate(tpl) },
+                        onBuy = { onBuyTemplate(tpl) },
+                        onToggleFavorite = { onToggleFavorite(tpl.id) }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
         // AI Tools Section
         Row(
@@ -536,17 +546,13 @@ fun HomeTemplateCard(
     ) {
         Column {
             // Visual Preview Thumbnail Box with Rich Graphic Canvas
-            Box(
+            TemplateThumb(
+                template = template,
+                maxHeight = 220.dp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(135.dp)
                     .clip(RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp))
                     .clickable { onPreview() }
             ) {
-                TemplateVisualCanvas(
-                    template = template,
-                    modifier = Modifier.fillMaxSize()
-                )
 
                 // Price Badge (Egyptian Pounds)
                 Box(

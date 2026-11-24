@@ -126,6 +126,18 @@ class GeminiAiService {
         )
     }
 
+    /** Brand name ideas (Egyptian/Arabic friendly). Free text AI first, local list as fallback. */
+    suspend fun suggestBrandNames(industry: String, keywords: String): List<String> = withContext(Dispatchers.IO) {
+        val sys = "أنت خبير تسمية علامات تجارية مصري. اقترح أسماء قصيرة وسهلة النطق ومناسبة للسوق المصري والعربي."
+        val user = "اقترح 8 أسماء لعلامة تجارية في مجال ($industry) والكلمات المفتاحية ($keywords). اكتب كل اسم في سطر منفصل بدون ترقيم أو شرح."
+        val remote = callGeminiApi(sys, user)
+        val parsed = remote?.lines()?.map { it.trim().trimStart('-', '*', '•', ' ').replace(Regex("^[0-9٠-٩]+[.)-]\\s*"), "").trim() }
+            ?.filter { it.isNotBlank() && it.length <= 30 }?.take(8).orEmpty()
+        if (parsed.size >= 4) return@withContext parsed
+        val base = keywords.trim().ifBlank { industry.trim() }.ifBlank { "براند" }
+        listOf("$base بلس", "لمسة $base", "$base هاوس", "دار $base", "$base ستوديو", "نجمة $base", "$base برو", "ركن $base")
+    }
+
     /** Free, keyless text generation (Pollinations). Returns null on any failure so callers use local fallbacks. */
     private fun callGeminiApi(systemPrompt: String, userPrompt: String): String? {
         return try {

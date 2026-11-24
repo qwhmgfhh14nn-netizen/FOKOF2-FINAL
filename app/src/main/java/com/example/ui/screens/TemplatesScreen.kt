@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.ui.components.TemplateVisualCanvas
+import com.example.ui.components.TemplateThumb
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Edit
@@ -411,18 +412,13 @@ fun TemplateDetailedCard(
     ) {
         Column {
             // Visual Preview Block with Rich Graphic Canvas
-            Box(
+            TemplateThumb(
+                template = template,
+                maxHeight = 340.dp,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(175.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .clickable { onPreview() }
             ) {
-                // Rich graphical category-specific canvas
-                TemplateVisualCanvas(
-                    template = template,
-                    modifier = Modifier.fillMaxSize()
-                )
 
                 // Price Badge (EGP)
                 Box(

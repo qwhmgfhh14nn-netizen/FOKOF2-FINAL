@@ -64,6 +64,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
+private const val DEFAULT_TEMPLATES_VERSION = 3
+
 class BarayaRepository(context: Context) {
     private val database = AppDatabase.getDatabase(context)
     private val userDao = database.userDao()
@@ -448,6 +450,38 @@ class BarayaRepository(context: Context) {
         ensureTemplatesInitializedInternal()
     }
 
+    /**
+     * Guarantees the 50 free + 14 pro default templates exist and are current, also on upgrades from
+     * older builds. Owner-created templates, purchases and user data are never touched; for existing
+     * defaults only the design content is refreshed (price/publish/featured state stays as the owner set it).
+     */
+    private suspend fun syncDefaultTemplates() {
+        val seeds = (FreeTemplatesData.getTemplates() + ProTemplatesData.getTemplates())
+            .map { com.example.data.templates.TemplateDesigner.enrich(it) }
+        val syncedVersion = prefs.getInt("default_templates_version", 0)
+        val toWrite = ArrayList<TemplateEntity>()
+        for (seed in seeds) {
+            val existing = templateDao.getTemplateById(seed.id)
+            val fresh = templateToEntity(seed)
+            if (existing == null) {
+                toWrite += fresh
+            } else if (syncedVersion < DEFAULT_TEMPLATES_VERSION) {
+                toWrite += fresh.copy(
+                    priceEgp = existing.priceEgp,
+                    isPublished = existing.isPublished,
+                    isFeatured = existing.isFeatured,
+                    status = existing.status,
+                    rating = existing.rating,
+                    salesCount = existing.salesCount
+                )
+            }
+        }
+        if (toWrite.isNotEmpty()) templateDao.insertAll(toWrite)
+        if (syncedVersion < DEFAULT_TEMPLATES_VERSION) {
+            prefs.edit().putInt("default_templates_version", DEFAULT_TEMPLATES_VERSION).apply()
+        }
+    }
+
     private suspend fun ensureTemplatesInitializedInternal() {
         // Preserve existing owner-created templates when upgrading; never wipe a user's library.
         // 1. Seed 10 Categories as requested if empty
@@ -468,10 +502,7 @@ class BarayaRepository(context: Context) {
         }
 
         // 2. Seed the designed template library (50 free + 14 pro) when it is empty
-        if (templateDao.getTemplateCount() == 0) {
-            val seedTemplates = FreeTemplatesData.getTemplates() + ProTemplatesData.getTemplates()
-            templateDao.insertAll(seedTemplates.map { templateToEntity(it) })
-        }
+        syncDefaultTemplates()
 
         // 3. Seed Bundles if empty
         if (bundleDao.getBundleCount() == 0) {

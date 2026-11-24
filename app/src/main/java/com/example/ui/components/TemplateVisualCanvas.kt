@@ -66,6 +66,12 @@ fun TemplateVisualCanvas(
     template: DesignTemplate,
     modifier: Modifier = Modifier
 ) {
+    // Element-driven rendering: every template draws its own elements (text, shapes, badges)
+    // at their stored positions, sizes and colours, over its artwork. Same renderer as the Studio.
+    if (template.elements.isNotEmpty()) {
+        TemplateDesignView(template = template, modifier = modifier)
+        return
+    }
     // Elegant fallback: Royal Blue gradient instead of black
     val bgStart = parseColor(template.bgStartHex, Color(0xFF1E3A8A))
     val bgEnd = parseColor(template.bgEndHex, Color(0xFF3B82F6))
