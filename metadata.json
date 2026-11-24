@@ -1,0 +1,6 @@
+{
+  "name": "FOKOF2",
+  "description": "FOKOF2 Android creative studio with a local design editor, template library, and local preview tools. External AI services and server-side integrations are disabled in this build.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
