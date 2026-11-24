@@ -63,8 +63,8 @@ class Fokof2AuthApi(context: Context) {
         generator.init(
             KeyGenParameterSpec.Builder(
                 KEY_ALIAS,
-                KeyGenParameterSpec.PURPOSE_ENCRYPT or
-                    KeyGenParameterSpec.PURPOSE_DECRYPT
+                KeyProperties.PURPOSE_ENCRYPT or
+                    KeyProperties.PURPOSE_DECRYPT
             )
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(
