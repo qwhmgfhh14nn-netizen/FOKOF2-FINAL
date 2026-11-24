@@ -1,11 +1,9 @@
 package com.example
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import androidx.activity.ComponentActivity
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onRoot
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.AppNavDestination
 import com.example.ui.BarayaApp
@@ -41,7 +39,9 @@ class ScreenshotTourTest {
     private fun shot(name: String) {
         try {
             settle()
-            val bmp = rule.onRoot().captureToImage().asAndroidBitmap()
+            val dv = rule.activity.window.decorView
+            val bmp = Bitmap.createBitmap(dv.width.coerceAtLeast(1), dv.height.coerceAtLeast(1), Bitmap.Config.ARGB_8888)
+            rule.runOnUiThread { dv.draw(Canvas(bmp)) }
             File(out, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
             note("OK $name")
         } catch (t: Throwable) {
@@ -64,6 +64,9 @@ class ScreenshotTourTest {
         }
         settle()
         val v = vm!!
+        var waited = 0
+        while (v.publishedTemplates.value.isEmpty() && waited < 40) { Thread.sleep(500); rule.mainClock.advanceTimeBy(500); waited++ }
+        note("templates after wait: ${v.publishedTemplates.value.size} (waited ${waited * 500}ms)")
         for (dark in listOf(false, true)) {
             val tag = if (dark) "dark" else "light"
             if (v.isDarkTheme.value != dark) { rule.runOnUiThread { v.toggleTheme() } }
