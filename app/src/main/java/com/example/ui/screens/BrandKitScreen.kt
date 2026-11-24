@@ -293,5 +293,7 @@ fun BrandKitScreen(
                 }
             }
         }
+
+        BrandNameLogoSection(industry = industry, brandName = brandName, onPickName = onBrandNameChange)
     }
 }
