@@ -64,7 +64,8 @@ enum class AppNavDestination {
     WEBSITES,
     WEBSITE_EDITOR,
     MOCKUP_STUDIO,
-    STORE_QR_STUDIO
+    STORE_QR_STUDIO,
+    FEATURE_OFF
 }
 
 data class GeneratedImageItem(
