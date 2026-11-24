@@ -1,0 +1,62 @@
+name: Android Debug Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Android SDK platform 36.1
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36.1" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.3.1
+
+      - name: Unit tests and debug APK
+        run: gradle --no-daemon --stacktrace testDebugUnitTest assembleDebug
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FOKOF2-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish APK to the latest-debug release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk FOKOF2-debug.apk
+          gh release delete latest-debug --cleanup-tag --yes || true
+          gh release create latest-debug FOKOF2-debug.apk \
+            --title "FOKOF2 debug APK (latest main)" \
+            --notes "Debug build of commit ${GITHUB_SHA}. Download FOKOF2-debug.apk on your Android phone and allow install from this source." \
+            --target "${GITHUB_SHA}" --prerelease
