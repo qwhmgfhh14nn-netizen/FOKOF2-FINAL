@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.ai.GeminiAiService
+import com.example.data.remote.Fokof2AuthApi
 import com.example.data.local.PaymentEntity
 import com.example.data.local.UserEntity
 import com.example.data.model.BrandIdentityResult
@@ -83,6 +84,7 @@ data class GeneratedImageItem(
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
     private val aiService = GeminiAiService()
+    private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
     private val _currentNav = MutableStateFlow(AppNavDestination.HOME)
@@ -615,13 +617,26 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isOwnerAuthenticated.value = false
             repository.lockOwnerControl()
-            val result = repository.loginUser(email, password)
+            var result = repository.loginUser(email, password)
+            var remoteError: String? = null
+            if (result.isFailure) {
+                // Not found / wrong password on this device: try the online account (cloud login).
+                try {
+                    val remote = authApi.login(email, password)
+                    val mirrored = repository.registerUser(remote.name, remote.email, password, remote.phone)
+                    result = if (mirrored.isSuccess) mirrored else repository.loginUser(email, password)
+                } catch (e: java.io.IOException) {
+                    remoteError = if (_currentLanguage.value == AppLanguage.ARABIC) "تعذر الاتصال بالخادم. تحقق من الإنترنت." else "Could not reach the server. Check your internet."
+                } catch (e: Exception) {
+                    remoteError = e.message
+                }
+            }
             if (result.isSuccess) {
                 val user = result.getOrThrow()
                 showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "مرحباً بك مجدداً ${user.name}!" else "Welcome back, ${user.name}!")
                 onComplete(true, "")
             } else {
-                val err = result.exceptionOrNull()?.message ?: "فشل تسجيل الدخول"
+                val err = remoteError ?: result.exceptionOrNull()?.message ?: "فشل تسجيل الدخول"
                 onComplete(false, err)
             }
         }
@@ -638,6 +653,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isOwnerAuthenticated.value = false
             repository.lockOwnerControl()
+            var remoteFailure: String? = null
+            try {
+                authApi.register(name, email, password, phone)
+            } catch (e: java.io.IOException) {
+                // offline: keep going with a device-only account
+            } catch (e: Exception) {
+                remoteFailure = e.message ?: "تعذر إنشاء الحساب على الخادم"
+            }
+            if (remoteFailure != null) {
+                onComplete(false, remoteFailure)
+                return@launch
+            }
             val result = repository.registerUser(name, email, password, phone, bio)
             if (result.isSuccess) {
                 val user = result.getOrThrow()
@@ -653,6 +680,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     fun logout() {
         _isOwnerAuthenticated.value = false
         repository.lockOwnerControl()
+        viewModelScope.launch { try { authApi.logout() } catch (_: Exception) { } }
         repository.logout()
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تسجيل الخروج. أنت الآن في وضع الزائر." else "Logged out. You are now browsing as guest.")
     }
