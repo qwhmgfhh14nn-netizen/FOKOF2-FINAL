@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.unit.dp
+import coil.imageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import coil.size.Size
 import com.example.data.templates.FreeTemplatesData
 import com.example.data.templates.ProTemplatesData
 import com.example.data.templates.TemplateDesigner
@@ -43,6 +47,25 @@ class TemplateSheetTest {
     fun contact_sheets_for_all_64_templates() {
         val out = File("build/screenshots").also { it.mkdirs() }
         val all = (FreeTemplatesData.getTemplates() + ProTemplatesData.getTemplates()).map { TemplateDesigner.enrich(it) }
+        // 1) Real Coil loads of all 64 bundled artworks from assets (same request shape the app uses)
+        val ctx = rule.activity
+        val loader = ctx.imageLoader
+        val bad = java.util.Collections.synchronizedList(ArrayList<String>())
+        val worker = Thread {
+            kotlinx.coroutines.runBlocking {
+                all.forEach { t ->
+                    val r = loader.execute(
+                        ImageRequest.Builder(ctx).data(t.imageUri).size(Size(1024, 1024)).memoryCacheKey(t.imageUri).build()
+                    )
+                    if (r !is SuccessResult || r.drawable.intrinsicWidth <= 0) bad += t.id
+                }
+            }
+        }
+        worker.start()
+        var spins = 0
+        while (worker.isAlive && spins < 1200) { ShadowLooper.idleMainLooper(); Thread.sleep(50); spins++ }
+        File(out, "coil_load_log.txt").writeText("coil_loaded=${all.size - bad.size}/${all.size} failed=$bad\n")
+        assertEquals("Coil failed to load art for: $bad", 0, bad.size)
         var page by mutableIntStateOf(0)
         rule.mainClock.autoAdvance = false
         rule.setContent {

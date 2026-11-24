@@ -218,7 +218,11 @@ fun DesignBackground(
         } else if (!imageUri.isNullOrBlank()) {
             val ctx = LocalContext.current
             AsyncImage(
-                model = ImageRequest.Builder(ctx).data(imageUri).crossfade(150).build(),
+                model = ImageRequest.Builder(ctx)
+                    .data(imageUri)
+                    .size(coil.size.Size(1024, 1024)) // bounded, shared decode for gallery/preview/studio
+                    .memoryCacheKey(imageUri)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
