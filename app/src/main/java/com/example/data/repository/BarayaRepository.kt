@@ -645,7 +645,7 @@ class BarayaRepository(context: Context) {
             featureAvailabilityDao.insertAll(initialFeatures)
         }
         // Keep capability labels honest without changing owner-configured enable/disable statuses.
-        featureAvailabilityDao.updateFeatureTitle("AI_IMAGE", "معاينات تصميم محلية", "Local Design Previews")
+        featureAvailabilityDao.updateFeatureTitle("AI_IMAGE", "توليد الصور بالذكاء الاصطناعي", "AI Image Generation")
         featureAvailabilityDao.updateFeatureTitle("AI_COPYWRITER", "اقتراحات تسويقية محلية", "Local Marketing Suggestions")
         featureAvailabilityDao.updateFeatureTitle("AI_BRAND_KIT", "اقتراحات هوية محلية", "Local Brand Suggestions")
 
