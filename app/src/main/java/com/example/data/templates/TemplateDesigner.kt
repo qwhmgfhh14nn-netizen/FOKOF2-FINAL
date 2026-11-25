@@ -74,7 +74,7 @@ object TemplateDesigner {
             2 -> (h - bh) / 2f
             3 -> (h - bh) / 2f
             else -> h - bh - 36f
-        }.coerceIn(14f, max(14f, h - bh - 14f))
+        }.coerceIn(40f, max(40f, h - bh - 40f))
         val blockMid = blockTop + bh / 2f
         val lumZone = when (arch) {
             0, 5, 4 -> zoneLum(2)
@@ -100,13 +100,13 @@ object TemplateDesigner {
             0 -> { // bottom fade + gold rule + diamond
                 val gh = bh + 90f
                 deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, 0.72f, tag = "grad:b")
-                above += shape(ShapeType.RECTANGLE, w / 2, blockTop - 10f, 70f, 2f, accent, 1f)
-                above += shape(ShapeType.DIAMOND, w / 2, blockTop - 10f, 9f, 9f, accent, 1f)
+                above += shape(ShapeType.RECTANGLE, w / 2, blockTop - 28f, 70f, 2f, accent, 1f)
+                above += shape(ShapeType.DIAMOND, w / 2, blockTop - 28f, 9f, 9f, accent, 1f)
             }
             1 -> { // top fade + underline
                 val gh = bh + 90f
                 deco += shape(ShapeType.RECTANGLE, w / 2, gh / 2f, w, gh, scrimColor, 0.72f, tag = "grad:t")
-                above += shape(ShapeType.RECTANGLE, w / 2, blockTop + bh + 10f, 90f, 2f, accent, 1f)
+                above += shape(ShapeType.RECTANGLE, w / 2, blockTop + bh + 28f, 90f, 2f, accent, 1f)
             }
             2 -> { // double hairline frame, soft overall veil, corner diamonds
                 deco += shape(ShapeType.RECTANGLE, w / 2, h / 2, w, h, scrimColor, 0.30f)
@@ -134,14 +134,14 @@ object TemplateDesigner {
                 above += shape(ShapeType.RECTANGLE, g, g + l / 2, th, l, accent, 1f)
                 above += shape(ShapeType.RECTANGLE, w - g - l / 2, g, l, th, accent, 1f)
                 above += shape(ShapeType.RECTANGLE, w - g, g + l / 2, th, l, accent, 1f)
-                above += shape(ShapeType.STAR, w / 2, blockTop - 14f, 16f, 16f, accent, 1f)
+                above += shape(ShapeType.STAR, w / 2, blockTop - 30f, 16f, 16f, accent, 1f)
             }
             else -> { // bottom fade + slim gold edge line across the page + small side stars
                 val gh = bh + 100f
                 deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, 0.74f, tag = "grad:b")
                 above += shape(ShapeType.RECTANGLE, w / 2, h - 8f, w - 40f, 2f, accent, 1f)
-                above += shape(ShapeType.STAR, 40f, blockTop - 8f, 12f, 12f, accent, 1f)
-                above += shape(ShapeType.STAR, w - 40f, blockTop - 8f, 12f, 12f, accent, 1f)
+                above += shape(ShapeType.STAR, 40f, blockTop - 26f, 12f, 12f, accent, 1f)
+                above += shape(ShapeType.STAR, w - 40f, blockTop - 26f, 12f, 12f, accent, 1f)
             }
         }
 
