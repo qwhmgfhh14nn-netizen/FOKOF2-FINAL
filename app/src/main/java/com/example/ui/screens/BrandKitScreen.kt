@@ -108,7 +108,7 @@ fun BrandKitScreen(
                     value = brandName,
                     onValueChange = onBrandNameChange,
                     label = { Text(strings.brandNameLabel) },
-                    placeholder = { Text("مثال: شركة النخبة العقارية") },
+                    placeholder = { Text("مثلًا: شركة النخبة العقارية") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("brand_name_input"),
@@ -121,7 +121,7 @@ fun BrandKitScreen(
                     value = industry,
                     onValueChange = onIndustryChange,
                     label = { Text(strings.industryLabel) },
-                    placeholder = { Text("مثال: التطوير العقاري والاستثمار الفاخر") },
+                    placeholder = { Text("مثلًا: التطوير العقاري والاستثمار") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("brand_industry_input"),
@@ -153,7 +153,7 @@ fun BrandKitScreen(
                     strokeWidth = 2.dp
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("جارٍ هندسة الهوية البصرية...", fontWeight = FontWeight.Bold)
+                Text("بنجهّز الهوية البصرية...", fontWeight = FontWeight.Bold)
             } else {
                 Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
@@ -288,7 +288,7 @@ fun BrandKitScreen(
                     ) {
                         Icon(imageVector = Icons.Default.OpenInBrowser, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "تطبيق الهوية في مرسم التصميم", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                        Text(text = "افتح الهوية في الاستوديو", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                     }
                 }
             }

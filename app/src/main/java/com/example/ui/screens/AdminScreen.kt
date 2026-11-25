@@ -231,11 +231,11 @@ fun AdminScreen(
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
-                        text = "لوحة إدارة المالك | FOKOF2",
+                        text = "لوحة تحكم المالك | FOKOF2",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = GoldPrimary, fontFamily = CairoFontFamily)
                     )
                     Text(
-                        text = "المالك الأساسي • تصريح المالك الكامل (Owner Full Control)",
+                        text = "المالك الأساسي • تحكّم كامل (Owner)",
                         style = MaterialTheme.typography.labelSmall.copy(color = SuccessEmerald, fontWeight = FontWeight.Bold)
                     )
                 }
@@ -271,9 +271,9 @@ fun AdminScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            AdminMetricCard(title = "إجمالي القوالب", value = "${templates.size}", subValue = "قالب بالمكتبة", icon = Icons.Default.Folder, modifier = Modifier.weight(1f))
-            AdminMetricCard(title = "طلبات معلقة", value = "$pendingCount", subValue = "تحتاج مراجعة", icon = Icons.Default.PendingActions, isAlert = pendingCount > 0, modifier = Modifier.weight(1f))
-            AdminMetricCard(title = "مبيعات معتمدة", value = "$approvedCount", subValue = "معاملة ناجحة", icon = Icons.Default.MonetizationOn, modifier = Modifier.weight(1f))
+            AdminMetricCard(title = "إجمالي القوالب", value = "${templates.size}", subValue = "قالب في المكتبة", icon = Icons.Default.Folder, modifier = Modifier.weight(1f))
+            AdminMetricCard(title = "طلبات مستنية", value = "$pendingCount", subValue = "محتاجة مراجعة", icon = Icons.Default.PendingActions, isAlert = pendingCount > 0, modifier = Modifier.weight(1f))
+            AdminMetricCard(title = "مبيعات مؤكدة", value = "$approvedCount", subValue = "عملية ناجحة", icon = Icons.Default.MonetizationOn, modifier = Modifier.weight(1f))
         }
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -281,14 +281,14 @@ fun AdminScreen(
         // Admin Navigation Tabs (9 Management Sections)
         val adminTabs = listOf(
             "إدارة القوالب والأسعار" to Icons.Default.Folder,
-            "قوالب المواقع والميزات" to Icons.Default.Language,
+            "قوالب المواقع والمميزات" to Icons.Default.Language,
             "إدارة الفئات" to Icons.Default.Category,
             "الباقات والاشتراكات" to Icons.Default.MonetizationOn,
             "أكواد الخصم والعروض" to Icons.Default.Discount,
             "الطلبات ومراجعة الدفع" to Icons.AutoMirrored.Filled.ReceiptLong,
-            "طرق الدفع والتحصيل" to Icons.Default.Payment,
-            "المستخدمين والمسؤولين" to Icons.Default.People,
-            "إعدادات وتوفر الميزات" to Icons.Default.Tune
+            "طرق الدفع" to Icons.Default.Payment,
+            "المستخدمين والأدمن" to Icons.Default.People,
+            "إعدادات المميزات" to Icons.Default.Tune
         )
 
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -336,7 +336,7 @@ fun AdminScreen(
                         OutlinedTextField(
                             value = templateSearchQuery,
                             onValueChange = { templateSearchQuery = it },
-                            placeholder = { Text("بحث بالاسم، الوصف، أو التصنيف...", fontSize = 11.sp) },
+                            placeholder = { Text("دوّر بالاسم أو الوصف أو التصنيف...", fontSize = 11.sp) },
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp)) },
                             modifier = Modifier.weight(1f).height(46.dp),
                             singleLine = true,
@@ -354,7 +354,7 @@ fun AdminScreen(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("إضافة قالب جديد", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("ضيف قالب جديد", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -364,8 +364,8 @@ fun AdminScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf(
                             "ALL" to "الكل (${templates.size})",
-                            "PUBLISHED" to "منشور علناً (${templates.count { it.isPublished }})",
-                            "DRAFTS" to "مسودات المالك (${templates.count { !it.isPublished }})"
+                            "PUBLISHED" to "منشور (${templates.count { it.isPublished }})",
+                            "DRAFTS" to "مسودات (${templates.count { !it.isPublished }})"
                         ).forEach { (stKey, label) ->
                             val isSel = statusFilter == stKey
                             Surface(
@@ -396,7 +396,7 @@ fun AdminScreen(
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         items(filterCategories) { cat ->
                             val isSel = selectedCategoryFilter == cat
-                            val label = if (cat == "ALL") "جميع الفئات" else cat
+                            val label = if (cat == "ALL") "كل الفئات" else cat
                             Surface(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(6.dp))
@@ -441,15 +441,15 @@ fun AdminScreen(
                                 Icon(imageVector = Icons.Default.Folder, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(44.dp))
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Text(
-                                    text = if (templates.isEmpty()) "مكتبة القوالب فارغة حالياً" else "لا توجد قوالب مطابقة للبحث",
+                                    text = if (templates.isEmpty()) "مكتبة القوالب فاضية دلوقتي" else "مفيش قوالب مطابقة للبحث",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = GoldPrimary, fontFamily = CairoFontFamily)
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = if (templates.isEmpty())
-                                        "تم تفريغ القوالب الوهمية السابقة بنجاح. بصفتك المالك، يمكنك الآن رفع تصاميمك الحقيقية بالصور وملفات التصميم وتحديد أسعارها بالجنيه المصري (مجاني أو مدفوع)."
+                                        "القوالب التجريبية القديمة اتمسحت. تقدر دلوقتي ترفع تصاميمك الحقيقية بالصور والملفات وتحدد سعرها بالجنيه (مجاني أو مدفوع)."
                                     else
-                                        "جرب تعديل كلمة البحث أو اختيار تصنيف آخر.",
+                                        "جرّب كلمة بحث تانية أو تصنيف تاني.",
                                     style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                                 )
                                 if (templates.isEmpty()) {
@@ -464,7 +464,7 @@ fun AdminScreen(
                                     ) {
                                         Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("إضافة أول تصميم حقيقي للمكتبة", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                                        Text("ضيف أول تصميم حقيقي للمكتبة", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -516,11 +516,11 @@ fun AdminScreen(
                     ) {
                         Column {
                             Text(
-                                text = "إدارة فئات وتصنيفات القوالب:",
+                                text = "فئات القوالب:",
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                             )
                             Text(
-                                text = "إضافة وتعديل وحذف فئات التصاميم في المكتبة:",
+                                text = "ضيف أو عدّل أو امسح فئات التصاميم:",
                                 style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                             )
                         }
@@ -535,7 +535,7 @@ fun AdminScreen(
                         ) {
                             Icon(Icons.Default.Add, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("إضافة فئة جديدة", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("ضيف فئة جديدة", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -636,7 +636,7 @@ fun AdminScreen(
                                         if (plan.isPopular) {
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Box(modifier = Modifier.clip(RoundedCornerShape(4.dp)).background(GoldPrimary).padding(horizontal = 4.dp, vertical = 1.dp)) {
-                                                Text("الأكثر توفيراً", fontSize = 9.sp, color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                                                Text("الأوفر", fontSize = 9.sp, color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     }
@@ -659,7 +659,7 @@ fun AdminScreen(
                                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Text("تحديث", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("حدّث", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -669,8 +669,8 @@ fun AdminScreen(
                     // Template Bundles (5, 10, 20, 50, 100 designs)
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        Text(text = "إدارة باقات القوالب المجمعة (Bundles):", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary))
-                        Text(text = "تعديل أسعار حزم التنزيل بالجنيه المصري:", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                        Text(text = "باقات القوالب (Bundles):", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary))
+                        Text(text = "عدّل أسعار الحزم بالجنيه:", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
                     }
 
                     items(bundles) { bundle ->
@@ -708,7 +708,7 @@ fun AdminScreen(
                                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Text("تحديث", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("حدّث", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -718,7 +718,7 @@ fun AdminScreen(
                     // Tiers
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
-                        Text(text = "تعديل أسعار مستويات PRO الفردية (بالجنيه المصري):", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary))
+                        Text(text = "عدّل أسعار مستويات PRO (بالجنيه):", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary))
                     }
 
                     items(ProTier.values()) { tier ->
@@ -756,7 +756,7 @@ fun AdminScreen(
                                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
-                                        Text("حفظ", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("احفظ", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -773,13 +773,13 @@ fun AdminScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "إدارة العروض وأكواد الخصم:", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
+                        Text(text = "العروض وأكواد الخصم:", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
                         Button(
                             onClick = { showAddCouponDialog = true },
                             colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("إضافة كود جديد", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("ضيف كود جديد", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
 
@@ -845,7 +845,7 @@ fun AdminScreen(
                                 modifier = Modifier.fillMaxWidth().padding(24.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("لا توجد طلبات تحويل جديدة بانتظار المراجعة", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("مفيش طلبات تحويل جديدة مستنية مراجعة", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     } else {
@@ -935,7 +935,7 @@ fun AdminScreen(
                                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                                             ) {
                                                 Text(
-                                                    text = if (method.isEnabled) "مفعل ومتاح" else "غير متوفر حاليًا – Unavailable",
+                                                    text = if (method.isEnabled) "شغّال ومتاح" else "مش متاح دلوقتي",
                                                     color = if (method.isEnabled) SuccessEmerald else ErrorRuby,
                                                     fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold
@@ -982,7 +982,7 @@ fun AdminScreen(
                                         ) {
                                             Icon(Icons.Default.Edit, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(14.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text("تعديل البيانات والتعليمات", fontSize = 11.sp, color = GoldPrimary)
+                                            Text("عدّل البيانات والتعليمات", fontSize = 11.sp, color = GoldPrimary)
                                         }
                                     }
                                 }
@@ -1006,7 +1006,7 @@ fun AdminScreen(
                                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
                             )
                             Text(
-                                text = "التحكم في صلاحيات الحسابات، ترقية المسؤولين، وحالة عضوية VIP",
+                                text = "تحكّم في الصلاحيات وترقية الأدمن وعضوية VIP",
                                 style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                             )
                         }
@@ -1079,7 +1079,7 @@ fun AdminScreen(
                                                 Text(
                                                     text = when (u.role) {
                                                         "OWNER" -> "المالك (Owner)"
-                                                        "ADMIN" -> "مسؤول (Admin)"
+                                                        "ADMIN" -> "أدمن (Admin)"
                                                         else -> "مستخدم (User)"
                                                     },
                                                     color = when (u.role) {
@@ -1138,7 +1138,7 @@ fun AdminScreen(
                                                     shape = RoundedCornerShape(6.dp)
                                                 ) {
                                                     Text(
-                                                        text = if (u.role == "ADMIN") "خفض لمستخدم" else "ترقية لمسؤول",
+                                                        text = if (u.role == "ADMIN") "رجّعه مستخدم" else "ارفعه أدمن",
                                                         fontSize = 10.sp
                                                     )
                                                 }
@@ -1191,14 +1191,14 @@ fun AdminScreen(
                                 OutlinedTextField(
                                     value = extraPriceText,
                                     onValueChange = { extraPriceText = it },
-                                    label = { Text("سعر إنشاء موقع إضافي (بالجنيه المصري EGP)") },
+                                    label = { Text("سعر موقع إضافي (بالجنيه)") },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
                                 OutlinedTextField(
                                     value = domainPriceText,
                                     onValueChange = { domainPriceText = it },
-                                    label = { Text("سعر ربط دومين مخصص (بالجنيه المصري EGP)") },
+                                    label = { Text("سعر ربط دومين خاص (بالجنيه)") },
                                     modifier = Modifier.fillMaxWidth(),
                                     singleLine = true
                                 )
@@ -1212,7 +1212,7 @@ fun AdminScreen(
                                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("حفظ إعدادات حدود المواقع", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                                    Text("احفظ حدود المواقع", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -1224,7 +1224,7 @@ fun AdminScreen(
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
                         )
                         Text(
-                            text = "يمكنك بصفتك المالك تعطيل أو تفعيل أي ميزة أو جعلها 'غير متوفر حاليًا' مع إشعار للمستخدمين.",
+                            text = "تقدر توقّف أو تشغّل أي ميزة أو تخليها 'مش متاحة دلوقتي' مع رسالة للمستخدمين.",
                             style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                         )
                     }
@@ -1267,10 +1267,10 @@ fun AdminScreen(
                                     ) {
                                         Text(
                                             text = when (feat.status) {
-                                                "AVAILABLE" -> "متوفر"
-                                                "COMING_SOON" -> "قريباً"
-                                                "DISABLED" -> "معطل"
-                                                else -> "غير متوفر حالياً"
+                                                "AVAILABLE" -> "متاح"
+                                                "COMING_SOON" -> "قريبًا"
+                                                "DISABLED" -> "موقوف"
+                                                else -> "مش متاح دلوقتي"
                                             },
                                             color = when (feat.status) {
                                                 "AVAILABLE" -> SuccessEmerald
@@ -1366,20 +1366,20 @@ fun AdminScreen(
     if (showAddCategoryDialog) {
         AlertDialog(
             onDismissRequest = { showAddCategoryDialog = false },
-            title = { Text("إضافة فئة تصاميم جديدة", color = GoldPrimary, fontWeight = FontWeight.Bold) },
+            title = { Text("ضيف فئة تصاميم جديدة", color = GoldPrimary, fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = newCategoryNameAr,
                         onValueChange = { newCategoryNameAr = it },
-                        label = { Text("اسم الفئة بالعربية (مثال: عقارات وإنشاءات)") },
+                        label = { Text("اسم الفئة بالعربي (مثلًا: عقارات وإنشاءات)") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
                     OutlinedTextField(
                         value = newCategoryNameEn,
                         onValueChange = { newCategoryNameEn = it },
-                        label = { Text("اسم الفئة بالإنجليزية (مثال: Real Estate)") },
+                        label = { Text("اسم الفئة بالإنجليزي (مثلًا: Real Estate)") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -1399,7 +1399,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                 ) {
-                    Text("إضافة وحفظ", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("ضيف واحفظ", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1414,20 +1414,20 @@ fun AdminScreen(
         var editNameEn by remember(cat.nameEn) { mutableStateOf(cat.nameEn) }
         AlertDialog(
             onDismissRequest = { editingCategoryTarget = null },
-            title = { Text("تعديل اسم الفئة", color = GoldPrimary, fontWeight = FontWeight.Bold) },
+            title = { Text("عدّل اسم الفئة", color = GoldPrimary, fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
                         value = editNameAr,
                         onValueChange = { editNameAr = it },
-                        label = { Text("اسم الفئة بالعربية") },
+                        label = { Text("اسم الفئة بالعربي") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
                     OutlinedTextField(
                         value = editNameEn,
                         onValueChange = { editNameEn = it },
-                        label = { Text("اسم الفئة بالإنجليزية") },
+                        label = { Text("اسم الفئة بالإنجليزي") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -1443,7 +1443,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                 ) {
-                    Text("حفظ التعديل", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("احفظ التعديل", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1456,7 +1456,7 @@ fun AdminScreen(
     categoryToDelete?.let { cat ->
         AlertDialog(
             onDismissRequest = { categoryToDelete = null },
-            title = { Text("تأكيد حذف الفئة", color = ErrorRuby, fontWeight = FontWeight.Bold) },
+            title = { Text("تأكيد مسح الفئة", color = ErrorRuby, fontWeight = FontWeight.Bold) },
             text = {
                 Text("هل أنت متأكد من حذف فئة \"${cat.nameAr}\"؟ لن يتم حذف القوالب الموجودة ضمن هذه الفئة.")
             },
@@ -1468,7 +1468,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRuby)
                 ) {
-                    Text("تأكيد الحذف", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("أيوه، امسح", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1481,7 +1481,7 @@ fun AdminScreen(
     if (showAddCouponDialog) {
         AlertDialog(
             onDismissRequest = { showAddCouponDialog = false },
-            title = { Text("إضافة كود خصم ترويجي جديد", color = GoldPrimary, fontWeight = FontWeight.Bold) },
+            title = { Text("ضيف كود خصم جديد", color = GoldPrimary, fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
@@ -1494,7 +1494,7 @@ fun AdminScreen(
                     OutlinedTextField(
                         value = newCouponDiscount,
                         onValueChange = { newCouponDiscount = it },
-                        label = { Text("نسبة الخصم المئوية %") },
+                        label = { Text("نسبة الخصم %") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -1518,7 +1518,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                 ) {
-                    Text("حفظ وتفعيل", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("احفظ وشغّل", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1553,7 +1553,7 @@ fun AdminScreen(
                     OutlinedTextField(
                         value = contact,
                         onValueChange = { contact = it },
-                        label = { Text("رقم جهة تأكيد الدفع") },
+                        label = { Text("رقم تأكيد الدفع") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -1595,7 +1595,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                 ) {
-                    Text("حفظ التعديلات", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("احفظ التعديلات", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1608,7 +1608,7 @@ fun AdminScreen(
     userToDelete?.let { u ->
         AlertDialog(
             onDismissRequest = { userToDelete = null },
-            title = { Text("تأكيد حذف الحساب", color = ErrorRuby, fontWeight = FontWeight.Bold) },
+            title = { Text("تأكيد مسح الحساب", color = ErrorRuby, fontWeight = FontWeight.Bold) },
             text = {
                 Text("هل أنت متأكد من رغبتك في حذف حساب المستخدم (${u.name} - ${u.email})؟ لا يمكن التراجع عن هذه العملية.")
             },
@@ -1620,7 +1620,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRuby)
                 ) {
-                    Text("نعم، حذف الحساب", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("أيوه، امسح الحساب", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1639,12 +1639,12 @@ fun AdminScreen(
             title = { Text("تعديل حالة الميزة: ${feat.titleAr}", color = GoldPrimary, fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("اختر حالة التوفر الحالية:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("اختار الحالة الحالية:", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     listOf(
-                        "AVAILABLE" to "متوفر ومتاح للجميع",
-                        "UNAVAILABLE" to "غير متوفر حاليًا – Currently Unavailable",
-                        "COMING_SOON" to "قريباً (Coming Soon)",
-                        "DISABLED" to "معطل نهائياً"
+                        "AVAILABLE" to "متاح للكل",
+                        "UNAVAILABLE" to "مش متاح دلوقتي",
+                        "COMING_SOON" to "قريبًا (Coming Soon)",
+                        "DISABLED" to "موقوف"
                     ).forEach { (stKey, label) ->
                         val isSel = selectedStatus == stKey
                         Surface(
@@ -1668,8 +1668,8 @@ fun AdminScreen(
                     OutlinedTextField(
                         value = customMsg,
                         onValueChange = { customMsg = it },
-                        label = { Text("رسالة توضيحية للعميل عند النقر") },
-                        placeholder = { Text("مثال: هذه الميزة قيد التطوير والتحديث حاليًا") },
+                        label = { Text("رسالة تظهر للعميل لما يضغط") },
+                        placeholder = { Text("مثلًا: الميزة دي بنشتغل عليها دلوقتي") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
@@ -1683,7 +1683,7 @@ fun AdminScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
                 ) {
-                    Text("حفظ الحالة", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("احفظ الحالة", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1812,7 +1812,7 @@ fun AdminTemplateCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = if (template.priceEgp > 0) "${template.priceEgp} ج.م ✎" else "مجاناً ✎",
+                        text = if (template.priceEgp > 0) "${template.priceEgp} ج.م ✎" else "مجاني ✎",
                         style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF101014), fontWeight = FontWeight.Bold, fontFamily = CinzelFontFamily)
                     )
                 }
@@ -1827,7 +1827,7 @@ fun AdminTemplateCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "نشر علناً:", fontSize = 11.sp)
+                    Text(text = "نشر:", fontSize = 11.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Switch(
                         checked = template.isPublished,
@@ -1874,7 +1874,7 @@ fun AdminTemplateCard(
             title = { Text("تعديل سعر القالب: ${template.titleAr}", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("أدخل السعر الجديد بالجنيه المصري (0 = مجاناً):", fontSize = 11.sp)
+                    Text("اكتب السعر الجديد بالجنيه (0 = مجاني):", fontSize = 11.sp)
                     OutlinedTextField(
                         value = quickPriceInput,
                         onValueChange = { quickPriceInput = it },
@@ -1894,7 +1894,7 @@ fun AdminTemplateCard(
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("حفظ السعر", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
+                    Text("احفظ السعر", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -1989,7 +1989,7 @@ fun PaymentReviewCard(
 
             if (!payment.receiptImageUri.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "صورة إيصال التحويل المرفقة من العميل:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GoldLight)
+                Text(text = "صورة إيصال التحويل من العميل:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GoldLight)
                 Spacer(modifier = Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
@@ -2074,7 +2074,7 @@ private fun WebsiteBuilderManagementTab(
                         Icon(Icons.Default.Tune, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(22.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "التحكم في الحد المجاني وأسعار المواقع (خاص بالمالك):",
+                            text = "الحد المجاني وأسعار المواقع (للمالك):",
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                         )
                     }
@@ -2094,7 +2094,7 @@ private fun WebsiteBuilderManagementTab(
                         OutlinedTextField(
                             value = extraPriceStr,
                             onValueChange = { extraPriceStr = it.filter { ch -> ch.isDigit() } },
-                            label = { Text("سعر الإضافي (ج.م)", fontSize = 10.sp) },
+                            label = { Text("سعر الموقع الإضافي (ج.م)", fontSize = 10.sp) },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
                             shape = RoundedCornerShape(8.dp)
@@ -2121,7 +2121,7 @@ private fun WebsiteBuilderManagementTab(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "حفظ وتطبيق الحد المجاني والأسعار",
+                            text = "احفظ الحد المجاني والأسعار",
                             color = Color(0xFF101014),
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp
@@ -2133,7 +2133,7 @@ private fun WebsiteBuilderManagementTab(
 
         item {
             Text(
-                text = "قوالب المواقع الـ 10 الحقيقية والتحكم في تفعيل/إيقاف الميزات:",
+                text = "قوالب المواقع الـ 10 والتحكم في مميزاتها:",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
             )
         }
@@ -2215,7 +2215,7 @@ private fun AdminWebsiteTemplateItemCard(
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.height(44.dp)
                     ) {
-                        Text("حفظ", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("احفظ", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -2234,7 +2234,7 @@ private fun AdminWebsiteTemplateItemCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = if (isExpanded) "إخفاء لوحة ميزات هذا القالب" else "التحكم في ميزات القالب وتفعيلها/إيقافها",
+                    text = if (isExpanded) "أخفي مميزات القالب" else "اتحكم في مميزات القالب",
                     fontFamily = CairoFontFamily,
                     fontSize = 11.sp,
                     color = GoldPrimary
@@ -2250,7 +2250,7 @@ private fun AdminWebsiteTemplateItemCard(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "مفاتيح تفعيل وتعطيل الميزات للمستخدمين في هذا القالب:",
+                        text = "شغّل أو وقّف مميزات القالب للمستخدمين:",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = GoldLight,
@@ -2258,7 +2258,7 @@ private fun AdminWebsiteTemplateItemCard(
                     )
 
                     FeatureToggleRow(
-                        title = "الطلب المباشر عبر واتساب (WhatsApp Orders)",
+                        title = "الطلب على واتساب (WhatsApp Orders)",
                         checked = currentToggles.featureWhatsappOrders,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureWhatsappOrders = it) }
                     )
@@ -2273,27 +2273,27 @@ private fun AdminWebsiteTemplateItemCard(
                         onCheckedChange = { currentToggles = currentToggles.copy(featureBookingSystem = it) }
                     )
                     FeatureToggleRow(
-                        title = "الاتصال الهاتفي المباشر (Direct Calling)",
+                        title = "اتصال مباشر (Direct Calling)",
                         checked = currentToggles.featureDirectCalling,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureDirectCalling = it) }
                     )
                     FeatureToggleRow(
-                        title = "تقييمات وآراء العملاء (Reviews)",
+                        title = "تقييمات العملاء (Reviews)",
                         checked = currentToggles.featureCustomerReviews,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureCustomerReviews = it) }
                     )
                     FeatureToggleRow(
-                        title = "موقع النشاط على الخريطة (Google Maps)",
+                        title = "الموقع على الخريطة (Google Maps)",
                         checked = currentToggles.featureGoogleMaps,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureGoogleMaps = it) }
                     )
                     FeatureToggleRow(
-                        title = "قسم الأسئلة الشائعة (FAQ Section)",
+                        title = "الأسئلة الشائعة (FAQ)",
                         checked = currentToggles.featureFaqSection,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureFaqSection = it) }
                     )
                     FeatureToggleRow(
-                        title = "دعم دومين خاص مخصص (Custom Domain)",
+                        title = "دومين خاص (Custom Domain)",
                         checked = currentToggles.featureCustomDomain,
                         onCheckedChange = { currentToggles = currentToggles.copy(featureCustomDomain = it) }
                     )

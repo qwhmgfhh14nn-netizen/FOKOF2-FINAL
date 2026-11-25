@@ -74,7 +74,7 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                 shape = RoundedCornerShape(8.dp)
             ) {
                 if (loading) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                else Text("اقترح أسماء", color = androidx.compose.ui.graphics.Color(0xFF101014), fontWeight = FontWeight.Bold)
+                else Text("اقترحلي أسماء", color = androidx.compose.ui.graphics.Color(0xFF101014), fontWeight = FontWeight.Bold)
             }
             names.forEach { n ->
                 Box(
@@ -117,7 +117,7 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                         context.startActivity(Intent.createChooser(i, "مشاركة"))
                     },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-                ) { Text("مشاركة الشعار (واتساب / سوشيال)") }
+                ) { Text("شارك الشعار (واتساب / سوشيال)") }
             }
         }
     }

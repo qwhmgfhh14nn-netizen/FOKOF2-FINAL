@@ -98,7 +98,7 @@ fun WebsitesScreen(
     var websiteToDelete by remember { mutableStateOf<UserWebsite?>(null) }
 
     val categories = listOf(
-        "ALL" to "جميع الأنشطة",
+        "ALL" to "كل الأنشطة",
         "RESTAURANT" to "مطاعم وكافيهات",
         "PHARMACY" to "صيدليات وعناية",
         "FASHION" to "أزياء وموضة",
@@ -140,7 +140,7 @@ fun WebsitesScreen(
                 Spacer(modifier = Modifier.width(6.dp))
                 Column {
                     Text(
-                        text = "منشئ مواقع المحلات والأنشطة",
+                        text = "اعمل موقع لمحلك أو نشاطك",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = GoldPrimary,
@@ -148,7 +148,7 @@ fun WebsitesScreen(
                         )
                     )
                     Text(
-                        text = "أنشئ موقعاً تجارياً متكاملاً لنشاطك مع طلبات واتساب في دقائق",
+                        text = "اعمل موقع كامل لنشاطك مع طلبات واتساب في دقايق",
                         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                     )
                 }
@@ -204,7 +204,7 @@ fun WebsitesScreen(
                             text = if (isLimitReached)
                                 "استهلكت حد المواقع المجانية المحدد من المالك (${settings.freeWebsitesLimit} موقع). يمكنك ترقية موقع إضافي بـ ${settings.extraWebsitePriceEgp} ج.م"
                             else
-                                "يمكنك إنشاء موقع تجاري مجاناً بالكامل الآن ونشره فوراً!",
+                                "تقدر تعمل موقع تجاري مجاني دلوقتي وتنشره على طول!",
                             style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 10.sp)
                         )
                     }
@@ -218,7 +218,7 @@ fun WebsitesScreen(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("بحث عن قالب موقع (مطعم، صيدلية، عيادة، أزياء، سيارات...)", fontSize = 11.sp) },
+            placeholder = { Text("دوّر على قالب موقع (مطعم، صيدلية، عيادة، أزياء، عربيات...)", fontSize = 11.sp) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp)) },
             singleLine = true,
             shape = RoundedCornerShape(10.dp),
@@ -259,7 +259,7 @@ fun WebsitesScreen(
             if (userWebsites.isNotEmpty()) {
                 item {
                     Text(
-                        text = "مواقعك المنشأة (${userWebsites.size}):",
+                        text = "مواقعك (${userWebsites.size}):",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                     )
                 }
@@ -276,14 +276,14 @@ fun WebsitesScreen(
                 item {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "القوالب التجارية الجاهزة (10 أنشطة حقيقية متكاملة):",
+                        text = "قوالب جاهزة (10 أنشطة):",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                     )
                 }
             } else {
                 item {
                     Text(
-                        text = "اختر قالباً لنشاطك التجاري وابدأ بتخصيصه:",
+                        text = "اختار قالب لنشاطك وابدأ عدّل عليه:",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                     )
                 }
@@ -303,7 +303,7 @@ fun WebsitesScreen(
     websiteToDelete?.let { site ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { websiteToDelete = null },
-            title = { Text("تأكيد حذف الموقع", color = ErrorRuby, fontWeight = FontWeight.Bold) },
+            title = { Text("تأكيد مسح الموقع", color = ErrorRuby, fontWeight = FontWeight.Bold) },
             text = { Text("هل أنت متأكد من حذف موقع \"${site.siteTitle}\"؟ لا يمكن التراجع عن هذا الإجراء.") },
             confirmButton = {
                 Button(
@@ -313,7 +313,7 @@ fun WebsitesScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRuby)
                 ) {
-                    Text("حذف الموقع", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("امسح الموقع", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -395,7 +395,7 @@ fun WebsiteTemplateCard(
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = if (template.priceEgp == 0) "متاح مجاناً" else "${template.priceEgp} ج.م",
+                        text = if (template.priceEgp == 0) "مجاني" else "${template.priceEgp} ج.م",
                         fontSize = 11.sp,
                         color = Color(0xFF101014),
                         fontWeight = FontWeight.Bold
@@ -443,7 +443,7 @@ fun WebsiteTemplateCard(
                     Icon(imageVector = Icons.Default.Language, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "تخصيص وإنشاء موقعي من هذا القالب",
+                        text = "اعمل موقعي من القالب ده",
                         color = Color(0xFF101014),
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
@@ -502,7 +502,7 @@ fun UserWebsiteCard(
                                 .background(SuccessEmerald.copy(alpha = 0.2f))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
-                            Text("محفوظ محليًا", color = GoldPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            Text("محفوظ على الجهاز", color = GoldPrimary, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     Text(

@@ -169,7 +169,7 @@ fun WebsiteEditorScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = "محرر المواقع الاحترافي",
+                            text = "محرر المواقع",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
@@ -197,7 +197,7 @@ fun WebsiteEditorScreen(
                         Icon(Icons.Default.QrCode2, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "باركود QR",
+                            text = "كود QR",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = GoldPrimary,
@@ -217,7 +217,7 @@ fun WebsiteEditorScreen(
                         Icon(Icons.Default.Save, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "حفظ الموقع",
+                            text = "احفظ الموقع",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -271,7 +271,7 @@ fun WebsiteEditorScreen(
                 onClick = { selectedTab = 2 },
                 text = {
                     Text(
-                        "معاينة حية",
+                        "معاينة مباشرة",
                         fontFamily = CairoFontFamily,
                         fontSize = 12.sp,
                         fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal
@@ -388,7 +388,7 @@ private fun GeneralInfoTab(
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "هوية المتجر واسم النشاط",
+                        text = "اسم النشاط وهويته",
                         fontFamily = CairoFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
@@ -398,7 +398,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = siteTitle,
                         onValueChange = onSiteTitleChange,
-                        label = { Text("اسم النشاط التجاري / المحل", fontFamily = CairoFontFamily) },
+                        label = { Text("اسم النشاط / المحل", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -407,7 +407,7 @@ private fun GeneralInfoTab(
                         value = siteSlug,
                         onValueChange = onSiteSlugChange,
                         label = { Text("رابط الموقع الفرعي (Slug)", fontFamily = CairoFontFamily) },
-                        supportingText = { Text("سيظهر الرابط العام بعد ربط نطاق واستضافة فعلية", color = GoldLight) },
+                        supportingText = { Text("الرابط العام هيظهر بعد ما تربط دومين واستضافة فعلية", color = GoldLight) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -415,7 +415,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = headline,
                         onValueChange = onHeadlineChange,
-                        label = { Text("العنوان الرئيسي الجذاب (Hero Headline)", fontFamily = CairoFontFamily) },
+                        label = { Text("العنوان الرئيسي (Hero Headline)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -423,7 +423,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = subheadline,
                         onValueChange = onSubheadlineChange,
-                        label = { Text("العنوان الفرعي والوصف التسويقي", fontFamily = CairoFontFamily) },
+                        label = { Text("العنوان الفرعي والوصف", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -431,7 +431,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = aboutText,
                         onValueChange = onAboutTextChange,
-                        label = { Text("نبذة عن المحل / النشاط (من نحن)", fontFamily = CairoFontFamily) },
+                        label = { Text("نبذة عن المحل (من نحن)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         shape = RoundedCornerShape(12.dp)
@@ -452,7 +452,7 @@ private fun GeneralInfoTab(
                         Icon(Icons.Default.Palette, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "اللون الأساسي المميز للموقع",
+                            text = "لون الموقع الأساسي",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
@@ -507,7 +507,7 @@ private fun GeneralInfoTab(
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "بيانات الاتصال وموقع النشاط",
+                        text = "بيانات الاتصال والعنوان",
                         fontFamily = CairoFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
@@ -517,7 +517,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = whatsappNumber,
                         onValueChange = onWhatsappNumberChange,
-                        label = { Text("رقم واتساب للطلبات المباشرة (مع كود الدولة مثل: 2010xxxx)", fontFamily = CairoFontFamily) },
+                        label = { Text("رقم واتساب للطلبات (مع كود الدولة، مثلًا: 2010xxxx)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -525,7 +525,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = phoneNumber,
                         onValueChange = onPhoneNumberChange,
-                        label = { Text("رقم الهاتف للاتصال المباشر", fontFamily = CairoFontFamily) },
+                        label = { Text("رقم التليفون للمكالمات", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -533,7 +533,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = address,
                         onValueChange = onAddressChange,
-                        label = { Text("العنوان الفعلي / الفرع بالتفصيل", fontFamily = CairoFontFamily) },
+                        label = { Text("العنوان بالتفصيل / الفرع", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -541,7 +541,7 @@ private fun GeneralInfoTab(
                     OutlinedTextField(
                         value = workingHours,
                         onValueChange = onWorkingHoursChange,
-                        label = { Text("مواعيد العمل (مثال: يومياً من 10 ص حتى 12 م)", fontFamily = CairoFontFamily) },
+                        label = { Text("مواعيد الشغل (مثلًا: كل يوم من 10 ص لـ 12 م)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -571,7 +571,7 @@ private fun CatalogItemsTab(
         ) {
             Column {
                 Text(
-                    text = "قائمة المنتجات والخدمات",
+                    text = "المنتجات والخدمات",
                     fontFamily = CairoFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
@@ -592,7 +592,7 @@ private fun CatalogItemsTab(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("إضافة منتج", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text("ضيف منتج", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = Color.Black)
             }
         }
 
@@ -606,13 +606,13 @@ private fun CatalogItemsTab(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.ShoppingCart, contentDescription = null, tint = GoldPrimary.copy(alpha = 0.5f), modifier = Modifier.size(56.dp))
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("لا توجد منتجات أو خدمات مضافة بعد", fontFamily = CairoFontFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("مفيش منتجات أو خدمات لسه", fontFamily = CairoFontFamily, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(
                         onClick = { showDialog = true },
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("أضف أول منتج الآن", fontFamily = CairoFontFamily, color = GoldPrimary)
+                        Text("ضيف أول منتج دلوقتي", fontFamily = CairoFontFamily, color = GoldPrimary)
                     }
                 }
             }
@@ -710,7 +710,7 @@ private fun CatalogItemsTab(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "إضافة منتج / خدمة جديدة",
+                        text = "ضيف منتج / خدمة جديدة",
                         fontFamily = CairoFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -720,7 +720,7 @@ private fun CatalogItemsTab(
                     OutlinedTextField(
                         value = nameAr,
                         onValueChange = { nameAr = it },
-                        label = { Text("اسم المنتج / الخدمة بالعربية", fontFamily = CairoFontFamily) },
+                        label = { Text("اسم المنتج / الخدمة بالعربي", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -728,7 +728,7 @@ private fun CatalogItemsTab(
                     OutlinedTextField(
                         value = priceEgpStr,
                         onValueChange = { priceEgpStr = it.filter { ch -> ch.isDigit() } },
-                        label = { Text("السعر بالجنيه المصري (EGP)", fontFamily = CairoFontFamily) },
+                        label = { Text("السعر بالجنيه (EGP)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -744,7 +744,7 @@ private fun CatalogItemsTab(
                     OutlinedTextField(
                         value = category,
                         onValueChange = { category = it },
-                        label = { Text("التصنيف (مثال: برجر، وجبات، عطور، كشف)", fontFamily = CairoFontFamily) },
+                        label = { Text("التصنيف (مثلًا: برجر، وجبات، عطور، كشف)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -752,7 +752,7 @@ private fun CatalogItemsTab(
                     OutlinedTextField(
                         value = badgeAr,
                         onValueChange = { badgeAr = it },
-                        label = { Text("شارة تسويقية (مثال: الأكثر طلباً، عرض خاص)", fontFamily = CairoFontFamily) },
+                        label = { Text("شارة (مثلًا: الأكتر طلبًا، عرض خاص)", fontFamily = CairoFontFamily) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp)
                     )
@@ -788,7 +788,7 @@ private fun CatalogItemsTab(
                             colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("إضافة", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text("ضيف", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }
@@ -865,7 +865,7 @@ private fun LivePreviewTab(
                             Icon(Icons.Default.Language, contentDescription = null, tint = GoldLight, modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "معاينة محلية • لم يتم نشر الموقع بعد",
+                                text = "معاينة على الجهاز • الموقع لسه متنشرش",
                                 fontSize = 11.sp,
                                 color = Color(0xFF94A3B8),
                                 fontFamily = CinzelFontFamily
@@ -878,7 +878,7 @@ private fun LivePreviewTab(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = "معاينة فقط",
+                            text = "معاينة بس",
                             color = SuccessEmerald,
                             fontSize = 10.sp,
                             fontFamily = CairoFontFamily,
@@ -1627,7 +1627,7 @@ private fun ExportHtmlTab(
                 }
 
                 Text(
-                    text = "يمكنك نسخ كود الموقع ونشره فوراً على أي استضافة مثل Vercel، Netlify، GitHub Pages، أو رفعه على خادمك الخاص.",
+                    text = "انسخ كود الموقع وانشره على أي استضافة زي Vercel أو Netlify أو GitHub Pages، أو ارفعه على السيرفر بتاعك.",
                     fontFamily = CairoFontFamily,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1647,7 +1647,7 @@ private fun ExportHtmlTab(
                         Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (isCopied) "تم نسخ الكود!" else "نسخ الكود بالكامل",
+                            text = if (isCopied) "تم نسخ الكود!" else "انسخ الكود كله",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
