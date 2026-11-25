@@ -581,7 +581,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _canvasAspectRatio.value = template.aspectRatio
         _selectedElementId.value = template.elements.firstOrNull()?.id
         _currentNav.value = AppNavDestination.STUDIO
-        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في المرسم" else "Project opened in Studio")
+        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في الاستوديو" else "Project opened in Studio")
     }
 
     fun createNewProject() {
@@ -779,7 +779,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
             addTextElement(item.prompt.take(28))
         }
         _currentNav.value = AppNavDestination.STUDIO
-        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في المرسم" else "Opened in Studio")
+        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم فتح التصميم في الاستوديو" else "Opened in Studio")
     }
 
     // AI Marketing
@@ -820,7 +820,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         val text = _marketingResult.value.lines().firstOrNull { it.isNotBlank() } ?: "FOKOF2 للإبداع"
         addTextElement(text.take(35))
         _currentNav.value = AppNavDestination.STUDIO
-        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تمت إضافة العنوان إلى المرسم" else "Headline added to Studio")
+        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تمت إضافة العنوان إلى الاستوديو" else "Headline added to Studio")
     }
 
     // Brand Kit
@@ -892,7 +892,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         )
         _activeTemplateTitle.value = kit.brandName
         _currentNav.value = AppNavDestination.STUDIO
-        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تطبيق الهوية في المرسم!" else "Brand Kit applied to Studio!")
+        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تطبيق الهوية في الاستوديو!" else "Brand Kit applied to Studio!")
     }
 
     // Creative Director Chat
