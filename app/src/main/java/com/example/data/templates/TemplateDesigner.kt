@@ -48,11 +48,12 @@ object TemplateDesigner {
      * (never a big opaque box). Six compositions, chosen per template, each with its own ornaments.
      * Text colours follow the real brightness of the art behind them (see [TemplateArtMeta]).
      */
-    private val ornamentChars = setOf('✨', '⭐', '🌟', '★', '☆', '✦', '✧', '➜', '➔', '→', '←', '»', '«', '❖', '◆', '✪')
+    /** Emoji/symbol-only lines (stars, sparkles, arrows) are decoration, not content: they are dropped. */
     private fun isOrnament(e: CanvasElement): Boolean {
         val tx = e.text.trim()
-        return (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) && tx.isNotEmpty() && tx.length <= 4 &&
-            tx.all { it in ornamentChars || it == '\uFE0F' || it.code in 0xD800..0xDFFF }.and(tx.any { it in ornamentChars || it.code in 0xD800..0xDFFF })
+        if (e.type != CanvasElementType.TEXT && e.type != CanvasElementType.CALLIGRAPHY) return false
+        if (tx.isEmpty() || tx.length > 4) return false
+        return tx.codePoints().toArray().all { it >= 0x2190 || it == 0xFE0F || it == 0x200D }
     }
 
     fun enrich(t0: DesignTemplate): DesignTemplate {
