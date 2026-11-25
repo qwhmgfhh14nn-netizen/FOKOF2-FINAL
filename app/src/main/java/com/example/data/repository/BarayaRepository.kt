@@ -35,6 +35,8 @@ import com.example.data.model.SubscriptionPlan
 import com.example.data.model.TemplateBundle
 import com.example.data.model.UserProfile
 import com.example.data.model.UserWebsite
+import com.example.data.model.SiteExtras
+import com.example.data.model.SiteTestimonial
 import com.example.data.model.WebsiteAnalytics
 import com.example.data.model.WebsiteBooking
 import com.example.data.model.WebsiteBuilderSettings
@@ -1613,7 +1615,8 @@ class BarayaRepository(context: Context) {
             featureToggles = jsonToFeatureToggles(e.featureTogglesJson),
             isPublished = e.isPublished,
             createdAt = e.createdAt,
-            updatedAt = e.updatedAt
+            updatedAt = e.updatedAt,
+            extras = jsonToSiteExtras(e.extrasJson)
         )
     }
 
@@ -1637,8 +1640,36 @@ class BarayaRepository(context: Context) {
             featureTogglesJson = featureTogglesToJson(w.featureToggles),
             isPublished = w.isPublished,
             createdAt = w.createdAt,
-            updatedAt = w.updatedAt
+            updatedAt = w.updatedAt,
+            extrasJson = siteExtrasToJson(w.extras)
         )
+    }
+
+    private fun siteExtrasToJson(x: SiteExtras): String {
+        val o = JSONObject()
+        val t = JSONArray()
+        x.testimonials.forEach { t.put(JSONObject().put("name", it.name).put("text", it.text).put("stars", it.stars)) }
+        o.put("testimonials", t)
+        val g = JSONArray(); x.gallery.forEach { g.put(it) }
+        o.put("gallery", g)
+        o.put("facebook", x.facebook).put("instagram", x.instagram).put("tiktok", x.tiktok)
+        o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website)
+        return o.toString()
+    }
+
+    private fun jsonToSiteExtras(json: String?): SiteExtras {
+        if (json.isNullOrBlank()) return SiteExtras()
+        return try {
+            val o = JSONObject(json)
+            val ta = o.optJSONArray("testimonials") ?: JSONArray()
+            val ga = o.optJSONArray("gallery") ?: JSONArray()
+            SiteExtras(
+                testimonials = (0 until ta.length()).map { i -> ta.getJSONObject(i).let { SiteTestimonial(it.optString("name"), it.optString("text"), it.optInt("stars", 5)) } },
+                gallery = (0 until ga.length()).map { ga.getString(it) },
+                facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
+                youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website")
+            )
+        } catch (e: Exception) { SiteExtras() }
     }
 
     // ---------------- WEBSITE ANALYTICS & BOOKINGS ----------------

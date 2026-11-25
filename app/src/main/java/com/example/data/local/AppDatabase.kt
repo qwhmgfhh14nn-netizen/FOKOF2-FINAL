@@ -27,7 +27,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         DiscountCouponEntity::class,
         BundleCreditEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -55,6 +55,12 @@ abstract class AppDatabase : RoomDatabase() {
                 // Existing purchases remain stored but are intentionally unassigned until
                 // an administrator can verify their owner; they are not exposed to other accounts.
                 database.execSQL("ALTER TABLE user_purchases ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE user_websites ADD COLUMN extrasJson TEXT NOT NULL DEFAULT '{}'")
             }
         }
 
@@ -86,7 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "baraya_ai_database"
                 )
-                    .addMigrations(MIGRATION_11_12, MIGRATION_12_13)
+                    .addMigrations(MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
                     .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = false)
                     .build()
                 INSTANCE = instance

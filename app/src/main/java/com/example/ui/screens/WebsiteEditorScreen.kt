@@ -78,6 +78,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.CartItem
 import com.example.data.model.UserWebsite
+import com.example.data.model.SiteExtras
+import com.example.data.model.SiteTestimonial
 import com.example.data.model.WebsiteBooking
 import com.example.data.model.WebsiteItem
 import com.example.ui.locale.TranslationStrings
@@ -116,6 +118,7 @@ fun WebsiteEditorScreen(
     var workingHours by remember(website.id) { mutableStateOf(website.workingHours) }
     var primaryColorHex by remember(website.id) { mutableStateOf(website.primaryColorHex) }
     var items by remember(website.id) { mutableStateOf(website.items) }
+    var extras by remember(website.id) { mutableStateOf(website.extras) }
 
     // Navigation tabs inside the editor: 0 = Info, 1 = Catalog/Menu, 2 = Live Preview, 3 = Export HTML
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -134,6 +137,7 @@ fun WebsiteEditorScreen(
             workingHours = workingHours,
             primaryColorHex = primaryColorHex,
             items = items,
+            extras = extras,
             updatedAt = System.currentTimeMillis()
         )
     }
@@ -319,7 +323,9 @@ fun WebsiteEditorScreen(
                     workingHours = workingHours,
                     onWorkingHoursChange = { workingHours = it },
                     primaryColorHex = primaryColorHex,
-                    onPrimaryColorHexChange = { primaryColorHex = it }
+                    onPrimaryColorHexChange = { primaryColorHex = it },
+                    extras = extras,
+                    onExtrasChange = { extras = it }
                 )
                 1 -> CatalogItemsTab(
                     items = items,
@@ -362,7 +368,9 @@ private fun GeneralInfoTab(
     workingHours: String,
     onWorkingHoursChange: (String) -> Unit,
     primaryColorHex: String,
-    onPrimaryColorHexChange: (String) -> Unit
+    onPrimaryColorHexChange: (String) -> Unit,
+    extras: SiteExtras = SiteExtras(),
+    onExtrasChange: (SiteExtras) -> Unit = {}
 ) {
     val presetColors = listOf(
         "#D4AF37" to "ذهبي ملكي",
@@ -545,6 +553,83 @@ private fun GeneralInfoTab(
                     )
                 }
             }
+        }
+        item { SiteExtrasEditor(extras = extras, onChange = onExtrasChange) }
+    }
+}
+
+private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri): String? {
+    return try {
+        val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        context.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
+        var sample = 1
+        while (opts.outWidth / sample > 1600) sample *= 2
+        val bmp = context.contentResolver.openInputStream(uri)?.use {
+            android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+        } ?: return null
+        val scale = 800f / maxOf(bmp.width, bmp.height).toFloat()
+        val out = if (scale < 1f) android.graphics.Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt().coerceAtLeast(1), (bmp.height * scale).toInt().coerceAtLeast(1), true) else bmp
+        val dir = java.io.File(context.filesDir, "site_gallery").apply { mkdirs() }
+        val f = java.io.File(dir, java.util.UUID.randomUUID().toString() + ".jpg")
+        f.outputStream().use { out.compress(android.graphics.Bitmap.CompressFormat.JPEG, 78, it) }
+        f.absolutePath
+    } catch (e: Exception) { null }
+}
+
+@Composable
+private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit) {
+    val context = LocalContext.current
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val path = saveSiteGalleryPhoto(context, uri)
+            if (path != null) onChange(extras.copy(gallery = (extras.gallery + path).take(8)))
+        }
+    }
+    var tName by remember { mutableStateOf("") }
+    var tText by remember { mutableStateOf("") }
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("آراء العملاء", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            extras.testimonials.forEachIndexed { i, tm ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text("★ " + tm.name + ": " + tm.text, modifier = Modifier.weight(1f), fontFamily = CairoFontFamily)
+                    IconButton(onClick = { onChange(extras.copy(testimonials = extras.testimonials.filterIndexed { j, _ -> j != i })) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "حذف")
+                    }
+                }
+            }
+            OutlinedTextField(value = tName, onValueChange = { tName = it }, label = { Text("اسم العميل", fontFamily = CairoFontFamily) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = tText, onValueChange = { tText = it }, label = { Text("رأي العميل", fontFamily = CairoFontFamily) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            Button(onClick = {
+                if (tName.isNotBlank() && tText.isNotBlank()) {
+                    onChange(extras.copy(testimonials = extras.testimonials + SiteTestimonial(tName.trim(), tText.trim(), 5)))
+                    tName = ""; tText = ""
+                }
+            }) { Text("إضافة رأي", fontFamily = CairoFontFamily) }
+
+            Text("معرض الصور (حتى 8 صور)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            Text("عدد الصور: " + extras.gallery.size, fontFamily = CairoFontFamily)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    picker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text("إضافة صورة من المعرض", fontFamily = CairoFontFamily) }
+                if (extras.gallery.isNotEmpty()) {
+                    OutlinedButton(onClick = { onChange(extras.copy(gallery = extras.gallery.dropLast(1))) }) { Text("حذف آخر صورة", fontFamily = CairoFontFamily) }
+                }
+            }
+
+            Text("روابط السوشيال ميديا", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            OutlinedTextField(value = extras.facebook, onValueChange = { onChange(extras.copy(facebook = it)) }, label = { Text("فيسبوك (رابط أو اسم الصفحة)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = extras.instagram, onValueChange = { onChange(extras.copy(instagram = it)) }, label = { Text("إنستجرام (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = extras.tiktok, onValueChange = { onChange(extras.copy(tiktok = it)) }, label = { Text("تيك توك (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = extras.youtube, onValueChange = { onChange(extras.copy(youtube = it)) }, label = { Text("يوتيوب (رابط القناة)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = extras.telegram, onValueChange = { onChange(extras.copy(telegram = it)) }, label = { Text("تيليجرام (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(value = extras.website, onValueChange = { onChange(extras.copy(website = it)) }, label = { Text("موقع آخر (رابط)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
         }
     }
 }
@@ -1813,6 +1898,36 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
       <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
     </form>
   </section>""" else ""
+    val ex = site.extras
+    fun normUrl(raw: String, base: String): String {
+        val v = raw.trim().removePrefix("@")
+        if (v.isEmpty()) return ""
+        if (v.startsWith("http://") || v.startsWith("https://")) return v
+        if (v.contains(":")) return ""
+        if (v.contains(".")) return "https://" + v
+        return base + v
+    }
+    val socials = listOf(
+        "فيسبوك" to normUrl(ex.facebook, "https://facebook.com/"),
+        "إنستجرام" to normUrl(ex.instagram, "https://instagram.com/"),
+        "تيك توك" to normUrl(ex.tiktok, "https://tiktok.com/@"),
+        "يوتيوب" to normUrl(ex.youtube, "https://youtube.com/@"),
+        "تيليجرام" to normUrl(ex.telegram, "https://t.me/"),
+        "الموقع" to normUrl(ex.website, "https://")
+    ).filter { it.second.isNotEmpty() }
+    val socialHtml = if (socials.isEmpty()) "" else "<div class=\"social reveal\">" + socials.joinToString("") { "<a href=\"" + siteEsc(it.second) + "\" target=\"_blank\" rel=\"noopener\">" + siteEsc(it.first) + "</a>" } + "</div>"
+    val testimonialsHtml = if (ex.testimonials.isEmpty()) "" else "<section id=\"reviews\" class=\"panel reveal\"><h2 class=\"t\">آراء عملائنا</h2><div class=\"revs\">" +
+        ex.testimonials.joinToString("") { "<div class=\"rev\"><div class=\"stars\">" + "★".repeat(it.stars.coerceIn(1, 5)) + "</div><p>" + siteEsc(it.text) + "</p><b>" + siteEsc(it.name) + "</b></div>" } + "</div></section>"
+    val galleryImgs = ex.gallery.take(8).mapNotNull { g ->
+        if (g.startsWith("http://") || g.startsWith("https://")) siteEsc(g)
+        else try {
+            val f = java.io.File(g)
+            if (f.exists() && f.length() < 400_000) "data:image/jpeg;base64," + android.util.Base64.encodeToString(f.readBytes(), android.util.Base64.NO_WRAP) else null
+        } catch (e: Exception) { null }
+    }
+    val galleryHtml = if (galleryImgs.isEmpty()) "" else "<section id=\"gallery\" class=\"panel reveal\"><h2 class=\"t\">معرض الصور</h2><div class=\"gal\">" +
+        galleryImgs.joinToString("") { "<img loading=\"lazy\" alt=\"\" src=\"" + it + "\">" } + "</div></section>"
+    val extrasHtml = testimonialsHtml + galleryHtml + socialHtml
     val faqHtml = if (t.featureFaqSection) """
   <section id="faq" class="panel reveal">
     <h2 class="t">أسئلة شائعة</h2>
@@ -1879,6 +1994,10 @@ h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px;
 .feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; text-align: center; }
 .feat .ico { font-size: 2rem; margin-bottom: 6px; }
 .feat h4 { font-size: 1.05rem; } .feat p { color: var(--muted); font-size: .88rem; }
+.revs { display: grid; gap: 14px; } .rev { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.rev .stars { color: #f5b301; letter-spacing: 2px; } .rev p { margin: 8px 0; }
+.gal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; } .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+.social { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; } .social a { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none; font-weight: 700; }
 .panel { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; border: 1px solid var(--line); }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
 .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
@@ -1946,6 +2065,7 @@ $features
   </section>
 $catalogHtml
 $bookingHtml
+$extrasHtml
 $faqHtml
   <section id="contact" class="panel contact reveal">
     <h2 class="t">العنوان ومواعيد العمل</h2>
