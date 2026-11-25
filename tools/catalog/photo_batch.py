@@ -38,14 +38,14 @@ def layout(asp, acc, scr, k, l1, l2, sub, cta, var):
     e = []
     def T(t,y,s,b,c,o=1.0): e.append(["T",t,180,y,s,b,c,o])
     if var == "t" and asp == "9:16":
-        e.append(["S","RECTANGLE",180.0,100.0,W,200,scr,0.75,0,"grad:t"])
+        e.append(["S","RECTANGLE",180.0,140.0,W,280,scr,0.93,0,"grad:t"])
         e.append(["S","RECTANGLE",180.0,H-120.0,W,240,scr,0.9,0,"grad:b"])
         T(k,56,15,1,acc); T(l1,108,36,1,"#FFFFFF"); T(l2,156,42,1,acc)
         T(sub,H-98,14,0,"#FFFFFF",0.95); T(cta,H-58,16,1,acc)
         e.append(["S","RECTANGLE",180,H-44,60,2,acc,1.0,0,""])
     else:
-        h = 260
-        e.append(["S","RECTANGLE",180.0,H-h/2,W,h,scr,0.9,0,"grad:b"])
+        h = 300
+        e.append(["S","RECTANGLE",180.0,H-h/2,W,h,scr,0.95,0,"grad:b"])
         T(k,H-150,15,1,acc); T(l1,H-112,36,1,"#FFFFFF"); T(l2,H-68,36,1,acc)
         T(sub,H-40,13,0,"#FFFFFF",0.95)
         # cta below sub would crowd small canvases: put cta on same block bottom
