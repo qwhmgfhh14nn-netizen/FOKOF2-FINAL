@@ -39,6 +39,11 @@ class SiteHtmlTest {
             assertTrue("filter chips missing for $t", html.contains("class=\"chip on\""))
             assertFalse("unescaped title for $t", html.contains("<b>اسم</b>"))
             println("SITE_HTML_OK $t bytes=${html.length}")
+            if (t == "RESTAURANT" || t == "HOTEL" || t == "LAWYER") {
+                println("SITE_HTML_BEGIN $t")
+                println(html.replace(Regex("data:image/jpeg;base64,[A-Za-z0-9+/=]+"), "HERO.jpg"))
+                println("SITE_HTML_END")
+            }
         }
     }
 }
