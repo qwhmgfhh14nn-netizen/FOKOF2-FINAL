@@ -54,6 +54,7 @@ object CatalogTemplates {
                 id = o.getString("id"), titleAr = o.getString("tAr"), titleEn = o.getString("tEn"),
                 category = o.getString("cat"), aspectRatio = o.getString("asp"),
                 isPremium = false, pricingType = "FREE", priceEgp = 0, salesCount = 0,
+                imageUri = o.optString("img").takeIf { it.isNotBlank() }?.let { "file:///android_asset/templates/" + it },
                 elements = els, bgStartHex = o.getString("bs"), bgEndHex = o.getString("be")
             )
         }

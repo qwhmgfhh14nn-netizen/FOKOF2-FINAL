@@ -99,6 +99,36 @@ class CatalogTemplatesTest {
     }
 
     @Test
+    fun photo_templates_have_images_and_render() {
+        val f = File("src/main/assets/templates/catalog_photo.json")
+        if (!f.exists()) return
+        val list = CatalogTemplates.parse(f.readText())
+        for (t in list) {
+            val u = t.imageUri ?: error("no image ${t.id}")
+            assertTrue("missing asset $u", File("src/main/assets/templates/" + u.substringAfter("templates/")).length() > 5000)
+        }
+        val out = File("build/screenshots").also { it.mkdirs() }
+        var page by mutableIntStateOf(0)
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            val items = list.drop(page * 8).take(8)
+            Column(Modifier.background(Color.White)) {
+                items.chunked(4).forEach { row ->
+                    Row { row.forEach { t -> Box(Modifier.width(240.dp).padding(4.dp)) { TemplateThumb(template = t, maxHeight = 420.dp) } } }
+                }
+            }
+        }
+        for (p in 0 until (list.size + 7) / 8) {
+            rule.runOnUiThread { page = p }
+            repeat(10) { rule.mainClock.advanceTimeBy(400); ShadowLooper.idleMainLooper(); Thread.sleep(250); ShadowLooper.idleMainLooper() }
+            val dv = rule.activity.window.decorView
+            val bmp = Bitmap.createBitmap(dv.width.coerceAtLeast(1), dv.height.coerceAtLeast(1), Bitmap.Config.ARGB_8888)
+            rule.runOnUiThread { dv.draw(Canvas(bmp)) }
+            File(out, "photo_sheet_${p + 1}.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+    }
+
+    @Test
     fun sample_sheets_render() {
         val out = File("build/screenshots").also { it.mkdirs() }
         val all = CatalogTemplates.parse(json)
