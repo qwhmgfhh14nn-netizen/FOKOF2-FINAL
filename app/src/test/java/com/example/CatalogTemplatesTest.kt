@@ -100,9 +100,10 @@ class CatalogTemplatesTest {
 
     @Test
     fun photo_templates_have_images_and_render() {
-        val f = File("src/main/assets/templates/catalog_photo.json")
-        if (!f.exists()) return
-        val list = CatalogTemplates.parse(f.readText())
+        val files = (File("src/main/assets/templates").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("catalog_photo") && it.name.endsWith(".json") }.sortedBy { it.name.length * 100 + it.name.hashCode() % 50 }
+        if (files.isEmpty()) return
+        val list = files.flatMap { CatalogTemplates.parse(it.readText()) }
         for (t in list) {
             val u = t.imageUri ?: error("no image ${t.id}")
             assertTrue("missing asset $u", File("src/main/assets/templates/" + u.substringAfter("templates/")).length() > 5000)
