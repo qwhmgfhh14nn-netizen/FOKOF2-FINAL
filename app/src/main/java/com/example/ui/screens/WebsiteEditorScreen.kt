@@ -1746,24 +1746,94 @@ private fun siteHeroDataUri(context: Context?, type: String): String {
     }
 }
 
+
+private val SITE_FEATURES: Map<String, List<Triple<String, String, String>>> = mapOf(
+    "RESTAURANT" to listOf(Triple("🔥", "مكونات طازجة", "نختار الخامات يومياً ونحضّر كل طلب على الفور"), Triple("🚚", "توصيل سريع", "طلبك يوصلك ساخن في أسرع وقت"), Triple("⭐", "طعم ثابت", "نفس الجودة في كل مرة تطلب فيها")),
+    "PHARMACY" to listOf(Triple("💊", "أدوية أصلية", "كل المنتجات من مصادر موثوقة ومعتمدة"), Triple("🕒", "خدمة سريعة", "ابعت الروشتة واستلم طلبك بسرعة"), Triple("👨‍⚕️", "استشارة صيدلي", "فريق جاهز للإجابة عن استفساراتك")),
+    "FASHION" to listOf(Triple("👗", "تصميمات عصرية", "تشكيلة تواكب أحدث صيحات الموضة"), Triple("🧵", "خامات مميزة", "جودة تفصيل وخامات تدوم"), Triple("🎁", "عروض موسمية", "خصومات وعروض على أفضل القطع")),
+    "CLINIC" to listOf(Triple("🩺", "أطباء متخصصون", "فريق طبي بخبرة وسمعة طيبة"), Triple("📅", "حجز سهل", "احجز موعدك بسهولة عبر واتساب"), Triple("🧼", "تعقيم كامل", "معايير نظافة وتعقيم عالية")),
+    "REAL_ESTATE" to listOf(Triple("🏠", "وحدات مميزة", "عقارات مختارة في أفضل المواقع"), Triple("📄", "عقود موثقة", "إجراءات واضحة وقانونية بالكامل"), Triple("🤝", "دعم كامل", "نرافقك من المعاينة حتى الاستلام")),
+    "SALON" to listOf(Triple("💇", "خبراء تجميل", "فريق محترف بأحدث التقنيات"), Triple("✨", "منتجات عالمية", "نستخدم خامات آمنة وعالية الجودة"), Triple("📅", "حجز مسبق", "احجز موعدك وتجنّب الانتظار")),
+    "MOTORS" to listOf(Triple("🚗", "سيارات مفحوصة", "فحص شامل لكل سيارة قبل العرض"), Triple("🔧", "صيانة وضمان", "خدمة ما بعد البيع وضمان معتمد"), Triple("💳", "تقسيط مرن", "حلول تمويل تناسب ميزانيتك")),
+    "GROCERY" to listOf(Triple("🥬", "طازج يومياً", "خضار وفاكهة وبقالة بأعلى جودة"), Triple("🛵", "توصيل للمنزل", "اطلب وهنوصلك في أسرع وقت"), Triple("💰", "أسعار مناسبة", "عروض مستمرة على الأساسيات")),
+    "AGENCY" to listOf(Triple("🎯", "استراتيجية واضحة", "خطط تسويق مبنية على أهداف عملك"), Triple("🎨", "إبداع وتصميم", "هوية وإعلانات تلفت الانتباه"), Triple("📈", "نتائج قابلة للقياس", "تقارير واضحة لأداء حملاتك")),
+    "ACADEMY" to listOf(Triple("🎓", "مدرّبون محترفون", "خبرة حقيقية في المجال"), Triple("📚", "مناهج حديثة", "محتوى عملي يواكب سوق العمل"), Triple("🏅", "شهادات معتمدة", "شهادة إتمام بعد كل دورة")),
+    "GYM" to listOf(Triple("🏋️", "أجهزة حديثة", "معدات متكاملة لكل أنواع التمرين"), Triple("🥇", "مدربون معتمدون", "برامج مخصصة لهدفك"), Triple("🕒", "مواعيد مرنة", "نفتح لك طوال اليوم")),
+    "ELECTRONICS" to listOf(Triple("📱", "أجهزة أصلية", "منتجات بضمان رسمي"), Triple("🔌", "إكسسوارات متنوعة", "كل ما يخص جهازك في مكان واحد"), Triple("🛠️", "صيانة وفحص", "دعم فني سريع بعد الشراء")),
+    "PHOTO" to listOf(Triple("📸", "تصوير احترافي", "معدات وإضاءة بمستوى استوديوهات"), Triple("🎞️", "تعديل وإخراج", "صور نهائية بجودة عالية"), Triple("💍", "كل المناسبات", "أفراح وبورتريه ومنتجات")),
+    "TRAVEL" to listOf(Triple("✈️", "رحلات منظمة", "برامج سياحية داخلية وخارجية"), Triple("🏨", "إقامة مريحة", "فنادق مختارة بأسعار مناسبة"), Triple("🧾", "حجز بدون تعقيد", "نتولى التذاكر والإجراءات عنك")),
+    "LAWYER" to listOf(Triple("⚖️", "خبرة قانونية", "استشارات وقضايا بمعرفة عميقة"), Triple("🔒", "سرية تامة", "نحافظ على خصوصية موكلينا"), Triple("📞", "متابعة مستمرة", "نبقيك على اطلاع بكل خطوة")),
+    "CAFE" to listOf(Triple("☕", "قهوة مختصة", "حبوب محمصة طازجة ومحضّرة بإتقان"), Triple("💻", "مكان هادئ", "مساحة مريحة للعمل واللمّة"), Triple("🍰", "حلويات طازجة", "تشكيلة يومية تناسب قهوتك")),
+    "HOTEL" to listOf(Triple("🛏️", "غرف مريحة", "نظافة وراحة وخدمة على مدار الساعة"), Triple("🍳", "إفطار مشمول", "وجبة إفطار متنوعة كل صباح"), Triple("📍", "موقع مميز", "قريب من أهم الأماكن والخدمات")),
+    "BAKERY" to listOf(Triple("🥐", "مخبوزات طازجة", "نخبز يومياً بأجود المكونات"), Triple("🎂", "تورت حسب الطلب", "نصمم لك تورتة مناسبتك"), Triple("🚚", "توصيل للمنزل", "طلبك يوصل طازج"))
+)
+
 internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null): String {
     val primary = if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
     val hero = siteHeroDataUri(context, site.businessType)
     val heroCss = if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
+    val t = site.featureToggles
+    val waNum = site.whatsappNumber.filter { it.isDigit() }
+    val cats = site.items.map { it.category }.distinct()
+    val chips = if (t.featureProductCatalog && cats.size > 1) {
+        "<button class=\"chip on\" data-cat=\"__all\">الكل</button>" + cats.joinToString("") { "<button class=\"chip\" data-cat=\"" + siteEsc(it) + "\">" + siteEsc(it) + "</button>" }
+    } else ""
     val itemsHtml = site.items.joinToString("\n") { item ->
         val msg = java.net.URLEncoder.encode("مرحباً أود طلب: " + item.nameAr, "UTF-8")
         val badge = if (!item.badgeAr.isNullOrBlank()) "<span class=\"badge\">" + siteEsc(item.badgeAr) + "</span>" else ""
+        val priceHtml = if (item.priceEgp <= 0) "<div class=\"price\">اتصل للسعر</div>" else {
+            val old = if (item.originalPriceEgp > item.priceEgp) "<s class=\"old\">" + item.originalPriceEgp + "</s>" else ""
+            val off = if (item.originalPriceEgp > item.priceEgp) "<span class=\"off\">خصم " + ((item.originalPriceEgp - item.priceEgp) * 100 / item.originalPriceEgp) + "%</span>" else ""
+            "<div class=\"price\">" + item.priceEgp + " ج.م " + old + off + "</div>"
+        }
         """
-        <div class="card reveal">
+        <div class="card reveal" data-cat="${siteEsc(item.category)}">
             <div class="card-body">
                 <h3>${siteEsc(item.nameAr)} $badge</h3>
                 <p>${siteEsc(item.descriptionAr)}</p>
-                <div class="price">${item.priceEgp} ج.م</div>
+                $priceHtml
             </div>
-            <a href="https://wa.me/${site.whatsappNumber}?text=$msg" class="order-btn" target="_blank" rel="noopener">طلب الآن</a>
+            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener">طلب الآن</a>
         </div>
         """.trimIndent()
     }
+    val features = (SITE_FEATURES[site.businessType.uppercase()] ?: SITE_FEATURES["AGENCY"]!!).joinToString("\n") {
+        "<div class=\"feat reveal\"><div class=\"ico\">" + it.first + "</div><h4>" + siteEsc(it.second) + "</h4><p>" + siteEsc(it.third) + "</p></div>"
+    }
+    val options = site.items.joinToString("") { "<option>" + siteEsc(it.nameAr) + "</option>" }
+    val bookingHtml = if (t.featureBookingSystem || t.featureWhatsappOrders) """
+  <section id="book" class="panel reveal">
+    <h2 class="t">${if (t.featureBookingSystem) "احجز أو اطلب الآن" else "اطلب الآن"}</h2>
+    <form id="bf" class="form">
+      <input id="f-name" placeholder="الاسم" required>
+      <input id="f-phone" type="tel" placeholder="رقم الموبايل" required>
+      <select id="f-item"><option value="">اختر الخدمة أو المنتج</option>$options</select>
+      <input id="f-when" placeholder="الموعد المناسب (اختياري)">
+      <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+      <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
+    </form>
+  </section>""" else ""
+    val faqHtml = if (t.featureFaqSection) """
+  <section id="faq" class="panel reveal">
+    <h2 class="t">أسئلة شائعة</h2>
+    <details><summary>إزاي أطلب أو أحجز؟</summary><p>املأ النموذج أعلاه أو راسلنا مباشرة على واتساب وهنرد عليك في أسرع وقت.</p></details>
+    <details><summary>إيه مواعيد العمل؟</summary><p>${siteEsc(site.workingHours)}</p></details>
+    <details><summary>فين مكانكم؟</summary><p>${siteEsc(site.address)}</p></details>
+  </section>""" else ""
+    val mapHtml = if (t.featureGoogleMaps && site.address.isNotBlank()) {
+        val q = java.net.URLEncoder.encode(site.address, "UTF-8")
+        "<div class=\"map\"><iframe title=\"map\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\" src=\"https://maps.google.com/maps?q=" + q + "&output=embed\"></iframe></div>"
+    } else ""
+    val catalogHtml = if (t.featureProductCatalog && site.items.isNotEmpty()) """
+  <section id="menu">
+    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
+    <div class="chips">$chips</div>
+    <div class="grid">
+$itemsHtml
+    </div>
+  </section>""" else ""
+    val callBtn = if (t.featureDirectCalling) "<a href=\"tel:" + siteEsc(site.phoneNumber) + "\" class=\"btn btn-call\">اتصل بنا: " + siteEsc(site.phoneNumber) + "</a>" else ""
+    val desc = siteEsc(site.headline + " - " + site.subheadline)
 
     return """
 <!DOCTYPE html>
@@ -1772,28 +1842,47 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${siteEsc(site.siteTitle)} | ${siteEsc(site.headline)}</title>
+<meta name="description" content="$desc">
+<meta name="theme-color" content="$primary">
+<meta property="og:title" content="${siteEsc(site.siteTitle)}">
+<meta property="og:description" content="$desc">
+<meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; }
+:root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
+[data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
 html { scroll-behavior: smooth; }
-body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; }
+body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
+nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
+nav b { font-weight: 800; font-size: 1.05rem; }
+nav .links { display: flex; gap: 14px; align-items: center; font-size: .9rem; }
+nav a { color: var(--ink); text-decoration: none; opacity: .8; }
+nav a:hover { color: var(--primary); opacity: 1; }
+#theme { background: none; border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
 .hero { position: relative; min-height: 78vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; overflow: hidden; }
 .hero-bg { position: absolute; inset: 0; background-image: $heroCss; background-size: cover; background-position: center; animation: kenburns 18s ease-in-out infinite alternate; }
-.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.65)); }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.68)); }
 .hero-inner { position: relative; z-index: 2; padding: 32px 20px; max-width: 760px; }
 .hero h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 800; animation: rise .9s ease both; }
 .tagline { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 8px 0; animation: rise .9s .15s ease both; filter: brightness(1.35); }
 .sub { opacity: .92; margin: 0 auto 26px; animation: rise .9s .3s ease both; }
 .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: rise .9s .45s ease both; }
-.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; transition: transform .25s, box-shadow .25s; }
+.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font-size: 1rem; transition: transform .25s, box-shadow .25s; }
 .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
 .btn-wa { background: #25D366; color: #fff; }
 .btn-call { background: rgba(255,255,255,.15); border: 2px solid #fff; color: #fff; backdrop-filter: blur(4px); }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 48px 20px 20px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 20px; }
 h2.t { font-size: 1.7rem; font-weight: 800; margin-bottom: 22px; position: relative; padding-bottom: 10px; }
 h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px; height: 4px; border-radius: 4px; background: var(--primary); }
-.about { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 46px; }
+.feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; text-align: center; }
+.feat .ico { font-size: 2rem; margin-bottom: 6px; }
+.feat h4 { font-size: 1.05rem; } .feat p { color: var(--muted); font-size: .88rem; }
+.panel { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; border: 1px solid var(--line); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+.chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
 .card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
 .card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
@@ -1801,21 +1890,40 @@ h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px;
 .card p { color: var(--muted); font-size: .92rem; margin-bottom: 12px; }
 .badge { background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
 .price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.old { color: var(--muted); font-size: .9rem; font-weight: 400; margin-right: 6px; }
+.off { background: #dc2626; color: #fff; font-size: .72rem; padding: 2px 8px; border-radius: 6px; margin-right: 6px; font-weight: 700; }
 .order-btn { background: var(--primary); color: #fff; text-align: center; padding: 11px; border-radius: 12px; font-weight: 700; text-decoration: none; transition: filter .2s; }
 .order-btn:hover { filter: brightness(1.12); }
-.contact { background: var(--card); border-radius: 18px; padding: 26px; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; }
+.form { display: grid; gap: 12px; }
+.form input, .form select, .form textarea { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 1rem; }
+.form button { justify-self: start; }
+details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+summary { cursor: pointer; font-weight: 700; }
+details p { color: var(--muted); margin-top: 8px; }
+.map { border-radius: 18px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--line); }
+.map iframe { width: 100%; height: 300px; border: 0; display: block; }
+.contact { text-align: center; }
 .contact h2.t::after { right: 50%; transform: translateX(50%); }
 footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85rem; }
 .fab { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.3); animation: pulse 2.2s infinite; }
+#top { position: fixed; bottom: 20px; right: 20px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--primary); color: #fff; font-size: 1.2rem; cursor: pointer; display: none; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.in { opacity: 1; transform: none; }
 @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+@media (max-width: 560px) { nav .links a { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
 </style>
 </head>
 <body>
+<nav>
+  <b>${siteEsc(site.siteTitle)}</b>
+  <div class="links">
+    <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
+    <button id="theme" title="الوضع الليلي">🌙</button>
+  </div>
+</nav>
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-inner">
@@ -1823,38 +1931,72 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
     <div class="tagline">${siteEsc(site.headline)}</div>
     <p class="sub">${siteEsc(site.subheadline)}</p>
     <div class="cta">
-      <a href="https://wa.me/${site.whatsappNumber}" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
-      <a href="tel:${site.phoneNumber}" class="btn btn-call">اتصل بنا: ${siteEsc(site.phoneNumber)}</a>
+      <a href="https://wa.me/$waNum" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+      $callBtn
     </div>
   </div>
 </section>
 <div class="wrap">
-  <section class="about reveal">
+  <div class="feats">
+$features
+  </div>
+  <section class="panel reveal">
     <h2 class="t">نبذة عنا</h2>
     <p>${siteEsc(site.aboutText)}</p>
   </section>
-  <section>
-    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
-    <div class="grid">
-$itemsHtml
-    </div>
-  </section>
-  <section class="contact reveal">
+$catalogHtml
+$bookingHtml
+$faqHtml
+  <section id="contact" class="panel contact reveal">
     <h2 class="t">العنوان ومواعيد العمل</h2>
     <p>📍 ${siteEsc(site.address)}</p>
     <p>⏰ ${siteEsc(site.workingHours)}</p>
   </section>
+$mapHtml
 </div>
 <footer>تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
-<a class="fab" href="https://wa.me/${site.whatsappNumber}" target="_blank" rel="noopener">واتساب</a>
+<a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
+<button id="top" title="لأعلى">↑</button>
 <script>
 (function () {
   var els = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-  }, { threshold: 0.12 });
-  els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+  }
+  var root = document.documentElement, tb = document.getElementById('theme');
+  tb.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); tb.textContent = '🌙'; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }
+  });
+  var top = document.getElementById('top');
+  window.addEventListener('scroll', function () { top.style.display = window.scrollY > 500 ? 'block' : 'none'; });
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      var cat = c.getAttribute('data-cat');
+      document.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
+      });
+    });
+  });
+  var bf = document.getElementById('bf');
+  if (bf) bf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var lines = ['مرحباً، أود التواصل بخصوص:'];
+    var item = document.getElementById('f-item').value;
+    if (item) lines.push('الخدمة: ' + item);
+    lines.push('الاسم: ' + document.getElementById('f-name').value);
+    lines.push('الموبايل: ' + document.getElementById('f-phone').value);
+    var w = document.getElementById('f-when').value; if (w) lines.push('الموعد: ' + w);
+    var n = document.getElementById('f-note').value; if (n) lines.push('ملاحظات: ' + n);
+    window.open('https://wa.me/$waNum?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
 })();
 </script>
 </body>

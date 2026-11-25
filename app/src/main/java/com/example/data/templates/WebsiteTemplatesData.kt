@@ -396,6 +396,310 @@ object WebsiteTemplatesData {
                     WebsiteItem(nameAr = "دورة التسويق الرقمي وتحليل البيانات المتقدمة", nameEn = "Digital Marketing & Analytics", priceEgp = 1650, descriptionAr = "إعلانات جوجل، تحسين محركات البحث SEO، وأسرار مضاعفة المبيعات", category = "التسويق الرقمي"),
                     WebsiteItem(nameAr = "كورس العمل الحر Freelancing وبناء المعرض الشخصي", nameEn = "Freelancing Kickstart", priceEgp = 600, originalPriceEgp = 850, descriptionAr = "كيف تجذب عملاء بالدولار من منصات Upwork وFiverr وكتابة عروض مقنعة", category = "العمل الحر", badgeAr = "عملي")
                 )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_gym",
+                businessType = "GYM",
+                businessTypeNameAr = "جيم ولياقة بدنية",
+                titleAr = "نادي فيت زون الرياضي",
+                titleEn = "FitZone Gym",
+                taglineAr = "تمرن بقوة مع مدربين معتمدين وأجهزة حديثة",
+                descriptionAr = "قالب موقع جاهز لنشاط جيم ولياقة بدنية مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#E53935",
+                secondaryColorHex = "#FF8A65",
+                darkBgHex = "#12090A",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "طاقتك تبدأ من هنا",
+                sampleSubheadline = "اشتراكات مرنة وحصص جماعية وتدريب شخصي",
+                sampleAbout = "جيم متكامل بأحدث الأجهزة ومدربين معتمدين وبرامج تناسب كل المستويات.",
+                sampleAddress = "شارع الجمهورية، طنطا",
+                sampleWorkingHours = "يومياً من 6 صباحاً حتى 12 منتصف الليل",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "اشتراك شهري مفتوح", nameEn = "Monthly Pass", priceEgp = 450, originalPriceEgp = 550, descriptionAr = "دخول غير محدود لكل الأجهزة والحصص", category = "الاشتراكات", badgeAr = "الأوفر"),
+                    WebsiteItem(nameAr = "اشتراك 3 شهور", nameEn = "3 Months", priceEgp = 1200, originalPriceEgp = 1500, descriptionAr = "وفّر أكتر مع اشتراك ربع سنوي", category = "الاشتراكات"),
+                    WebsiteItem(nameAr = "تدريب شخصي PT (8 حصص)", nameEn = "Personal Training", priceEgp = 1600, descriptionAr = "برنامج مخصص مع مدرب معتمد", category = "التدريب"),
+                    WebsiteItem(nameAr = "حصة كروس فيت جماعية", nameEn = "CrossFit Class", priceEgp = 120, descriptionAr = "حصة جماعية عالية الشدة 60 دقيقة", category = "الحصص", badgeAr = "جديد")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_electronics",
+                businessType = "ELECTRONICS",
+                businessTypeNameAr = "موبايلات وإلكترونيات",
+                titleAr = "متجر تك زون للإلكترونيات",
+                titleEn = "TechZone Electronics",
+                taglineAr = "أحدث الأجهزة بأسعار منافسة وضمان رسمي",
+                descriptionAr = "قالب موقع جاهز لنشاط موبايلات وإلكترونيات مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#1E88E5",
+                secondaryColorHex = "#64B5F6",
+                darkBgHex = "#07101A",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "كل جديد في التكنولوجيا عندنا",
+                sampleSubheadline = "موبايلات ولابتوبات وإكسسوارات بضمان",
+                sampleAbout = "متجر إلكترونيات يقدم أحدث الأجهزة والإكسسوارات مع صيانة وضمان.",
+                sampleAddress = "شارع عبد العزيز، القاهرة",
+                sampleWorkingHours = "يومياً من 10 صباحاً حتى 11 مساءً",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "موبايل ذكي 256 جيجا", nameEn = "Smartphone 256GB", priceEgp = 12500, originalPriceEgp = 13900, descriptionAr = "شاشة AMOLED وكاميرا احترافية وبطارية تدوم", category = "موبايلات", badgeAr = "الأكثر مبيعاً"),
+                    WebsiteItem(nameAr = "لابتوب للدراسة والعمل", nameEn = "Laptop", priceEgp = 18900, descriptionAr = "معالج سريع وذاكرة 16 جيجا", category = "لابتوبات"),
+                    WebsiteItem(nameAr = "سماعات لاسلكية بخاصية العزل", nameEn = "Wireless Earbuds", priceEgp = 850, originalPriceEgp = 1100, descriptionAr = "صوت نقي وبطارية 24 ساعة", category = "إكسسوارات", badgeAr = "خصم"),
+                    WebsiteItem(nameAr = "شاحن سريع 65 واط", nameEn = "Fast Charger", priceEgp = 350, descriptionAr = "شحن سريع آمن لكل الأجهزة", category = "إكسسوارات")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_photo",
+                businessType = "PHOTO",
+                businessTypeNameAr = "استوديو تصوير",
+                titleAr = "استوديو لقطة للتصوير",
+                titleEn = "Laqta Photo Studio",
+                taglineAr = "نحوّل لحظاتك لصور تعيش معاك العمر",
+                descriptionAr = "قالب موقع جاهز لنشاط استوديو تصوير مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#8E24AA",
+                secondaryColorHex = "#BA68C8",
+                darkBgHex = "#120A16",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "كل لقطة حكاية",
+                sampleSubheadline = "تصوير أفراح وبورتريه ومنتجات بجودة عالية",
+                sampleAbout = "استوديو تصوير احترافي بإضاءة ومعدات حديثة وفريق يهتم بأدق التفاصيل.",
+                sampleAddress = "شارع التحرير، الجيزة",
+                sampleWorkingHours = "يومياً من 11 صباحاً حتى 9 مساءً",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "جلسة تصوير بورتريه", nameEn = "Portrait Session", priceEgp = 900, originalPriceEgp = 1100, descriptionAr = "ساعة تصوير و15 صورة معدلة", category = "جلسات", badgeAr = "الأكثر طلباً"),
+                    WebsiteItem(nameAr = "تصوير فرح كامل", nameEn = "Wedding Package", priceEgp = 7500, descriptionAr = "تغطية كاملة مع ألبوم وفيديو قصير", category = "الأفراح"),
+                    WebsiteItem(nameAr = "تصوير منتجات للمتاجر", nameEn = "Product Photography", priceEgp = 1500, descriptionAr = "20 منتج بخلفية بيضاء وتعديل", category = "منتجات"),
+                    WebsiteItem(nameAr = "جلسة عائلية", nameEn = "Family Session", priceEgp = 1200, descriptionAr = "صور عائلية في الاستوديو أو بالخارج", category = "جلسات")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_travel",
+                businessType = "TRAVEL",
+                businessTypeNameAr = "سياحة وسفر",
+                titleAr = "شركة رحلات أفق للسياحة",
+                titleEn = "Ofoq Travel",
+                taglineAr = "رحلات منظمة بأسعار ممتازة وتجربة بدون تعقيد",
+                descriptionAr = "قالب موقع جاهز لنشاط سياحة وسفر مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#00ACC1",
+                secondaryColorHex = "#4DD0E1",
+                darkBgHex = "#06141A",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "سافر وأحنا نرتب كل حاجة",
+                sampleSubheadline = "رحلات داخلية وعمرة وبرامج سياحية خارجية",
+                sampleAbout = "شركة سياحة تنظم رحلات داخلية وخارجية وتحجز الطيران والفنادق وتجهز التأشيرات.",
+                sampleAddress = "شارع مكرم عبيد، مدينة نصر",
+                sampleWorkingHours = "من السبت للخميس 10 صباحاً حتى 8 مساءً",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "رحلة شرم الشيخ 4 أيام", nameEn = "Sharm 4 Days", priceEgp = 3900, originalPriceEgp = 4500, descriptionAr = "إقامة بفندق 4 نجوم مع إفطار ومواصلات", category = "رحلات داخلية", badgeAr = "الأكثر حجزاً"),
+                    WebsiteItem(nameAr = "رحلة الأقصر وأسوان 5 أيام", nameEn = "Luxor Aswan", priceEgp = 5200, descriptionAr = "برنامج زيارات مع مرشد سياحي", category = "رحلات داخلية"),
+                    WebsiteItem(nameAr = "برنامج عمرة اقتصادي", nameEn = "Umrah Package", priceEgp = 32000, descriptionAr = "طيران وإقامة وتنقلات", category = "عمرة وحج"),
+                    WebsiteItem(nameAr = "حجز تذاكر طيران", nameEn = "Flight Booking", priceEgp = 0, descriptionAr = "نحجز لك أفضل سعر متاح - اتصل للسعر", category = "خدمات")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_lawyer",
+                businessType = "LAWYER",
+                businessTypeNameAr = "محاماة واستشارات قانونية",
+                titleAr = "مكتب العدل للمحاماة",
+                titleEn = "Al-Adl Law Office",
+                taglineAr = "استشارات وقضايا بخبرة وسرية تامة",
+                descriptionAr = "قالب موقع جاهز لنشاط محاماة واستشارات قانونية مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#5D4037",
+                secondaryColorHex = "#A1887F",
+                darkBgHex = "#0E0A08",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "حقك محفوظ بإذن الله",
+                sampleSubheadline = "استشارات قانونية وقضايا مدنية وتجارية وأسرة",
+                sampleAbout = "مكتب محاماة يقدم استشارات وتمثيل قانوني في القضايا المدنية والتجارية والأحوال الشخصية.",
+                sampleAddress = "شارع قصر العيني، القاهرة",
+                sampleWorkingHours = "من السبت للخميس 10 صباحاً حتى 6 مساءً",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "استشارة قانونية (30 دقيقة)", nameEn = "Consultation", priceEgp = 500, descriptionAr = "جلسة استشارة مع محامٍ متخصص", category = "استشارات"),
+                    WebsiteItem(nameAr = "تأسيس شركة وعقود", nameEn = "Company Setup", priceEgp = 3500, descriptionAr = "إجراءات التأسيس وصياغة العقود", category = "شركات", badgeAr = "مطلوب"),
+                    WebsiteItem(nameAr = "قضايا الأحوال الشخصية", nameEn = "Family Law", priceEgp = 0, descriptionAr = "تمثيل وإجراءات - اتصل للتسعير", category = "قضايا"),
+                    WebsiteItem(nameAr = "صياغة ومراجعة العقود", nameEn = "Contract Review", priceEgp = 800, descriptionAr = "مراجعة قانونية دقيقة قبل التوقيع", category = "عقود")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_bakery",
+                businessType = "BAKERY",
+                businessTypeNameAr = "مخابز وحلويات",
+                titleAr = "مخبز وحلويات الفرن البلدي",
+                titleEn = "Local Oven Bakery",
+                taglineAr = "مخبوزات طازجة وتورت حسب الطلب",
+                descriptionAr = "قالب موقع جاهز لنشاط مخابز وحلويات مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#F57C00",
+                secondaryColorHex = "#FFB74D",
+                darkBgHex = "#140C05",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "طازج من الفرن كل يوم",
+                sampleSubheadline = "عيش وفطائر وتورت لكل مناسباتك",
+                sampleAbout = "مخبز وحلواني يقدم مخبوزات طازجة يومياً وتورت ومعجنات حسب الطلب.",
+                sampleAddress = "شارع الهرم، الجيزة",
+                sampleWorkingHours = "يومياً من 6 صباحاً حتى 11 مساءً",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "تورتة شوكولاتة فاخرة", nameEn = "Chocolate Cake", priceEgp = 450, originalPriceEgp = 520, descriptionAr = "طبقات كيك وغاناش شوكولاتة بلجيكي", category = "تورت", badgeAr = "الأكثر طلباً"),
+                    WebsiteItem(nameAr = "بوكس معجنات مشكلة", nameEn = "Pastry Box", priceEgp = 180, descriptionAr = "12 قطعة من الفطائر والمعجنات", category = "معجنات"),
+                    WebsiteItem(nameAr = "كرواسون بالزبدة (6 قطع)", nameEn = "Croissant x6", priceEgp = 120, descriptionAr = "هش وطازج من الفرن", category = "مخبوزات"),
+                    WebsiteItem(nameAr = "تورتة مناسبات حسب الطلب", nameEn = "Custom Cake", priceEgp = 0, descriptionAr = "صمم تورتتك - اتصل للتسعير", category = "تورت")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_cafe",
+                businessType = "CAFE",
+                businessTypeNameAr = "كافيهات ومشروبات",
+                titleAr = "كافيه أرابيكا المختص",
+                titleEn = "Arabica Specialty Cafe",
+                taglineAr = "قهوة مختصة وأجواء هادئة للعمل واللمّة",
+                descriptionAr = "قالب موقع جاهز لنشاط كافيهات ومشروبات مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#6D4C41",
+                secondaryColorHex = "#BCAAA4",
+                darkBgHex = "#100B08",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "قهوتك المفضلة في مكان هادئ",
+                sampleSubheadline = "قهوة مختصة وحلويات ومساحة للعمل",
+                sampleAbout = "كافيه يقدم قهوة مختصة محمصة طازجة وحلويات ومساحة هادئة للعمل والاجتماعات.",
+                sampleAddress = "شارع الجامعة، المنصورة",
+                sampleWorkingHours = "يومياً من 8 صباحاً حتى 1 بعد منتصف الليل",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "لاتيه بنكهة الكراميل", nameEn = "Caramel Latte", priceEgp = 85, descriptionAr = "إسبريسو مع حليب مخفوق وكراميل", category = "القهوة الساخنة", badgeAr = "الأكثر طلباً"),
+                    WebsiteItem(nameAr = "آيس سبانش لاتيه", nameEn = "Spanish Latte Iced", priceEgp = 95, descriptionAr = "بارد ومنعش بحليب مكثف", category = "المشروبات الباردة"),
+                    WebsiteItem(nameAr = "كولد برو 12 ساعة", nameEn = "Cold Brew", priceEgp = 90, descriptionAr = "قهوة منقوعة باردة ناعمة", category = "المشروبات الباردة", badgeAr = "جديد"),
+                    WebsiteItem(nameAr = "كرواسون لوز مع قهوة", nameEn = "Almond Croissant Combo", priceEgp = 120, originalPriceEgp = 140, descriptionAr = "كرواسون لوز طازج مع مشروب", category = "حلويات", badgeAr = "كومبو")
+                )
+            ),
+
+            WebsiteTemplate(
+                id = "site_tpl_hotel",
+                businessType = "HOTEL",
+                businessTypeNameAr = "فنادق وشاليهات",
+                titleAr = "فندق وشاليهات الواحة",
+                titleEn = "Oasis Hotel & Chalets",
+                taglineAr = "إقامة مريحة بإطلالة رائعة وخدمة تليق بك",
+                descriptionAr = "قالب موقع جاهز لنشاط فنادق وشاليهات مع قائمة الخدمات والأسعار وطلبات وحجز عبر واتساب وخريطة ومواعيد العمل.",
+                primaryColorHex = "#00897B",
+                secondaryColorHex = "#80CBC4",
+                darkBgHex = "#06120F",
+                priceEgp = 0,
+                isPremium = false,
+                isPublished = true,
+                featureToggles = WebsiteFeatureToggles(
+                    featureWhatsappOrders = true,
+                    featureBookingSystem = true,
+                    featureProductCatalog = true,
+                    featureCustomerReviews = true,
+                    featureFaqSection = true,
+                    featureGoogleMaps = true,
+                    featureDirectCalling = true
+                ),
+                sampleHeadline = "إقامتك عندنا راحة كاملة",
+                sampleSubheadline = "غرف وشاليهات مع إفطار وخدمات متكاملة",
+                sampleAbout = "فندق وشاليهات يقدم غرفاً مريحة وإفطاراً وخدمات ترفيهية ومواقف مجانية.",
+                sampleAddress = "طريق الساحل الشمالي، مرسى مطروح",
+                sampleWorkingHours = "استقبال على مدار 24 ساعة",
+                samplePhone = "01012345678",
+                sampleWhatsapp = "201012345678",
+                sampleItems = listOf(
+                    WebsiteItem(nameAr = "غرفة مزدوجة بإفطار", nameEn = "Double Room", priceEgp = 1400, originalPriceEgp = 1700, descriptionAr = "غرفة مكيفة مع إفطار وواي فاي", category = "الغرف", badgeAr = "الأكثر حجزاً"),
+                    WebsiteItem(nameAr = "جناح عائلي", nameEn = "Family Suite", priceEgp = 2600, descriptionAr = "غرفتين وصالة لحد 5 أفراد", category = "الأجنحة"),
+                    WebsiteItem(nameAr = "شاليه بإطلالة البحر", nameEn = "Sea View Chalet", priceEgp = 3200, originalPriceEgp = 3800, descriptionAr = "شاليه كامل بمطبخ وشرفة", category = "الشاليهات"),
+                    WebsiteItem(nameAr = "باقة شهر العسل", nameEn = "Honeymoon Package", priceEgp = 4500, descriptionAr = "ليلتين مع عشاء وتزيين الغرفة", category = "العروض", badgeAr = "عرض")
+                )
             )
         )
     }

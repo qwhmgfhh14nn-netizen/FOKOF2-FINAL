@@ -231,6 +231,9 @@ interface WebsiteTemplateDao {
     @Query("UPDATE website_templates SET priceEgp = :priceEgp WHERE id = :id")
     suspend fun updateTemplatePrice(id: String, priceEgp: Int)
 
+    @Query("UPDATE website_templates SET isPublished = :published WHERE id = :id")
+    suspend fun updateTemplatePublished(id: String, published: Boolean)
+
     @Query("UPDATE website_templates SET featureTogglesJson = :togglesJson WHERE id = :id")
     suspend fun updateFeatureToggles(id: String, togglesJson: String)
 
