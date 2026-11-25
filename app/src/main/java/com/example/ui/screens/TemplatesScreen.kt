@@ -112,11 +112,8 @@ fun TemplatesScreen(
         matchesSearch && matchesFilter
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-    ) {
+    val headerBlock: @Composable () -> Unit = {
+        Column {
         // Search Input
         OutlinedTextField(
             value = searchQuery,
@@ -163,6 +160,14 @@ fun TemplatesScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
         // Content
         if (selectedFilter == "BUNDLES") {
             // Bundles List
@@ -170,6 +175,7 @@ fun TemplatesScreen(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item { headerBlock() }
                 item {
                     Text(
                         text = "باقات قوالب التوفير بأسعار مخفضة بالجنيه المصري (EGP):",
@@ -189,6 +195,7 @@ fun TemplatesScreen(
                 verticalItemSpacing = 10.dp,
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                item(span = androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.FullLine) { headerBlock() }
                 if (selectedFilter == "ALL" && searchQuery.isBlank()) {
                     item(span = androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.FullLine) {
                         Row(

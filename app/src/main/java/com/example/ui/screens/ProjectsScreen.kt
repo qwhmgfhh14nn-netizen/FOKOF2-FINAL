@@ -95,11 +95,8 @@ fun ProjectsScreen(
     var renameInputText by remember { mutableStateOf("") }
     var deletingProject by remember { mutableStateOf<DesignTemplate?>(null) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    val headerBlock: @Composable () -> Unit = {
+        Column {
         // Account Tier Banner & User Identity
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -215,8 +212,17 @@ fun ProjectsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         // Projects List
         if (savedProjects.isEmpty()) {
+            headerBlock()
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -252,6 +258,7 @@ fun ProjectsScreen(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item { headerBlock() }
                 items(savedProjects, key = { it.id }) { project ->
                     Card(
                         modifier = Modifier
