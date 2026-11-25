@@ -26,7 +26,11 @@ class SiteHtmlTest {
                 businessType = tpl.businessType, headline = tpl.sampleHeadline, subheadline = tpl.sampleSubheadline,
                 aboutText = tpl.sampleAbout, whatsappNumber = tpl.sampleWhatsapp, phoneNumber = tpl.samplePhone,
                 address = tpl.sampleAddress, workingHours = tpl.sampleWorkingHours,
-                items = tpl.sampleItems, featureToggles = tpl.featureToggles
+                items = tpl.sampleItems, featureToggles = tpl.featureToggles,
+                extras = com.example.data.model.SiteExtras(
+                    testimonials = listOf(com.example.data.model.SiteTestimonial("سارة", "خدمة ممتازة", 5)),
+                    gallery = listOf("https://example.com/a.jpg"), instagram = "@fokof2", facebook = "javascript:alert(1)"
+                )
             )
             val html = generateStandaloneHtml(site, ctx)
             val t = tpl.businessType
@@ -37,6 +41,10 @@ class SiteHtmlTest {
             assertTrue("faq missing for $t", html.contains("<details>"))
             assertTrue("dark toggle missing for $t", html.contains("id=\"theme\""))
             assertTrue("filter chips missing for $t", html.contains("class=\"chip on\""))
+            assertTrue("reviews missing for $t", html.contains("id=\"reviews\"") && html.contains("خدمة ممتازة"))
+            assertTrue("gallery missing for $t", html.contains("id=\"gallery\""))
+            assertTrue("instagram missing for $t", html.contains("https://instagram.com/fokof2"))
+            assertFalse("unsafe link for $t", html.contains("javascript:"))
             assertFalse("unescaped title for $t", html.contains("<b>اسم</b>"))
             println("SITE_HTML_OK $t bytes=${html.length}")
             if (t == "RESTAURANT" || t == "HOTEL" || t == "LAWYER") {

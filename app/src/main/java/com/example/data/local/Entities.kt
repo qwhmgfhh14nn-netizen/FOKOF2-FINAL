@@ -144,7 +144,8 @@ data class UserWebsiteEntity(
     val featureTogglesJson: String,
     val isPublished: Boolean = true,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(defaultValue = "'{}'") val extrasJson: String = "{}"
 )
 
 @Entity(tableName = "website_templates")

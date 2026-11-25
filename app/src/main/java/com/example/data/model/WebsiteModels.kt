@@ -70,6 +70,21 @@ data class WebsiteTemplate(
 /**
  * A website created and customized by a user or business owner.
  */
+/** One customer review shown on the site. */
+data class SiteTestimonial(val name: String = "", val text: String = "", val stars: Int = 5)
+
+/** Extra per-site content: reviews, gallery photos (urls or local file paths) and social links. */
+data class SiteExtras(
+    val testimonials: List<SiteTestimonial> = emptyList(),
+    val gallery: List<String> = emptyList(),
+    val facebook: String = "",
+    val instagram: String = "",
+    val tiktok: String = "",
+    val youtube: String = "",
+    val telegram: String = "",
+    val website: String = ""
+)
+
 data class UserWebsite(
     val id: String = UUID.randomUUID().toString(),
     val userId: String = "guest",
@@ -89,7 +104,8 @@ data class UserWebsite(
     val featureToggles: WebsiteFeatureToggles = WebsiteFeatureToggles(),
     val isPublished: Boolean = true,
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val extras: SiteExtras = SiteExtras()
 )
 
 /**
