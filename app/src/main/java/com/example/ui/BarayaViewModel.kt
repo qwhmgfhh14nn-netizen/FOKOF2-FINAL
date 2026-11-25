@@ -246,6 +246,8 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     val isGeneratingImage: StateFlow<Boolean> = _isGeneratingImage.asStateFlow()
 
     // No fake sample artworks: real image generation is not enabled in this free local build.
+    private val _imageWaitSeconds = MutableStateFlow(0)
+    val imageWaitSeconds: StateFlow<Int> = _imageWaitSeconds.asStateFlow()
     private val _generatedImages = MutableStateFlow<List<GeneratedImageItem>>(emptyList())
     val generatedImages: StateFlow<List<GeneratedImageItem>> = _generatedImages.asStateFlow()
 
@@ -782,11 +784,25 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
                 style = _selectedStyle.value,
                 aspectRatio = ratio,
                 timestamp = "الآن",
-                imageUrl = url
+                imageUrl = null
             )
             _generatedImages.value = listOf(newItem) + _generatedImages.value
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "جاري توليد الصورة... الخدمة المجانية بتاخد من 5 لـ 60 ثانية" else "Generating image... the free service can take up to a minute")
+            val res = com.example.data.ai.FreeImageFetcher.fetch(getApplication(), url) { sec ->
+                if (sec > 0) _imageWaitSeconds.value = sec else _imageWaitSeconds.value = 0
+            }
+            when (res) {
+                is com.example.data.ai.FreeImageFetcher.Result.Ok -> {
+                    _generatedImages.value = _generatedImages.value.map { if (it.id == newItem.id) it.copy(imageUrl = res.fileUri) else it }
+                    showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "الصورة جاهزة" else "Image ready")
+                }
+                is com.example.data.ai.FreeImageFetcher.Result.Fail -> {
+                    _generatedImages.value = _generatedImages.value.filter { it.id != newItem.id }
+                    showToast((if (_currentLanguage.value == AppLanguage.ARABIC) "فشل توليد الصورة: " else "Image failed: ") + res.reason + (if (_currentLanguage.value == AppLanguage.ARABIC) ". جرّب تاني بعد دقيقة" else ". Try again in a minute"))
+                }
+            }
             _isGeneratingImage.value = false
-            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "جاري توليد الصورة بالذكاء الاصطناعي... قد تستغرق ثواني" else "Generating AI image... may take a few seconds")
+            _imageWaitSeconds.value = 0
         }
     }
 

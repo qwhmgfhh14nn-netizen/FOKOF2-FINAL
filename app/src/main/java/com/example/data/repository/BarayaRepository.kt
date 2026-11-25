@@ -64,7 +64,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.UUID
 
-private const val DEFAULT_TEMPLATES_VERSION = 3
+private const val DEFAULT_TEMPLATES_VERSION = 4
 
 class BarayaRepository(context: Context) {
     private val database = AppDatabase.getDatabase(context)
