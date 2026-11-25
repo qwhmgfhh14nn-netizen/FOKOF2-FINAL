@@ -43,7 +43,7 @@ object TemplateArtMeta {
         "free_invite_03" to floatArrayOf(0.04f, 0.14f, 0.22f, 0.12f, 0.15f),
         "free_invite_04" to floatArrayOf(0.26f, 0.19f, 0.23f, 0.21f, 0.19f),
         "free_invite_05" to floatArrayOf(0.49f, 0.53f, 0.60f, 0.58f, 0.50f),
-        "free_cv_01" to floatArrayOf(0.44f, 0.52f, 0.49f, 0.61f, 0.26f),
+        "free_cv_01" to floatArrayOf(0.35f, 0.31f, 0.27f, 0.31f, 0.24f),
         "free_cv_02" to floatArrayOf(0.57f, 0.57f, 0.56f, 0.53f, 0.66f),
         "free_cv_03" to floatArrayOf(0.44f, 0.50f, 0.37f, 0.44f, 0.37f),
         "free_cv_04" to floatArrayOf(0.65f, 0.57f, 0.51f, 0.59f, 0.60f),

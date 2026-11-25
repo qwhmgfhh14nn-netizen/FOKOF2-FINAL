@@ -64,7 +64,8 @@ object TemplateDesigner {
         val ymin = ys.minOrNull() ?: 0f
         val ymax = ys.maxOrNull() ?: 0f
         val span = max(ymax - ymin, 1f)
-        val bh = min(h * 0.40f, if (small) 120f else 200f).coerceAtLeast(80f)
+        // keep the original vertical rhythm of the text block (no squashing), within sane bounds
+        val bh = (span * fs + 44f).coerceIn(80f, h * 0.58f)
 
         // text block vertical placement per archetype
         val blockTop = when (arch) {
@@ -158,9 +159,15 @@ object TemplateDesigner {
                 // the first small kicker line becomes the accent colour for rhythm
                 if (!onOwnShape && e.fontSize <= 14f * 1.01f && e.y == ymin && t.elements.size > 2) color = accent
             }
+            // a button/badge must be wide enough for the text that sits on it
+            val longest = t.elements.filter { x ->
+                x.type != CanvasElementType.SHAPE && abs(x.x - e.x) <= e.width / 2 && abs(x.y - e.y) <= e.height / 2
+            }.maxOfOrNull { it.text.length * it.fontSize * fs * 0.56f + 28f } ?: 0f
+            val isBox = e.type == CanvasElementType.SHAPE && e.shapeType != ShapeType.STAR && longest > e.width
             e.copy(
                 x = ex, y = ny, colorHex = color,
                 fontSize = e.fontSize * fs,
+                width = if (isBox) min(longest, 330f) else e.width,
                 height = if (e.type == CanvasElementType.SHAPE) e.height * fs else e.height
             )
         }
