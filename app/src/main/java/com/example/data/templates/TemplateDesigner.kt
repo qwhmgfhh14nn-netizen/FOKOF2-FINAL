@@ -60,12 +60,33 @@ object TemplateDesigner {
         val meta = TemplateArtMeta.LUM[t.id]
         // meta = top, mid, bottom, left, right brightness of the artwork (0 dark .. 1 light)
         fun zoneLum(a: Int): Float = meta?.getOrNull(a) ?: 0.3f
-        val ys = t.elements.map { it.y }
+        // icons (emoji-only lines) get their own slot above the text block so they never sit under a title
+        fun isIcon(e: CanvasElement) = (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) && e.text.trim().length <= 3 &&
+            e.text.trim().isNotEmpty() && e.text.trim().first().code > 0x2000
+        val icons = t.elements.filter { isIcon(it) }
+        val iconH = if (icons.isEmpty()) 0f else (icons.maxOf { it.fontSize } * fs * 1.75f + 18f)
+        // rows pushed down when the row above wraps onto several lines (keeps badges/buttons clear of the text)
+        val rows = t.elements.filter { !isIcon(it) }.sortedBy { it.y }
+        val yEff = HashMap<String, Float>()
+        run {
+            var cum = 0f
+            var rowY = rows.firstOrNull()?.y ?: 0f
+            var rowExtra = 0f
+            for (e in rows) {
+                if (e.y - rowY > 3f) { cum += rowExtra; rowY = e.y; rowExtra = 0f }
+                if (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) {
+                    val lines = Math.ceil((e.text.length * e.fontSize * fs * 0.5f / 300f).toDouble()).toInt().coerceAtLeast(1)
+                    rowExtra = max(rowExtra, (lines - 1) * e.fontSize * fs * 1.25f)
+                }
+                yEff[e.id] = e.y + cum
+            }
+        }
+        val ys = rows.map { yEff[it.id] ?: it.y }
         val ymin = ys.minOrNull() ?: 0f
         val ymax = ys.maxOrNull() ?: 0f
         val span = max(ymax - ymin, 1f)
         // keep the original vertical rhythm of the text block (no squashing), within sane bounds
-        val bh = (span * fs + 44f).coerceIn(80f, h * 0.58f)
+        val bh = (span * fs + 44f + iconH).coerceIn(80f, h * 0.62f)
 
         // text block vertical placement per archetype
         val blockTop = when (arch) {
@@ -81,7 +102,8 @@ object TemplateDesigner {
             1 -> zoneLum(0)
             else -> zoneLum(1)
         }
-        val lightArt = lumZone > 0.58f
+        val lightArt = lumZone > 0.5f
+        val midArt = lumZone in 0.38f..0.66f
         val ink = if (lightArt) "#1B1630" else "#FFFFFF"
         val accent = if (lightArt) "#9A7416" else if (seed % 2 == 0) "#D4AF37" else "#F2D67C"
         val scrimColor = if (lightArt) "#FFFFFF" else "#000000"
@@ -99,17 +121,17 @@ object TemplateDesigner {
         when (arch) {
             0 -> { // bottom fade + gold rule + diamond
                 val gh = bh + 90f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, 0.72f, tag = "grad:b")
+                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.84f else 0.72f, tag = "grad:b")
                 above += shape(ShapeType.RECTANGLE, w / 2, blockTop - 28f, 70f, 2f, accent, 1f)
                 above += shape(ShapeType.DIAMOND, w / 2, blockTop - 28f, 9f, 9f, accent, 1f)
             }
             1 -> { // top fade + underline
                 val gh = bh + 90f
-                deco += shape(ShapeType.RECTANGLE, w / 2, gh / 2f, w, gh, scrimColor, 0.72f, tag = "grad:t")
+                deco += shape(ShapeType.RECTANGLE, w / 2, gh / 2f, w, gh, scrimColor, if (midArt) 0.84f else 0.72f, tag = "grad:t")
                 above += shape(ShapeType.RECTANGLE, w / 2, blockTop + bh + 28f, 90f, 2f, accent, 1f)
             }
             2 -> { // double hairline frame, soft overall veil, corner diamonds
-                deco += shape(ShapeType.RECTANGLE, w / 2, h / 2, w, h, scrimColor, 0.30f)
+                deco += shape(ShapeType.RECTANGLE, w / 2, h / 2, w, h, scrimColor, if (midArt) 0.52f else 0.30f)
                 val g = 14f; val th = 1.6f
                 above += shape(ShapeType.RECTANGLE, w / 2, g, w - 2 * g, th, accent, 0.95f)
                 above += shape(ShapeType.RECTANGLE, w / 2, h - g, w - 2 * g, th, accent, 0.95f)
@@ -122,13 +144,13 @@ object TemplateDesigner {
                     above += shape(ShapeType.DIAMOND, px, py, 11f, 11f, accent, 1f)
             }
             3 -> { // left-side fade + vertical gold bar
-                deco += shape(ShapeType.RECTANGLE, w * 0.36f, h / 2, w * 0.72f, h, scrimColor, 0.70f, tag = "grad:l")
+                deco += shape(ShapeType.RECTANGLE, w * 0.36f, h / 2, w * 0.72f, h, scrimColor, if (midArt) 0.82f else 0.70f, tag = "grad:l")
                 above += shape(ShapeType.RECTANGLE, 24f, blockMid, 3f, bh * 0.9f, accent, 1f)
                 above += shape(ShapeType.CIRCLE, 24f, blockMid - bh * 0.45f - 7f, 8f, 8f, accent, 1f)
             }
             4 -> { // bottom fade + corner brackets + badge star
                 val gh = bh + 80f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, 0.68f, tag = "grad:b")
+                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.82f else 0.68f, tag = "grad:b")
                 val g = 16f; val l = 34f; val th = 2.4f
                 above += shape(ShapeType.RECTANGLE, g + l / 2, g, l, th, accent, 1f)
                 above += shape(ShapeType.RECTANGLE, g, g + l / 2, th, l, accent, 1f)
@@ -138,7 +160,7 @@ object TemplateDesigner {
             }
             else -> { // bottom fade + slim gold edge line across the page + small side stars
                 val gh = bh + 100f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, 0.74f, tag = "grad:b")
+                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.86f else 0.74f, tag = "grad:b")
                 above += shape(ShapeType.RECTANGLE, w / 2, h - 8f, w - 40f, 2f, accent, 1f)
                 above += shape(ShapeType.STAR, 40f, blockTop - 26f, 12f, 12f, accent, 1f)
                 above += shape(ShapeType.STAR, w - 40f, blockTop - 26f, 12f, 12f, accent, 1f)
@@ -147,7 +169,9 @@ object TemplateDesigner {
 
         val shapes = t.elements.filter { it.type == CanvasElementType.SHAPE }
         val mapped = t.elements.map { e ->
-            val ny = if (ymax == ymin) blockMid else blockTop + bh * ((e.y - ymin) / span)
+            val ny = if (isIcon(e)) blockTop + iconH * 0.38f
+                else if (ymax == ymin) blockMid + iconH / 2f
+                else blockTop + iconH + (bh - iconH) * (((yEff[e.id] ?: e.y) - ymin) / span)
             val ex = if (arch == 3) cx else w / 2f
             var color = e.colorHex
             if (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) {
@@ -166,7 +190,7 @@ object TemplateDesigner {
             val isBox = e.type == CanvasElementType.SHAPE && e.shapeType != ShapeType.STAR && longest > e.width
             e.copy(
                 x = ex, y = ny, colorHex = color,
-                fontSize = e.fontSize * fs,
+                fontSize = if (e.type == CanvasElementType.SHAPE || e.fontSize <= 0f) e.fontSize * fs else max(e.fontSize * fs, if (tall) 12.5f else 0f),
                 width = if (isBox) min(longest, 330f) else e.width,
                 height = if (e.type == CanvasElementType.SHAPE) e.height * fs else e.height
             )
