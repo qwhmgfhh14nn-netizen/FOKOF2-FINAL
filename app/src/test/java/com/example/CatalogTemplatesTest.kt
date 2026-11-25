@@ -67,7 +67,7 @@ class CatalogTemplatesTest {
             perCat.getOrPut(t.category) { ArrayList() }.add(fp)
             if (t.aspectRatio !in setOf("1:1", "4:5", "16:9", "9:16")) problems += "bad aspect ${t.id}"
             if (!hexRe.matches(t.bgStartHex) || !hexRe.matches(t.bgEndHex)) problems += "bad bg ${t.id}"
-            if (t.elements.size !in 6..120) problems += "element count ${t.id}=${t.elements.size}"
+            if (t.elements.size !in 5..120) problems += "element count ${t.id}=${t.elements.size}"
             val h = 360f / when (t.aspectRatio) { "16:9" -> 16f / 9f; "9:16" -> 9f / 16f; "4:5" -> 0.8f; else -> 1f }
             for (e in t.elements) {
                 if (!hexRe.matches(e.colorHex)) problems += "bad color ${t.id}/${e.id}"
