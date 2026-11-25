@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -129,6 +130,28 @@ fun StudioScreen(
     var showCalligraphyDialog by remember { mutableStateOf(false) }
     var showImagePickerDialog by remember { mutableStateOf(false) }
     var showReplacePhotoDialog by remember { mutableStateOf(false) }
+    val galleryContext = androidx.compose.ui.platform.LocalContext.current
+    val galleryPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { picked ->
+        if (picked != null) {
+            val saved = runCatching {
+                val dir = java.io.File(galleryContext.filesDir, "design_bg").apply { mkdirs() }
+                val out = java.io.File(dir, "bg_" + System.currentTimeMillis() + ".jpg")
+                galleryContext.contentResolver.openInputStream(picked)?.use { input ->
+                    out.outputStream().use { input.copyTo(it) }
+                }
+                if (out.length() > 0L) android.net.Uri.fromFile(out).toString() else null
+            }.getOrNull()
+            if (saved != null) {
+                onSetCanvasBgPhoto(null, saved)
+                onShowToast("تم تعيين صورتك من المعرض كخلفية للتصميم")
+            } else {
+                onShowToast("ما قدرناش نفتح الصورة دي، جرب صورة تانية")
+            }
+            showReplacePhotoDialog = false
+        }
+    }
     var showResizeDialog by remember { mutableStateOf(false) }
     var showBgColorDialog by remember { mutableStateOf(false) }
 
@@ -540,6 +563,45 @@ fun StudioScreen(
                         text = "اختر صورة فوتوغرافية احترافية واقعية لتطبيقها كخلفية للتصميم:",
                         style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                     )
+
+                    // From phone gallery
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(1.5.dp, GoldPrimary, RoundedCornerShape(12.dp))
+                            .clickable {
+                                galleryPicker.launch(
+                                    androidx.activity.result.PickVisualMediaRequest(
+                                        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
+                            },
+                        color = MaterialTheme.colorScheme.surfaceVariant
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PhotoLibrary,
+                                contentDescription = "Gallery",
+                                tint = GoldPrimary,
+                                modifier = Modifier.size(36.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "من المعرض (صورك أنت)",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
+                                )
+                                Text(
+                                    text = "اختار أي صورة من موبايلك واستخدمها كخلفية للتصميم",
+                                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                )
+                            }
+                        }
+                    }
 
                     // Photo 1: Royal Charcoal Burger
                     Surface(
