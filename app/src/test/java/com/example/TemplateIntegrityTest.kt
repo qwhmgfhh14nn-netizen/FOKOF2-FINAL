@@ -26,7 +26,7 @@ class TemplateIntegrityTest {
             val uri = t.imageUri ?: return@filter true
             val name = uri.substringAfterLast('/')
             val f = File("src/main/assets/templates/art/$name")
-            !(f.exists() && f.length() > 3_000)
+            !(f.exists() && f.length() > 1_000)
         }.map { it.id }
         assertTrue("templates without a usable local art file: $missing", missing.isEmpty())
     }

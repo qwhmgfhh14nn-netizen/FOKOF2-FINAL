@@ -99,7 +99,13 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                 val w = size.width
                 val h = size.height
                 when (el.shapeType) {
-                    ShapeType.RECTANGLE -> drawRect(c)
+                    ShapeType.RECTANGLE -> when {
+                        el.text == "grad:b" -> drawRect(Brush.verticalGradient(listOf(Color.Transparent, c)))
+                        el.text == "grad:t" -> drawRect(Brush.verticalGradient(listOf(c, Color.Transparent)))
+                        el.text == "grad:l" -> drawRect(Brush.horizontalGradient(listOf(c, Color.Transparent)))
+                        el.text == "grad:r" -> drawRect(Brush.horizontalGradient(listOf(Color.Transparent, c)))
+                        else -> drawRect(c)
+                    }
                     ShapeType.ROUNDED_RECT -> drawRoundRect(c, cornerRadius = CornerRadius(min(w, h) * 0.18f))
                     ShapeType.CIRCLE -> drawOval(c)
                     ShapeType.DIAMOND -> drawPath(Path().apply {
