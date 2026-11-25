@@ -155,7 +155,7 @@ fun WebsiteEditorScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                     IconButton(
                         onClick = onBack,
                         modifier = Modifier.testTag("website_editor_back_btn")
@@ -167,7 +167,7 @@ fun WebsiteEditorScreen(
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "محرر المواقع",
                             fontFamily = CairoFontFamily,
@@ -179,6 +179,8 @@ fun WebsiteEditorScreen(
                             text = siteTitle.ifBlank { "موقعي الجديد" },
                             fontFamily = CairoFontFamily,
                             fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             color = GoldPrimary
                         )
                     }
@@ -188,21 +190,13 @@ fun WebsiteEditorScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedButton(
+                    androidx.compose.material3.OutlinedIconButton(
                         onClick = { onOpenQrStudio(buildUpdatedWebsite()) },
                         shape = RoundedCornerShape(10.dp),
                         border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary),
                         modifier = Modifier.testTag("website_editor_qr_btn")
                     ) {
-                        Icon(Icons.Default.QrCode2, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "كود QR",
-                            fontFamily = CairoFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            color = GoldPrimary,
-                            fontSize = 12.sp
-                        )
+                        Icon(Icons.Default.QrCode2, contentDescription = "QR", tint = GoldPrimary, modifier = Modifier.size(20.dp))
                     }
 
                     Button(
@@ -212,12 +206,14 @@ fun WebsiteEditorScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                         shape = RoundedCornerShape(10.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp),
                         modifier = Modifier.testTag("website_editor_save_btn")
                     ) {
                         Icon(Icons.Default.Save, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "احفظ الموقع",
+                            text = "احفظ",
+                            maxLines = 1,
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black,
@@ -297,8 +293,9 @@ fun WebsiteEditorScreen(
         // Tab Content
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
             when (selectedTab) {
                 0 -> GeneralInfoTab(
