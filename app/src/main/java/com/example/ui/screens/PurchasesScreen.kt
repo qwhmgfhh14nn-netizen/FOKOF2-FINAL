@@ -57,11 +57,8 @@ fun PurchasesScreen(
     onExploreTemplates: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    val headerBlock: @Composable () -> Unit = {
+        Column {
         // Page Header
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -102,7 +99,16 @@ fun PurchasesScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         if (purchases.isEmpty()) {
+            headerBlock()
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,6 +148,7 @@ fun PurchasesScreen(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                item { headerBlock() }
                 items(purchases) { item ->
                     Card(
                         modifier = Modifier
