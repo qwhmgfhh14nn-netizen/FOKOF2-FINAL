@@ -28,11 +28,6 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.AspectRatio
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
-import com.example.ui.components.TemplateThumb
-import com.example.ui.theme.CairoFontFamily
-import com.example.ui.theme.GoldBorder
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Brush
