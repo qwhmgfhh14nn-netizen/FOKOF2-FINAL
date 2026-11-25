@@ -67,8 +67,11 @@ import java.util.Locale
 import java.util.UUID
 
 private const val DEFAULT_TEMPLATES_VERSION = 4
+// Bump when assets/templates/catalog.json gains templates (append-only file).
+private const val CATALOG_TEMPLATES_VERSION = 1
 
 class BarayaRepository(context: Context) {
+    private val appContext = context.applicationContext
     private val database = AppDatabase.getDatabase(context)
     private val userDao = database.userDao()
     private val projectDao = database.projectDao()
@@ -484,6 +487,25 @@ class BarayaRepository(context: Context) {
         }
     }
 
+
+    /** Adds the generated preset catalog (append-only asset). Existing rows keep the owner's price/publish/featured state. */
+    private suspend fun syncCatalogTemplates() {
+        val done = prefs.getInt("catalog_templates_version", 0)
+        if (done >= CATALOG_TEMPLATES_VERSION) return
+        val seeds = try { com.example.data.templates.CatalogTemplates.load(appContext) } catch (e: Exception) { return }
+        val toWrite = ArrayList<TemplateEntity>()
+        for (seed in seeds) {
+            val existing = templateDao.getTemplateById(seed.id)
+            val fresh = templateToEntity(seed)
+            toWrite += if (existing == null) fresh else fresh.copy(
+                priceEgp = existing.priceEgp, isPublished = existing.isPublished, isFeatured = existing.isFeatured,
+                status = existing.status, rating = existing.rating, salesCount = existing.salesCount
+            )
+        }
+        if (toWrite.isNotEmpty()) templateDao.insertAll(toWrite)
+        prefs.edit().putInt("catalog_templates_version", CATALOG_TEMPLATES_VERSION).apply()
+    }
+
     private suspend fun ensureTemplatesInitializedInternal() {
         // Preserve existing owner-created templates when upgrading; never wipe a user's library.
         // 1. Seed 10 Categories as requested if empty
@@ -505,6 +527,7 @@ class BarayaRepository(context: Context) {
 
         // 2. Seed the designed template library (50 free + 14 pro) when it is empty
         syncDefaultTemplates()
+        syncCatalogTemplates()
 
         // 3. Seed Bundles if empty
         if (bundleDao.getBundleCount() == 0) {
