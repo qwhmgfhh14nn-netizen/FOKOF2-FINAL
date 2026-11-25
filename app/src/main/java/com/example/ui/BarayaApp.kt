@@ -448,6 +448,7 @@ fun BarayaApp(
                                         websiteSettings = websiteSettings,
                                         onUpdateWebsitePrice = { id, price -> viewModel.updateWebsiteTemplatePriceInDb(id, price) },
                                         onUpdateWebsiteFeatures = { id, toggles -> viewModel.updateWebsiteFeatureTogglesInDb(id, toggles) },
+                                        onSetWebsiteTemplatePublished = { id, on -> viewModel.setWebsiteTemplatePublishedInDb(id, on) },
                                         onUpdateWebsiteSettings = { freeLimit, extraPrice, domainPrice -> viewModel.updateWebsiteSettingsInDb(freeLimit, extraPrice, domainPrice) },
                                         users = allUsers,
                                         paymentMethods = allPaymentMethods,

@@ -1406,6 +1406,13 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun setWebsiteTemplatePublishedInDb(templateId: String, published: Boolean) {
+        viewModelScope.launch {
+            repository.setWebsiteTemplatePublished(templateId, published)
+            showToast(if (published) "تم تشغيل المجال للمستخدمين" else "تم إيقاف المجال وإخفاؤه عن المستخدمين")
+        }
+    }
+
     fun updateWebsiteFeatureTogglesInDb(templateId: String, toggles: WebsiteFeatureToggles) {
         viewModelScope.launch {
             repository.updateWebsiteTemplateFeatureToggles(templateId, toggles)

@@ -415,6 +415,11 @@ class BarayaRepository(context: Context) {
         websiteTemplateDao.updateTemplatePrice(id, priceEgp)
     }
 
+    suspend fun setWebsiteTemplatePublished(id: String, published: Boolean) {
+        if (!hasOwnerControlPermission()) return
+        websiteTemplateDao.updateTemplatePublished(id, published)
+    }
+
     suspend fun updateWebsiteTemplateFeatureToggles(id: String, toggles: WebsiteFeatureToggles) {
         if (!hasOwnerControlPermission()) return
         val json = featureTogglesToJson(toggles)
@@ -687,8 +692,8 @@ class BarayaRepository(context: Context) {
         }
 
         // 9. Seed 10 Real Commercial Website Templates if empty
-        if (websiteTemplateDao.getTemplateCount() == 0) {
-            val defaultSiteTemplates = WebsiteTemplatesData.getDefaultTemplates().map { tpl ->
+        run {
+            val defaultSiteTemplates = WebsiteTemplatesData.getDefaultTemplates().filter { websiteTemplateDao.getTemplateById(it.id) == null }.map { tpl ->
                 WebsiteTemplateEntity(
                     id = tpl.id,
                     businessType = tpl.businessType,
@@ -714,7 +719,7 @@ class BarayaRepository(context: Context) {
                     sampleItemsJson = websiteItemsToJson(tpl.sampleItems)
                 )
             }
-            websiteTemplateDao.insertAll(defaultSiteTemplates)
+            if (defaultSiteTemplates.isNotEmpty()) websiteTemplateDao.insertAll(defaultSiteTemplates)
         }
 
         // 10. Seed Website Builder Settings if empty

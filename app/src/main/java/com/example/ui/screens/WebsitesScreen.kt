@@ -61,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
@@ -97,19 +98,7 @@ fun WebsitesScreen(
     var selectedCategory by remember { mutableStateOf("ALL") }
     var websiteToDelete by remember { mutableStateOf<UserWebsite?>(null) }
 
-    val categories = listOf(
-        "ALL" to "كل الأنشطة",
-        "RESTAURANT" to "مطاعم وكافيهات",
-        "PHARMACY" to "صيدليات وعناية",
-        "FASHION" to "أزياء وموضة",
-        "CLINIC" to "عيادات ومراكز طبية",
-        "REAL_ESTATE" to "عقارات وتطوير",
-        "SALON" to "صالونات ومراكز تجميل",
-        "MOTORS" to "سيارات وصيانة",
-        "GROCERY" to "سوبرماركت وبقالة",
-        "AGENCY" to "شركات ووكالات",
-        "ACADEMY" to "أكاديميات ودورات"
-    )
+    val categories = listOf("ALL" to "كل الأنشطة") + templates.map { it.businessType to it.businessTypeNameAr }.distinctBy { it.first }
 
     val filteredTemplates = templates.filter { tpl ->
         val matchesCategory = selectedCategory == "ALL" || tpl.businessType == selectedCategory
@@ -122,11 +111,12 @@ fun WebsitesScreen(
 
     val isLimitReached = userWebsites.size >= settings.freeWebsitesLimit
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        item {
         // Top Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -155,9 +145,8 @@ fun WebsitesScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Owner-Defined Free Limit Banner
+        }
+        item {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -212,9 +201,8 @@ fun WebsitesScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Search Bar
+        }
+        item {
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
@@ -225,9 +213,8 @@ fun WebsitesScreen(
             modifier = Modifier.fillMaxWidth().height(48.dp)
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Category Filter Pills
+        }
+        item {
         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             items(categories) { (key, label) ->
                 val isSel = selectedCategory == key
@@ -249,12 +236,7 @@ fun WebsitesScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
+        }
             // Section 1: User's Created Websites (if any)
             if (userWebsites.isNotEmpty()) {
                 item {
@@ -276,7 +258,7 @@ fun WebsitesScreen(
                 item {
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "قوالب جاهزة (10 أنشطة):",
+                        text = "قوالب جاهزة (${templates.map { it.businessType }.distinct().size} نشاط):",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
                     )
                 }
@@ -296,7 +278,6 @@ fun WebsitesScreen(
                     onSelect = { onCreateFromTemplate(tpl) }
                 )
             }
-        }
     }
 
     // Modal: Delete Website Confirmation
@@ -345,14 +326,28 @@ fun WebsiteTemplateCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(170.dp)
                     .background(
                         Brush.verticalGradient(
                             listOf(themeColor.copy(alpha = 0.35f), darkBg)
                         )
                     )
-                    .padding(14.dp)
             ) {
+                val heroBmp = rememberSiteHero(template.businessType)
+                if (heroBmp != null) {
+                    androidx.compose.foundation.Image(
+                        bitmap = heroBmp,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(
+                            Brush.verticalGradient(listOf(Color.Black.copy(alpha = 0.10f), Color.Black.copy(alpha = 0.78f)))
+                        )
+                    )
+                }
+                Box(modifier = Modifier.fillMaxSize().padding(14.dp)) {
                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                     Box(
                         modifier = Modifier
@@ -401,6 +396,7 @@ fun WebsiteTemplateCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
+            }
             }
 
             // Description and Feature Badges
@@ -544,5 +540,17 @@ fun WebsiteFeatureChip(text: String, color: Color) {
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(text = text, color = color, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+
+@Composable
+internal fun rememberSiteHero(type: String): androidx.compose.ui.graphics.ImageBitmap? {
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    return remember(type) {
+        runCatching {
+            ctx.assets.open("sites/" + type.uppercase() + ".jpg").use { android.graphics.BitmapFactory.decodeStream(it) }
+                ?.asImageBitmap()
+        }.getOrNull()
     }
 }

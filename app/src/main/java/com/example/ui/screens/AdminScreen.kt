@@ -152,6 +152,7 @@ fun AdminScreen(
     websiteSettings: WebsiteBuilderSettings = WebsiteBuilderSettings(),
     onUpdateWebsitePrice: (String, Int) -> Unit = { _, _ -> },
     onUpdateWebsiteFeatures: (String, WebsiteFeatureToggles) -> Unit = { _, _ -> },
+    onSetWebsiteTemplatePublished: (String, Boolean) -> Unit = { _, _ -> },
     onUpdateWebsiteSettings: (Int, Int, Int) -> Unit = { _, _, _ -> },
     users: List<UserEntity> = emptyList(),
     paymentMethods: List<PaymentMethodConfig> = emptyList(),
@@ -501,6 +502,7 @@ fun AdminScreen(
                     settings = websiteSettings,
                     onUpdatePrice = onUpdateWebsitePrice,
                     onUpdateFeatures = onUpdateWebsiteFeatures,
+                    onSetPublished = onSetWebsiteTemplatePublished,
                     onUpdateSettings = onUpdateWebsiteSettings,
                     modifier = Modifier.weight(1f)
                 )
@@ -2051,6 +2053,7 @@ private fun WebsiteBuilderManagementTab(
     settings: WebsiteBuilderSettings,
     onUpdatePrice: (String, Int) -> Unit,
     onUpdateFeatures: (String, WebsiteFeatureToggles) -> Unit,
+    onSetPublished: (String, Boolean) -> Unit,
     onUpdateSettings: (Int, Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -2142,7 +2145,8 @@ private fun WebsiteBuilderManagementTab(
             AdminWebsiteTemplateItemCard(
                 template = template,
                 onUpdatePrice = { newPrice -> onUpdatePrice(template.id, newPrice) },
-                onUpdateFeatures = { toggles -> onUpdateFeatures(template.id, toggles) }
+                onUpdateFeatures = { toggles -> onUpdateFeatures(template.id, toggles) },
+                onSetPublished = { on -> onSetPublished(template.id, on) }
             )
         }
     }
@@ -2152,7 +2156,8 @@ private fun WebsiteBuilderManagementTab(
 private fun AdminWebsiteTemplateItemCard(
     template: WebsiteTemplate,
     onUpdatePrice: (Int) -> Unit,
-    onUpdateFeatures: (WebsiteFeatureToggles) -> Unit
+    onUpdateFeatures: (WebsiteFeatureToggles) -> Unit,
+    onSetPublished: (Boolean) -> Unit
 ) {
     var priceText by remember(template.priceEgp) { mutableStateOf(template.priceEgp.toString()) }
     var currentToggles by remember(template.featureToggles) { mutableStateOf(template.featureToggles) }
@@ -2218,6 +2223,25 @@ private fun AdminWebsiteTemplateItemCard(
                         Text("احفظ", color = Color(0xFF101014), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
+            }
+
+            // Field on/off switch: hides the whole business field from users
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (template.isPublished) "المجال شغّال ويظهر للمستخدمين" else "المجال موقّف ومخفي عن المستخدمين",
+                    fontFamily = CairoFontFamily,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (template.isPublished) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                androidx.compose.material3.Switch(
+                    checked = template.isPublished,
+                    onCheckedChange = { onSetPublished(it) }
+                )
             }
 
             // Toggle Expand Button for features
