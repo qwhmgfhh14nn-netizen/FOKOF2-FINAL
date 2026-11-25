@@ -121,7 +121,8 @@ object FreeTemplatesData {
             bgStartHex = "#0284C7", // Mediterranean Azure & Sky Blue
             bgEndHex = "#38BDF8",
             elements = listOf(
-                CanvasElement(id = "e1", type = CanvasElementType.TEXT, text = "شاركونا رأيكم 💬", x = 180f, y = 80f, fontSize = 24f, colorHex = "#FFFFFF", isBold = true),
+                CanvasElement(id = "e0", type = CanvasElementType.CALLIGRAPHY, text = "💬", x = 180f, y = 45f, fontSize = 34f, colorHex = "#FFFFFF"),
+                CanvasElement(id = "e1", type = CanvasElementType.TEXT, text = "شاركونا رأيكم", x = 180f, y = 80f, fontSize = 24f, colorHex = "#FFFFFF", isBold = true),
                 CanvasElement(id = "e2", type = CanvasElementType.TEXT, text = "ما هو الخط العربي المفضل لديك في التصميم؟", x = 180f, y = 150f, fontSize = 16f, colorHex = "#F0F9FF"),
                 CanvasElement(id = "e3", type = CanvasElementType.SHAPE, shapeType = ShapeType.ROUNDED_RECT, x = 180f, y = 220f, width = 200f, height = 44f, colorHex = "#FFFFFF"),
                 CanvasElement(id = "e4", type = CanvasElementType.TEXT, text = "أ) خط كوفي عصري   ب) خط الرقعة الكلاسيكي", x = 180f, y = 220f, fontSize = 11f, colorHex = "#0284C7")
