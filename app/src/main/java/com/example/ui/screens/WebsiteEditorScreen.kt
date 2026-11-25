@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import kotlinx.coroutines.launch
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -1596,9 +1597,13 @@ private fun ExportHtmlTab(
     context: Context
 ) {
     var isCopied by remember { mutableStateOf(false) }
+    var publishedUrl by remember(website.id) { mutableStateOf(com.example.data.SitePublisher.savedUrl(context, website.id)) }
+    var publishing by remember { mutableStateOf(false) }
+    var publishError by remember { mutableStateOf<String?>(null) }
+    val publishScope = androidx.compose.runtime.rememberCoroutineScope()
 
     val generatedHtml = remember(website) {
-        generateStandaloneHtml(website)
+        generateStandaloneHtml(website, context)
     }
 
     Column(
@@ -1651,6 +1656,58 @@ private fun ExportHtmlTab(
                         )
                     }
 
+                    Button(
+                        onClick = {
+                            if (!publishing) {
+                                publishing = true; publishError = null
+                                val htmlNow = generatedHtml
+                                publishScope.launch {
+                                    val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                        com.example.data.SitePublisher.publish(context, website.id, website.siteSlug, website.siteTitle, htmlNow)
+                                    }
+                                    publishing = false
+                                    if (r.ok) publishedUrl = r.url else publishError = "ما قدرناش ننشر دلوقتي، تأكد من النت وحاول تاني"
+                                }
+                            }
+                        },
+                        enabled = !publishing,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = if (publishing) "جاري النشر..." else "انشر واحصل على رابط",
+                            fontFamily = CairoFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                publishError?.let {
+                    Text(text = it, fontFamily = CairoFontFamily, fontSize = 12.sp, color = Color(0xFFD32F2F))
+                }
+                publishedUrl?.let { link ->
+                    Text(text = "رابط موقعك:", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                    Text(text = link, fontSize = 13.sp, color = GoldPrimary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = {
+                                val cb = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                cb.setPrimaryClip(ClipData.newPlainText("Site link", link))
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        ) { Text("انسخ الرابط", fontFamily = CairoFontFamily) }
+                        Button(
+                            onClick = {
+                                val i = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(android.content.Intent.EXTRA_TEXT, link)
+                                }
+                                context.startActivity(android.content.Intent.createChooser(i, "شارك رابط الموقع").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        ) { Text("شارك", fontFamily = CairoFontFamily) }
+                    }
                 }
             }
         }
@@ -1676,16 +1733,34 @@ private fun ExportHtmlTab(
     }
 }
 
-private fun generateStandaloneHtml(site: UserWebsite): String {
+private fun siteEsc(t: String?): String =
+    (t ?: "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
+
+private fun siteHeroDataUri(context: Context?, type: String): String {
+    if (context == null) return ""
+    return try {
+        val bytes = context.assets.open("sites/" + type.uppercase() + ".jpg").use { it.readBytes() }
+        "data:image/jpeg;base64," + android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null): String {
+    val primary = if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
+    val hero = siteHeroDataUri(context, site.businessType)
+    val heroCss = if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
     val itemsHtml = site.items.joinToString("\n") { item ->
+        val msg = java.net.URLEncoder.encode("مرحباً أود طلب: " + item.nameAr, "UTF-8")
+        val badge = if (!item.badgeAr.isNullOrBlank()) "<span class=\"badge\">" + siteEsc(item.badgeAr) + "</span>" else ""
         """
-        <div class="product-card">
-            <div class="product-info">
-                <h3>${item.nameAr} ${if (!item.badgeAr.isNullOrBlank()) "<span class='badge'>${item.badgeAr}</span>" else ""}</h3>
-                <p>${item.descriptionAr}</p>
+        <div class="card reveal">
+            <div class="card-body">
+                <h3>${siteEsc(item.nameAr)} $badge</h3>
+                <p>${siteEsc(item.descriptionAr)}</p>
                 <div class="price">${item.priceEgp} ج.م</div>
             </div>
-            <a href="https://wa.me/${site.whatsappNumber}?text=${java.net.URLEncoder.encode("مرحباً أود طلب: ${item.nameAr}", "UTF-8")}" class="order-btn" target="_blank">طلب الآن</a>
+            <a href="https://wa.me/${site.whatsappNumber}?text=$msg" class="order-btn" target="_blank" rel="noopener">طلب الآن</a>
         </div>
         """.trimIndent()
     }
@@ -1694,76 +1769,94 @@ private fun generateStandaloneHtml(site: UserWebsite): String {
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${site.siteTitle} | ${site.headline}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: ${site.primaryColorHex};
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
-        body { background: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
-        header { text-align: center; padding: 60px 20px 40px; background: radial-gradient(circle at top, ${site.primaryColorHex}33, transparent 70%); }
-        h1 { font-size: 2.4rem; color: #fff; margin-bottom: 8px; }
-        .tagline { color: var(--primary); font-size: 1.2rem; font-weight: 600; margin-bottom: 12px; }
-        .subtagline { color: var(--text-muted); max-width: 600px; margin: 0 auto 24px; font-size: 1rem; }
-        .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-        .btn { padding: 12px 28px; border-radius: 8px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; }
-        .btn-wa { background: #25D366; color: #fff; }
-        .btn-call { border: 2px solid var(--primary); color: var(--primary); }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        .section-title { font-size: 1.6rem; color: #fff; margin-bottom: 20px; border-right: 4px solid var(--primary); padding-right: 12px; }
-        .about-card { background: var(--card-bg); padding: 24px; border-radius: 12px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.08); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .product-card { background: var(--card-bg); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.06); }
-        .product-card h3 { font-size: 1.15rem; color: #fff; margin-bottom: 6px; }
-        .badge { background: ${site.primaryColorHex}22; color: var(--primary); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-right: 6px; }
-        .product-card p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; }
-        .price { font-size: 1.25rem; font-weight: bold; color: var(--primary); margin-bottom: 14px; }
-        .order-btn { background: var(--primary); color: #000; text-align: center; padding: 10px; border-radius: 6px; font-weight: bold; text-decoration: none; }
-        .contact-box { background: var(--card-bg); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 40px; }
-        footer { text-align: center; padding: 30px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${siteEsc(site.siteTitle)} | ${siteEsc(site.headline)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; }
+.hero { position: relative; min-height: 78vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background-image: $heroCss; background-size: cover; background-position: center; animation: kenburns 18s ease-in-out infinite alternate; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.65)); }
+.hero-inner { position: relative; z-index: 2; padding: 32px 20px; max-width: 760px; }
+.hero h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 800; animation: rise .9s ease both; }
+.tagline { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 8px 0; animation: rise .9s .15s ease both; filter: brightness(1.35); }
+.sub { opacity: .92; margin: 0 auto 26px; animation: rise .9s .3s ease both; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: rise .9s .45s ease both; }
+.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; transition: transform .25s, box-shadow .25s; }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-call { background: rgba(255,255,255,.15); border: 2px solid #fff; color: #fff; backdrop-filter: blur(4px); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 48px 20px 20px; }
+h2.t { font-size: 1.7rem; font-weight: 800; margin-bottom: 22px; position: relative; padding-bottom: 10px; }
+h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px; height: 4px; border-radius: 4px; background: var(--primary); }
+.about { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 46px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
+.card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.card p { color: var(--muted); font-size: .92rem; margin-bottom: 12px; }
+.badge { background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
+.price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.order-btn { background: var(--primary); color: #fff; text-align: center; padding: 11px; border-radius: 12px; font-weight: 700; text-decoration: none; transition: filter .2s; }
+.order-btn:hover { filter: brightness(1.12); }
+.contact { background: var(--card); border-radius: 18px; padding: 26px; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; }
+.contact h2.t::after { right: 50%; transform: translateX(50%); }
+footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85rem; }
+.fab { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.3); animation: pulse 2.2s infinite; }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+@media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
+</style>
 </head>
 <body>
-    <header>
-        <h1>${site.siteTitle}</h1>
-        <div class="tagline">${site.headline}</div>
-        <p class="subtagline">${site.subheadline}</p>
-        <div class="cta-group">
-            <a href="https://wa.me/${site.whatsappNumber}" class="btn btn-wa" target="_blank">اطلب عبر واتساب</a>
-            <a href="tel:${site.phoneNumber}" class="btn btn-call">اتصل بنا: ${site.phoneNumber}</a>
-        </div>
-    </header>
-
-    <div class="container">
-        <section class="about-card">
-            <h2 class="section-title">نبذة عنا</h2>
-            <p>${site.aboutText}</p>
-        </section>
-
-        <section>
-            <h2 class="section-title">قائمة المنتجات والخدمات</h2>
-            <div class="grid">
-                $itemsHtml
-            </div>
-        </section>
-
-        <section class="contact-box">
-            <h2 class="section-title">العنوان ومواعيد العمل</h2>
-            <p>📍 ${site.address}</p>
-            <p>⏰ ${site.workingHours}</p>
-        </section>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <h1>${siteEsc(site.siteTitle)}</h1>
+    <div class="tagline">${siteEsc(site.headline)}</div>
+    <p class="sub">${siteEsc(site.subheadline)}</p>
+    <div class="cta">
+      <a href="https://wa.me/${site.whatsappNumber}" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+      <a href="tel:${site.phoneNumber}" class="btn btn-call">اتصل بنا: ${siteEsc(site.phoneNumber)}</a>
     </div>
-
-    <footer>
-        <p>تم إنشاء هذا الموقع بواسطة منصة FOKOF2 © 2026</p>
-    </footer>
+  </div>
+</section>
+<div class="wrap">
+  <section class="about reveal">
+    <h2 class="t">نبذة عنا</h2>
+    <p>${siteEsc(site.aboutText)}</p>
+  </section>
+  <section>
+    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
+    <div class="grid">
+$itemsHtml
+    </div>
+  </section>
+  <section class="contact reveal">
+    <h2 class="t">العنوان ومواعيد العمل</h2>
+    <p>📍 ${siteEsc(site.address)}</p>
+    <p>⏰ ${siteEsc(site.workingHours)}</p>
+  </section>
+</div>
+<footer>تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<a class="fab" href="https://wa.me/${site.whatsappNumber}" target="_blank" rel="noopener">واتساب</a>
+<script>
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.12 });
+  els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+})();
+</script>
 </body>
 </html>
     """.trimIndent()
