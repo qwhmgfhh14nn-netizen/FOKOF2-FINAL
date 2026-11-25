@@ -61,10 +61,10 @@ object TemplateDesigner {
         // meta = top, mid, bottom, left, right brightness of the artwork (0 dark .. 1 light)
         fun zoneLum(a: Int): Float = meta?.getOrNull(a) ?: 0.3f
         // icons (emoji-only lines) get their own slot above the text block so they never sit under a title
-        fun isIcon(e: CanvasElement) = e.type == CanvasElementType.TEXT && e.text.trim().length <= 3 &&
+        fun isIcon(e: CanvasElement) = (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) && e.text.trim().length <= 3 &&
             e.text.trim().isNotEmpty() && e.text.trim().first().code > 0x2000
         val icons = t.elements.filter { isIcon(it) }
-        val iconH = if (icons.isEmpty()) 0f else 44f * fs
+        val iconH = if (icons.isEmpty()) 0f else (icons.maxOf { it.fontSize } * fs * 1.3f + 14f)
         // rows pushed down when the row above wraps onto several lines (keeps badges/buttons clear of the text)
         val rows = t.elements.filter { !isIcon(it) }.sortedBy { it.y }
         val yEff = HashMap<String, Float>()
@@ -169,7 +169,7 @@ object TemplateDesigner {
 
         val shapes = t.elements.filter { it.type == CanvasElementType.SHAPE }
         val mapped = t.elements.map { e ->
-            val ny = if (isIcon(e)) blockTop + iconH / 2f + 6f
+            val ny = if (isIcon(e)) blockTop + iconH / 2f
                 else if (ymax == ymin) blockMid + iconH / 2f
                 else blockTop + iconH + (bh - iconH) * (((yEff[e.id] ?: e.y) - ymin) / span)
             val ex = if (arch == 3) cx else w / 2f
