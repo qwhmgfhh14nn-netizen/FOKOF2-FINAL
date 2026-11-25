@@ -51,6 +51,9 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
     var names by remember { mutableStateOf<List<String>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var logoUrl by remember { mutableStateOf<String?>(null) }
+    var logoLoading by remember { mutableStateOf(false) }
+    var logoError by remember { mutableStateOf<String?>(null) }
+    var logoWait by remember { mutableStateOf(0) }
     var style by remember { mutableStateOf("minimal gold luxury") }
     val styles = listOf("minimal gold luxury" to "فخم ذهبي", "modern geometric" to "عصري هندسي", "playful colorful" to "مرح ملون", "arabic calligraphy" to "خط عربي")
 
@@ -97,13 +100,29 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                 onClick = {
                     val name = brandName.ifBlank { "FOKOF2" }
                     val prompt = "vector logo for brand \"$name\", $style, ${industry.ifBlank { "business" }}, flat, centered, white background, professional"
-                    logoUrl = "https://image.pollinations.ai/prompt/" + java.net.URLEncoder.encode(prompt, "UTF-8").replace("+", "%20") +
+                    val u = "https://image.pollinations.ai/prompt/" + java.net.URLEncoder.encode(prompt, "UTF-8").replace("+", "%20") +
                         "?width=768&height=768&nologo=true&seed=" + (System.currentTimeMillis() % 100000)
+                    logoLoading = true; logoError = null; logoWait = 0
+                    scope.launch {
+                        when (val r = com.example.data.ai.FreeImageFetcher.fetch(context, u) { logoWait = it }) {
+                            is com.example.data.ai.FreeImageFetcher.Result.Ok -> { logoUrl = r.fileUri }
+                            is com.example.data.ai.FreeImageFetcher.Result.Fail -> { logoError = r.reason }
+                        }
+                        logoLoading = false; logoWait = 0
+                    }
                 },
+                enabled = !logoLoading,
                 modifier = Modifier.fillMaxWidth().height(44.dp).testTag("generate_logo_button"),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary)
-            ) { Text("ولّد شعار", color = androidx.compose.ui.graphics.Color(0xFF101014), fontWeight = FontWeight.Bold) }
+            ) {
+                if (logoLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(if (logoWait > 0) "استنى $logoWait ثانية (الخدمة المجانية)" else "جاري التوليد...", color = androidx.compose.ui.graphics.Color(0xFF101014), fontWeight = FontWeight.Bold)
+                } else Text("ولّد شعار", color = androidx.compose.ui.graphics.Color(0xFF101014), fontWeight = FontWeight.Bold)
+            }
+            logoError?.let { Text("فشل توليد الشعار: $it. جرّب تاني.", color = androidx.compose.ui.graphics.Color(0xFFB3261E), modifier = Modifier.padding(top = 8.dp)) }
             logoUrl?.let { u ->
                 AsyncImage(
                     model = u, contentDescription = "logo",
@@ -113,7 +132,7 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                 )
                 OutlinedButton(
                     onClick = {
-                        val i = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, "شعار ${brandName.ifBlank { "FOKOF2" }}: $u") }
+                        val i = Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, "شعار ${brandName.ifBlank { "FOKOF2" }} (تم توليده في FOKOF2)") }
                         context.startActivity(Intent.createChooser(i, "مشاركة"))
                     },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
