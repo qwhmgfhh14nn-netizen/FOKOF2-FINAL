@@ -24,6 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.Slideshow
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
+import com.example.ui.components.TemplateThumb
+import com.example.ui.theme.CairoFontFamily
+import com.example.ui.theme.GoldBorder
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Brush
@@ -75,409 +84,281 @@ import com.example.ui.theme.GoldLight
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.util.parseColor
 
+fun isArabicUi(strings: TranslationStrings) = strings.navHome == "الرئيسية"
+
+@Composable
+fun SectionHeader(title: String, actionLabel: String? = null, onAction: () -> Unit = {}) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 22.dp, bottom = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontFamily = CairoFontFamily)
+        )
+        if (actionLabel != null) {
+            Text(
+                text = actionLabel,
+                style = MaterialTheme.typography.labelMedium.copy(color = GoldPrimary, fontWeight = FontWeight.Bold),
+                modifier = Modifier.clickable { onAction() }.padding(4.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun CircleShortcut(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, tint: Color, onClick: () -> Unit, tag: String = "") {
+    Column(
+        modifier = Modifier.width(76.dp).clickable { onClick() }.testTag(tag),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier.size(62.dp).clip(CircleShape).background(tint.copy(alpha = 0.16f)).border(1.dp, tint.copy(alpha = 0.45f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(imageVector = icon, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center),
+            maxLines = 2
+        )
+    }
+}
+
+/** Clean gallery tile: the artwork only, with a small heart and a PRO crown. No text over the picture. */
+@Composable
+fun GalleryTile(
+    template: DesignTemplate,
+    isFavorite: Boolean,
+    isPurchased: Boolean = false,
+    onClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    modifier: Modifier = Modifier,
+    maxHeight: androidx.compose.ui.unit.Dp = 520.dp
+) {
+    val isPro = template.isPremium && template.priceEgp > 0 && !isPurchased
+    TemplateThumb(
+        template = template,
+        maxHeight = maxHeight,
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .border(1.dp, GoldBorder.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+            .clickable { onClick() }
+    ) {
+        IconButton(
+            onClick = onToggleFavorite,
+            modifier = Modifier.align(Alignment.TopEnd).padding(5.dp).size(28.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.92f))
+        ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = "Favorite",
+                tint = if (isFavorite) Color(0xFFEF4444) else Color(0xFF3A3326),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        if (isPro) {
+            Box(
+                modifier = Modifier.align(Alignment.BottomStart).padding(6.dp).size(24.dp).clip(CircleShape).background(Color(0xFF2B2417)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.WorkspacePremium, contentDescription = "PRO", tint = Color(0xFFF2D67C), modifier = Modifier.size(15.dp))
+            }
+        }
+    }
+}
+
 @Composable
 fun HomeScreen(
     strings: TranslationStrings,
     searchQuery: String,
     templates: List<DesignTemplate>,
+    userProjects: List<DesignTemplate>,
     favoriteIds: Set<String>,
+    purchasedIds: Set<String>,
     onSearchChange: (String) -> Unit,
+    onSearchSubmit: (String) -> Unit,
+    onOpenTemplates: (String, String) -> Unit,
     onNavigate: (AppNavDestination) -> Unit,
+    onStartDesign: (ratio: String, titleAr: String, titleEn: String) -> Unit,
+    onOpenProject: (DesignTemplate) -> Unit,
     onPreviewTemplate: (DesignTemplate) -> Unit,
-    onUseTemplate: (DesignTemplate) -> Unit,
-    onBuyTemplate: (DesignTemplate) -> Unit,
     onToggleFavorite: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val ar = isArabicUi(strings)
     val freeTemplates = templates.filter { !it.isPremium || it.priceEgp == 0 }
     val proTemplates = templates.filter { it.isPremium && it.priceEgp > 0 }
-
-    val popularCategories = listOf(
-        strings.catLogos to Icons.Default.Brush,
-        strings.catSocial to Icons.Default.Campaign,
-        strings.catBranding to Icons.Default.ColorLens,
-        strings.catPrint to Icons.Default.LocalOffer,
-        strings.catPosters to Icons.Default.AutoAwesome
-    )
+    val featuredList = (templates.filter { it.isFeatured } + freeTemplates).distinctBy { it.id }.take(10)
+    val categories = templates.filter { it.category.isNotBlank() }.groupBy { it.category }.entries.toList()
+    val viewAll = if (ar) "عرض الكل" else "View all"
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        // Search Bar
+        Text(
+            text = if (ar) "إيه اللي هتبدعه النهاردة؟" else "What will you create today?",
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, fontFamily = CairoFontFamily),
+            modifier = Modifier.padding(top = 6.dp, bottom = 12.dp)
+        )
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchChange,
             placeholder = {
                 Text(
-                    text = strings.homeSearchPlaceholder,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    text = if (ar) "دوّر على قالب أو تصميم..." else "Search templates and designs...",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
             },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = GoldPrimary
-                )
-            },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = GoldPrimary) },
             singleLine = true,
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("home_search_bar"),
+            shape = RoundedCornerShape(28.dp),
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Search),
+            keyboardActions = androidx.compose.foundation.text.KeyboardActions(onSearch = { onSearchSubmit(searchQuery) }),
+            modifier = Modifier.fillMaxWidth().testTag("home_search_bar"),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = GoldPrimary,
-                unfocusedBorderColor = GoldBorder
+                unfocusedBorderColor = GoldBorder,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Hero Featured Offers Banner
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .border(1.2.dp, GoldBorder, RoundedCornerShape(18.dp))
-                .testTag("featured_offer_banner"),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp)
-                    .background(Brush.horizontalGradient(listOf(Color(0xFFFFFDF7), Color(0xFFF6EBCB))))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1.05f)
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(GoldPrimary)
-                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                    ) {
-                        Text(
-                            text = "عرض خاص ٥٠٪",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF101014)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = strings.featuredOffersTitle,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = Color(0xFF2B2417),
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = CairoFontFamily
-                        )
-                    )
-                    Text(
-                        text = strings.featuredOffersSubtitle,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF7A5C0A),
-                            fontSize = 11.sp
-                        ),
-                        maxLines = 2
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Button(
-                        onClick = { onNavigate(AppNavDestination.TEMPLATES) },
-                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-                        shape = RoundedCornerShape(10.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(
-                            text = "تصفح العروض الآن",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF101014)
-                        )
-                    }
-                }
-                Image(
-                    painter = painterResource(id = R.drawable.hero_baraya),
-                    contentDescription = "FOKOF2 Hero",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Featured templates (owner-featured first, then top free ones)
-        val featuredList = (templates.filter { it.isFeatured } + freeTemplates).distinctBy { it.id }.take(8)
-        if (featuredList.isNotEmpty()) {
-            Text(
-                text = "قوالب مميزة",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = GoldPrimary)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+        // Continue designing (only real saved projects)
+        if (userProjects.isNotEmpty()) {
+            SectionHeader(if (ar) "كمّل تصميمك" else "Continue designing", viewAll) { onNavigate(AppNavDestination.PROJECTS) }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(featuredList) { tpl ->
-                    HomeTemplateCard(
-                        template = tpl,
-                        strings = strings,
-                        isFavorite = favoriteIds.contains(tpl.id),
-                        onPreview = { onPreviewTemplate(tpl) },
-                        onUse = { onUseTemplate(tpl) },
-                        onBuy = { onBuyTemplate(tpl) },
-                        onToggleFavorite = { onToggleFavorite(tpl.id) }
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        // AI Tools Section
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = strings.aiToolsTitle,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = GoldPrimary
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            AiToolMiniCard(
-                title = "توليد الصور",
-                subtitle = "صور بالذكاء الاصطناعي مجانًا",
-                icon = Icons.Default.AutoAwesome,
-                onClick = { onNavigate(AppNavDestination.AI_IMAGE) },
-                modifier = Modifier.weight(1f)
-            )
-            AiToolMiniCard(
-                title = "كتابة الإعلانات",
-                subtitle = "نصوص تسويقية",
-                icon = Icons.Default.Campaign,
-                onClick = { onNavigate(AppNavDestination.AI_MARKETING) },
-                modifier = Modifier.weight(1f)
-            )
-            AiToolMiniCard(
-                title = "الهوية البصرية",
-                subtitle = "ألوان وشعارات",
-                icon = Icons.Default.ColorLens,
-                onClick = { onNavigate(AppNavDestination.BRAND_KIT) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            AiToolMiniCard(
-                title = "منشئ المواقع",
-                subtitle = "10 قوالب للمحلات",
-                icon = Icons.Default.Language,
-                onClick = { onNavigate(AppNavDestination.WEBSITES) },
-                modifier = Modifier.weight(1f)
-            )
-            AiToolMiniCard(
-                title = "استوديو الموك آب",
-                subtitle = "معاينة 3D واقعية",
-                icon = Icons.Default.ShoppingBag,
-                onClick = { onNavigate(AppNavDestination.MOCKUP_STUDIO) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(22.dp))
-
-        // Popular Categories
-        Text(
-            text = strings.popularCategoriesTitle,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = GoldPrimary
-            )
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(popularCategories) { (catTitle, icon) ->
-                Surface(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(1.dp, GoldBorder.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                        .clickable { onNavigate(AppNavDestination.TEMPLATES) },
-                    color = MaterialTheme.colorScheme.surfaceVariant
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(imageVector = icon, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = catTitle,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            )
+                items(userProjects.take(10)) { p ->
+                    Column(modifier = Modifier.width(130.dp).clickable { onOpenProject(p) }) {
+                        TemplateThumb(
+                            template = p,
+                            maxHeight = 150.dp,
+                            modifier = Modifier.clip(RoundedCornerShape(12.dp)).border(1.dp, GoldBorder.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(p.titleAr, fontSize = 11.sp, maxLines = 1, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // PRO Templates Section (With Egyptian Pound EGP Prices!)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.WorkspacePremium,
-                    contentDescription = null,
-                    tint = GoldPrimary,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = strings.proTemplatesTitle,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = GoldPrimary
-                    )
-                )
-            }
-
-            Text(
-                text = strings.viewAll,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    color = GoldPrimary,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.clickable { onNavigate(AppNavDestination.TEMPLATES) }
+        // Quick start (blank canvas in a chosen size)
+        SectionHeader(if (ar) "اختار طريقة البدء" else "Choose how to start")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            val starts = listOf(
+                Triple(if (ar) "منشور سوشيال" else "Social post", Icons.Default.Image, "1:1"),
+                Triple(if (ar) "ستوري / ريلز" else "Story / Reel", Icons.Default.Smartphone, "9:16"),
+                Triple(if (ar) "بوستر" else "Poster", Icons.Default.Campaign, "4:5"),
+                Triple(if (ar) "عرض تقديمي" else "Presentation", Icons.Default.Slideshow, "16:9"),
+                Triple(if (ar) "حجم مخصص" else "Custom size", Icons.Default.AspectRatio, "1:1")
             )
+            val tints = listOf(Color(0xFFD4AF37), Color(0xFFB8860B), Color(0xFF9A7416), Color(0xFFC79A2B), Color(0xFF7A5C0A))
+            items(starts.size) { i ->
+                val (label, icon, ratio) = starts[i]
+                CircleShortcut(label, icon, tints[i], tag = "quick_start_$i", onClick = {
+                    if (i == 4) onNavigate(AppNavDestination.STUDIO)
+                    onStartDesign(ratio, "تصميم جديد", "New Design")
+                })
+            }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        // Quick tools: only features that really exist in the app
+        SectionHeader(if (ar) "أدوات سريعة" else "Quick tools")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            val tools = listOf(
+                Triple(if (ar) "توليد صور" else "AI images", Icons.Default.AutoAwesome, AppNavDestination.AI_IMAGE),
+                Triple(if (ar) "كتابة إعلانات" else "Ad copy", Icons.Default.Campaign, AppNavDestination.AI_MARKETING),
+                Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, AppNavDestination.BRAND_KIT),
+                Triple(if (ar) "منشئ المواقع" else "Websites", Icons.Default.Language, AppNavDestination.WEBSITES),
+                Triple(if (ar) "موك آب" else "Mockups", Icons.Default.ShoppingBag, AppNavDestination.MOCKUP_STUDIO)
+            )
+            items(tools.size) { i ->
+                val (label, icon, dest) = tools[i]
+                CircleShortcut(label, icon, Color(0xFF8A6B12), tag = "quick_tool_$i", onClick = { onNavigate(dest) })
+            }
+        }
 
         if (templates.isEmpty()) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                border = androidx.compose.foundation.BorderStroke(1.dp, GoldBorder.copy(alpha = 0.4f))
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "مكتبة القوالب جاهزة لاستقبال تصاميم المالك المعتمدة",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = GoldPrimary, fontFamily = CairoFontFamily)
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "تم تفريغ القوالب الوهمية السابقة بنجاح. يمكن للمالك رفع التصاميم الحقيقية بالصور ومصادر التصميم وتحديد أسعارها بالجنيه المصري عبر لوحة تحكم المالك.\nيمكنك البدء بإنشاء وتعديل تصميمك الآن في الاستوديو.",
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Button(
-                        onClick = { onNavigate(AppNavDestination.STUDIO) },
-                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(imageVector = Icons.Default.Edit, contentDescription = null, tint = Color(0xFF101014), modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("فتح استوديو التصميم والبدء من الصفر", color = Color(0xFF101014), fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = if (ar) "مفيش قوالب لسه. ابدأ من الصفر في الاستوديو." else "No templates yet. Start from scratch in the Studio.",
+                style = MaterialTheme.typography.bodyMedium
+            )
         } else {
-            if (proTemplates.isNotEmpty()) {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(proTemplates) { tpl ->
-                        HomeTemplateCard(
+            if (featuredList.isNotEmpty()) {
+                SectionHeader(if (ar) "قوالب قد تعجبك" else "Templates you may like", viewAll) { onOpenTemplates("", "ALL") }
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(featuredList) { tpl ->
+                        GalleryTile(
                             template = tpl,
-                            strings = strings,
                             isFavorite = favoriteIds.contains(tpl.id),
-                            onPreview = { onPreviewTemplate(tpl) },
-                            onUse = { onUseTemplate(tpl) },
-                            onBuy = { onBuyTemplate(tpl) },
-                            onToggleFavorite = { onToggleFavorite(tpl.id) }
+                            isPurchased = purchasedIds.contains(tpl.id),
+                            onClick = { onPreviewTemplate(tpl) },
+                            onToggleFavorite = { onToggleFavorite(tpl.id) },
+                            modifier = Modifier.width(150.dp),
+                            maxHeight = 240.dp
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            if (categories.isNotEmpty()) {
+                SectionHeader(if (ar) "استعرض فئات القوالب" else "Browse template categories")
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(categories) { (cat, list) ->
+                        Column(modifier = Modifier.width(110.dp).clickable { onOpenTemplates("", cat) }.testTag("home_category")) {
+                            TemplateThumb(
+                                template = list.first(),
+                                maxHeight = 110.dp,
+                                modifier = Modifier.clip(RoundedCornerShape(14.dp)).border(1.dp, GoldBorder.copy(alpha = 0.5f), RoundedCornerShape(14.dp))
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(cat, fontSize = 12.sp, maxLines = 2, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
+
+            if (proTemplates.isNotEmpty()) {
+                SectionHeader(if (ar) "قوالب PRO" else "PRO templates", viewAll) { onOpenTemplates("", "PRO") }
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(proTemplates.take(10)) { tpl ->
+                        GalleryTile(
+                            template = tpl,
+                            isFavorite = favoriteIds.contains(tpl.id),
+                            isPurchased = purchasedIds.contains(tpl.id),
+                            onClick = { onPreviewTemplate(tpl) },
+                            onToggleFavorite = { onToggleFavorite(tpl.id) },
+                            modifier = Modifier.width(150.dp),
+                            maxHeight = 240.dp
+                        )
+                    }
+                }
             }
 
             if (freeTemplates.isNotEmpty()) {
-                // Free Templates Section
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = strings.freeTemplatesTitle,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = GoldPrimary
-                        )
-                    )
-
-                    Text(
-                        text = strings.viewAll,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = GoldPrimary,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        modifier = Modifier.clickable { onNavigate(AppNavDestination.TEMPLATES) }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(freeTemplates) { tpl ->
-                        HomeTemplateCard(
+                SectionHeader(if (ar) "قوالب مجانية" else "Free templates", viewAll) { onOpenTemplates("", "FREE") }
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(freeTemplates.take(14)) { tpl ->
+                        GalleryTile(
                             template = tpl,
-                            strings = strings,
                             isFavorite = favoriteIds.contains(tpl.id),
-                            onPreview = { onPreviewTemplate(tpl) },
-                            onUse = { onUseTemplate(tpl) },
-                            onBuy = { onUseTemplate(tpl) },
-                            onToggleFavorite = { onToggleFavorite(tpl.id) }
+                            onClick = { onPreviewTemplate(tpl) },
+                            onToggleFavorite = { onToggleFavorite(tpl.id) },
+                            modifier = Modifier.width(150.dp),
+                            maxHeight = 240.dp
                         )
                     }
                 }
             }
         }
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

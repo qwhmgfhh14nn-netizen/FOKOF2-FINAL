@@ -66,7 +66,9 @@ enum class AppNavDestination {
     WEBSITE_EDITOR,
     MOCKUP_STUDIO,
     STORE_QR_STUDIO,
-    FEATURE_OFF
+    FEATURE_OFF,
+    MORE,
+    SETTINGS
 }
 
 data class GeneratedImageItem(
@@ -345,6 +347,23 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         } else {
             AppLanguage.ARABIC
         }
+    }
+
+    private val _templateFilterPreset = MutableStateFlow("ALL")
+    val templateFilterPreset: StateFlow<String> = _templateFilterPreset.asStateFlow()
+
+    /** Opens the templates gallery with an optional search text and category/filter key. */
+    fun openTemplates(query: String = "", filter: String = "ALL") {
+        _searchQuery.value = query
+        _templateFilterPreset.value = filter
+        _currentNav.value = AppNavDestination.TEMPLATES
+    }
+
+    /** Quick start: a blank design in the chosen canvas ratio. */
+    fun startNewDesign(ratio: String, titleAr: String, titleEn: String) {
+        createNewProject()
+        _canvasAspectRatio.value = ratio
+        _activeTemplateTitle.value = if (_currentLanguage.value == AppLanguage.ARABIC) titleAr else titleEn
     }
 
     fun setSearchQuery(query: String) {

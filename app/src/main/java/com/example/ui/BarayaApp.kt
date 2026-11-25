@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Icon
@@ -57,6 +59,8 @@ import com.example.ui.screens.BrandKitScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.MarketingScreen
 import com.example.ui.screens.MockupStudioScreen
+import com.example.ui.screens.MoreScreen
+import com.example.ui.screens.SettingsScreen
 import com.example.ui.screens.ProjectsScreen
 import com.example.ui.screens.PurchasesScreen
 import com.example.ui.screens.StoreQrStudioScreen
@@ -78,6 +82,7 @@ fun BarayaApp(
     val isVipUser by viewModel.isVipUser.collectAsState()
     val toastMessage by viewModel.toastMessage.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val templateFilterPreset by viewModel.templateFilterPreset.collectAsState()
 
     // Studio states
     val canvasElements by viewModel.canvasElements.collectAsState()
@@ -188,7 +193,7 @@ fun BarayaApp(
                             BarayaFixedBottomNav(
                                 strings = strings,
                                 currentNav = currentNav,
-                                onSelect = { viewModel.setDestination(it) },
+                                onSelect = { if (it == AppNavDestination.TEMPLATES) viewModel.openTemplates() else viewModel.setDestination(it) },
                                 modifier = Modifier.navigationBarsPadding()
                             )
                         }
@@ -219,15 +224,16 @@ fun BarayaApp(
                                         strings = strings,
                                         searchQuery = searchQuery,
                                         templates = publishedTemplates,
+                                        userProjects = userProjects,
                                         favoriteIds = favoriteIds,
+                                        purchasedIds = purchasedTemplateIds,
                                         onSearchChange = { viewModel.setSearchQuery(it) },
+                                        onSearchSubmit = { viewModel.openTemplates(it) },
+                                        onOpenTemplates = { q, f -> viewModel.openTemplates(q, f) },
                                         onNavigate = { viewModel.setDestination(it) },
+                                        onStartDesign = { r, ta, te -> viewModel.startNewDesign(r, ta, te) },
+                                        onOpenProject = { viewModel.openProjectInStudio(it) },
                                         onPreviewTemplate = { viewModel.setPreviewTemplate(it) },
-                                        onUseTemplate = {
-                                            viewModel.loadTemplate(it)
-                                            viewModel.setDestination(AppNavDestination.STUDIO)
-                                        },
-                                        onBuyTemplate = { viewModel.setBuyingTemplate(it) },
                                         onToggleFavorite = { viewModel.toggleFavorite(it) }
                                     )
                                 }
@@ -248,7 +254,9 @@ fun BarayaApp(
                                         },
                                         onBuyTemplate = { viewModel.setBuyingTemplate(it) },
                                         onBuyBundle = { viewModel.openBuyBundle(it) },
-                                        onToggleFavorite = { viewModel.toggleFavorite(it) }
+                                        onToggleFavorite = { viewModel.toggleFavorite(it) },
+                                        initialQuery = searchQuery,
+                                        initialFilter = templateFilterPreset
                                     )
                                 }
 
@@ -330,6 +338,41 @@ fun BarayaApp(
                                     )
                                 }
 
+                                AppNavDestination.MORE -> {
+                                    MoreScreen(
+                                        strings = strings,
+                                        currentUser = currentUser,
+                                        isDarkTheme = isDarkTheme,
+                                        isArabic = currentLanguage == AppLanguage.ARABIC,
+                                        isOwnerAuthenticated = isOwnerAuthenticated,
+                                        onNavigate = { viewModel.setDestination(it) },
+                                        onToggleTheme = { viewModel.toggleTheme() },
+                                        onToggleLanguage = { viewModel.toggleLanguage() },
+                                        onOpenHelp = { viewModel.setChatOpen(true) },
+                                        onUpgradeVip = {
+                                            viewModel.showToast(if (currentLanguage == AppLanguage.ARABIC) "يمكنك طلب ترقية باقة VIP عبر التحويل على أورنج كاش (01207164416)!" else "Upgrade to VIP via Orange Cash (01207164416)!")
+                                        },
+                                        onLogout = { viewModel.logout() }
+                                    )
+                                }
+
+                                AppNavDestination.SETTINGS -> {
+                                    SettingsScreen(
+                                        isArabic = currentLanguage == AppLanguage.ARABIC,
+                                        isDarkTheme = isDarkTheme,
+                                        currentUser = currentUser,
+                                        isOwnerAuthenticated = isOwnerAuthenticated,
+                                        onBack = { viewModel.setDestination(AppNavDestination.MORE) },
+                                        onToggleTheme = { viewModel.toggleTheme() },
+                                        onToggleLanguage = { viewModel.toggleLanguage() },
+                                        onUpgradeVip = {
+                                            viewModel.showToast(if (currentLanguage == AppLanguage.ARABIC) "يمكنك طلب ترقية باقة VIP عبر التحويل على أورنج كاش (01207164416)!" else "Upgrade to VIP via Orange Cash (01207164416)!")
+                                        },
+                                        onOpenAdmin = { viewModel.setDestination(AppNavDestination.ADMIN) },
+                                        onVerifyOwnerPassword = { pwd, onDone -> viewModel.verifyOwnerPassword(pwd, onDone) }
+                                    )
+                                }
+
                                 // 6. My Projects – مشاريعي
                                 AppNavDestination.PROJECTS -> {
                                     ProjectsScreen(
@@ -399,7 +442,7 @@ fun BarayaApp(
                                         onAddCoupon = { code, disc, desc -> viewModel.addCoupon(code, disc, desc) },
                                         onRemoveCoupon = { viewModel.removeCoupon(it) },
                                         onPreviewTemplate = { viewModel.setPreviewTemplate(it) },
-                                        onCloseAdmin = { viewModel.setDestination(AppNavDestination.ACCOUNT) },
+                                        onCloseAdmin = { viewModel.setDestination(AppNavDestination.MORE) },
                                         onLockAdmin = { viewModel.lockAdmin() },
                                         websiteTemplates = allWebsiteTemplates,
                                         websiteSettings = websiteSettings,
@@ -611,12 +654,13 @@ fun BarayaFixedBottomNav(
     onSelect: (AppNavDestination) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val ar = strings.navHome == "الرئيسية"
     val fiveTabs = listOf(
         AppNavDestination.HOME to (strings.navHome to Icons.Default.Home),
+        AppNavDestination.PROJECTS to ((if (ar) "تصاميمي" else "My designs") to Icons.Default.Folder),
         AppNavDestination.TEMPLATES to (strings.navTemplates to Icons.Default.Category),
         AppNavDestination.STUDIO to (strings.navStudio to Icons.Default.Brush),
-        AppNavDestination.PURCHASES to (strings.navPurchases to Icons.Default.ShoppingBag),
-        AppNavDestination.ACCOUNT to (strings.navAccount to Icons.Default.Person)
+        AppNavDestination.MORE to ((if (ar) "المزيد" else "More") to Icons.Default.MoreHoriz)
     )
 
     NavigationBar(
@@ -625,7 +669,7 @@ fun BarayaFixedBottomNav(
         tonalElevation = 8.dp
     ) {
         fiveTabs.forEach { (destination, labelIcon) ->
-            val isSelected = currentNav == destination
+            val isSelected = currentNav == destination || (destination == AppNavDestination.MORE && currentNav in moreGroup)
             NavigationBarItem(
                 selected = isSelected,
                 onClick = { onSelect(destination) },
@@ -659,12 +703,13 @@ fun BarayaFixedNavRail(
     currentNav: AppNavDestination,
     onSelect: (AppNavDestination) -> Unit
 ) {
+    val ar = strings.navHome == "الرئيسية"
     val fiveTabs = listOf(
         AppNavDestination.HOME to (strings.navHome to Icons.Default.Home),
+        AppNavDestination.PROJECTS to ((if (ar) "تصاميمي" else "My designs") to Icons.Default.Folder),
         AppNavDestination.TEMPLATES to (strings.navTemplates to Icons.Default.Category),
         AppNavDestination.STUDIO to (strings.navStudio to Icons.Default.Brush),
-        AppNavDestination.PURCHASES to (strings.navPurchases to Icons.Default.ShoppingBag),
-        AppNavDestination.ACCOUNT to (strings.navAccount to Icons.Default.Person)
+        AppNavDestination.MORE to ((if (ar) "المزيد" else "More") to Icons.Default.MoreHoriz)
     )
 
     NavigationRail(
@@ -672,7 +717,7 @@ fun BarayaFixedNavRail(
         modifier = Modifier.fillMaxHeight()
     ) {
         fiveTabs.forEach { (destination, labelIcon) ->
-            val isSelected = currentNav == destination
+            val isSelected = currentNav == destination || (destination == AppNavDestination.MORE && currentNav in moreGroup)
             NavigationRailItem(
                 selected = isSelected,
                 onClick = { onSelect(destination) },
@@ -699,3 +744,9 @@ fun BarayaFixedNavRail(
         }
     }
 }
+
+private val moreGroup = setOf(
+    AppNavDestination.ACCOUNT, AppNavDestination.SETTINGS, AppNavDestination.PURCHASES, AppNavDestination.ADMIN,
+    AppNavDestination.BRAND_KIT, AppNavDestination.WEBSITES, AppNavDestination.AI_IMAGE, AppNavDestination.AI_MARKETING,
+    AppNavDestination.MOCKUP_STUDIO
+)

@@ -108,40 +108,8 @@ fun BarayaHeader(
                                     color = GoldPrimary
                                 )
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(GoldPrimary.copy(alpha = 0.2f))
-                                    .border(0.8.dp, GoldPrimary, RoundedCornerShape(6.dp))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.WorkspacePremium,
-                                        contentDescription = "VIP",
-                                        tint = GoldPrimary,
-                                        modifier = Modifier.size(12.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(2.dp))
-                                    Text(
-                                        text = "VIP",
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = GoldPrimary,
-                                        fontFamily = CinzelFontFamily
-                                    )
-                                }
-                            }
                         }
 
-                        Text(
-                            text = strings.founderCredit,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 11.sp
-                            )
-                        )
                     }
                 }
 
@@ -215,18 +183,6 @@ fun BarayaHeader(
                     }
                 }
             }
-
-            // Tagline Banner
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "« ${strings.tagline} »",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontSize = 11.sp,
-                    color = GoldLight.copy(alpha = 0.85f),
-                    fontWeight = FontWeight.Medium
-                ),
-                maxLines = 1
-            )
         }
     }
 }
