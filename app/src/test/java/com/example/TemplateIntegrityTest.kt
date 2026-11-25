@@ -36,7 +36,8 @@ class TemplateIntegrityTest {
         for (t in all) {
             val d = TemplateDesigner.enrich(t)
             val h = heightFor(d.aspectRatio)
-            if (d.elements.size <= t.elements.size) problems += "${t.id}: no design layers added"
+            if (d.elements.none { it.id.startsWith("d_") }) problems += "${t.id}: no design layers added"
+            if (d.elements.any { it.type == CanvasElementType.SHAPE && it.shapeType == com.example.data.model.ShapeType.STAR }) problems += "${t.id}: decorative star on top of the art"
             if (d.elements.none { it.type == CanvasElementType.TEXT && it.text.isNotBlank() }) problems += "${t.id}: no text"
             d.elements.filter { it.type == CanvasElementType.TEXT }.forEach { e ->
                 if (e.x < 0f || e.x > 360f || e.y < 0f || e.y > h) problems += "${t.id}: text '${e.text}' outside canvas (${e.x},${e.y}) h=$h"
@@ -48,8 +49,8 @@ class TemplateIntegrityTest {
 
     @Test fun layouts_vary_between_templates() {
         val signatures = all.map { t ->
-            TemplateDesigner.enrich(t).elements.filter { it.id.startsWith("d_") }.map { it.shapeType.name + it.width.toInt() }.joinToString("|")
+            TemplateDesigner.enrich(t).elements.filter { it.id.startsWith("d_") }.map { it.text + it.shapeType.name + it.width.toInt() + "x" + (it.height / 40f).toInt() }.joinToString("|")
         }.toSet()
-        assertTrue("expected varied archetypes, got ${signatures.size}", signatures.size >= 6)
+        assertTrue("expected varied archetypes, got ${signatures.size}", signatures.size >= 4)
     }
 }

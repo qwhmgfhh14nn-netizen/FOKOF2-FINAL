@@ -81,10 +81,12 @@ fun TemplatesScreen(
     onBuyTemplate: (DesignTemplate) -> Unit,
     onBuyBundle: (TemplateBundle) -> Unit,
     onToggleFavorite: (String) -> Unit,
+    initialQuery: String = "",
+    initialFilter: String = "ALL",
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedFilter by remember { mutableStateOf("ALL") }
+    var searchQuery by remember(initialQuery) { mutableStateOf(initialQuery) }
+    var selectedFilter by remember(initialFilter) { mutableStateOf(initialFilter) }
 
     val dynamicCategories = templates.map { it.category }.filter { it.isNotBlank() }.distinct().map { it to it }
 
@@ -113,36 +115,8 @@ fun TemplatesScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = strings.templatesTitle,
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = GoldPrimary
-                    )
-                )
-                Text(
-                    text = if (templates.isEmpty())
-                        "مكتبة القوالب فارغة حالياً (بانتظار رفع ونشر تصاميم المالك المعتمدة)"
-                    else
-                        "إجمالي القوالب المتاحة: ${templates.size} قالب (${templates.count { !it.isPremium || it.priceEgp == 0 }} مجاناً + باقات ومميز)",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
         // Search Input
         OutlinedTextField(
             value = searchQuery,
@@ -152,7 +126,7 @@ fun TemplatesScreen(
                 Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = GoldPrimary)
             },
             singleLine = true,
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(26.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("templates_search_field")
@@ -208,99 +182,60 @@ fun TemplatesScreen(
                 }
             }
         } else {
-            // Templates List
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+            // Masonry gallery grid
+            androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid(
+                columns = androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells.Fixed(2),
+                modifier = Modifier.weight(1f).testTag("templates_masonry_grid"),
+                verticalItemSpacing = 10.dp,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // If on ALL and no search, show a quick Bundles Teaser Banner
                 if (selectedFilter == "ALL" && searchQuery.isBlank()) {
-                    item {
-                        Card(
+                    item(span = androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.FullLine) {
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .border(1.dp, GoldPrimary, RoundedCornerShape(12.dp))
-                                .clickable { selectedFilter = "BUNDLES" },
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                .border(1.dp, GoldPrimary.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                .clickable { selectedFilter = "BUNDLES" }
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(imageVector = Icons.Default.LocalOffer, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(24.dp))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(text = "باقات التوفير الكبرى: 5 قوالب بـ 20 ج.م وحتى 100 قالب", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-                                        Text(text = "وفّر حتى 60% مع باقات القوالب الشاملة للمصممين والشركات", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
-                                }
-                                Text(text = "عرض الباقات ↗", color = GoldPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Icon(imageVector = Icons.Default.LocalOffer, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(22.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = if (isArabicUi(strings)) "باقات التوفير" else "Savings bundles", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                                Text(text = if (isArabicUi(strings)) "من ٥ قوالب بـ ٢٠ ج.م لحد ١٠٠ قالب" else "From 5 templates for 20 EGP up to 100", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
+                            Text(text = if (isArabicUi(strings)) "عرض" else "View", color = GoldPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
 
-                if (selectedFilter != "BUNDLES" && filtered.isEmpty()) {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, GoldBorder.copy(alpha = 0.4f))
+                if (filtered.isEmpty()) {
+                    item(span = androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan.FullLine) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(28.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Folder,
-                                    contentDescription = null,
-                                    tint = GoldPrimary,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = if (templates.isEmpty()) "مكتبة القوالب فارغة حالياً" else "لا توجد قوالب مطابقة للتصفية",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = GoldPrimary,
-                                        fontFamily = CairoFontFamily
-                                    )
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = if (templates.isEmpty())
-                                        "تم تفريغ كافة القوالب الوهمية السابقة بنجاح. سيبدأ المالك قريباً برفع تصاميم احترافية حقيقية بالصور ومصادر التصميم.\nيمكن للمالك الدخول إلى لوحة إدارة القوالب من حسابه والبدء بنشر التصاميم."
-                                    else
-                                        "لا توجد تصاميم منشورة حالياً تطابق معايير البحث أو هذا التصنيف.",
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                    )
-                                )
-                            }
+                            Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(44.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = if (isArabicUi(strings)) "مفيش قوالب مطابقة. جرّب كلمة تانية." else "No matching templates. Try another word.",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     }
                 }
 
-                items(filtered) { tpl ->
-                    val isPurchased = purchasedTemplateIds.contains(tpl.id)
-                    TemplateDetailedCard(
+                items(filtered.size, key = { filtered[it].id }) { idx ->
+                    val tpl = filtered[idx]
+                    GalleryTile(
                         template = tpl,
-                        strings = strings,
                         isFavorite = favoriteIds.contains(tpl.id),
-                        isPurchased = isPurchased,
-                        onPreview = { onPreviewTemplate(tpl) },
-                        onUse = { onUseTemplate(tpl) },
-                        onBuy = { onBuyTemplate(tpl) },
-                        onToggleFavorite = { onToggleFavorite(tpl.id) }
+                        isPurchased = purchasedTemplateIds.contains(tpl.id),
+                        onClick = { onPreviewTemplate(tpl) },
+                        onToggleFavorite = { onToggleFavorite(tpl.id) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }

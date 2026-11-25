@@ -48,8 +48,17 @@ object TemplateDesigner {
      * (never a big opaque box). Six compositions, chosen per template, each with its own ornaments.
      * Text colours follow the real brightness of the art behind them (see [TemplateArtMeta]).
      */
-    fun enrich(t: DesignTemplate): DesignTemplate {
-        if (t.elements.isEmpty()) return t
+    /** Emoji/symbol-only lines (stars, sparkles, arrows) are decoration, not content: they are dropped. */
+    private fun isOrnament(e: CanvasElement): Boolean {
+        val tx = e.text.trim()
+        if (e.type != CanvasElementType.TEXT && e.type != CanvasElementType.CALLIGRAPHY) return false
+        if (tx.isEmpty() || tx.length > 4) return false
+        return tx.codePoints().toArray().all { it >= 0x2190 || it == 0xFE0F || it == 0x200D }
+    }
+
+    fun enrich(t0: DesignTemplate): DesignTemplate {
+        val t = t0.copy(elements = t0.elements.filter { !isOrnament(it) })
+        if (t.elements.isEmpty()) return t0
         val w = 360f
         val h = w / ratio(t.aspectRatio)
         val seed = abs(t.id.hashCode())
@@ -116,59 +125,27 @@ object TemplateDesigner {
                 x = x, y = y, width = sw, height = sh, colorHex = color, opacity = op, rotation = rot
             )
 
+        // No ornaments on top of the artwork (no stars, frames, diamonds, tinted bands).
+        // The only layer added is one subtle neutral fade behind the text block, so the picture stays visible.
         val deco = mutableListOf<CanvasElement>()
         val above = mutableListOf<CanvasElement>()
+        val fadeOp = if (midArt) 0.55f else 0.42f
         when (arch) {
-            0 -> { // bottom fade + gold rule + diamond
-                val gh = bh + 90f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.84f else 0.72f, tag = "grad:b")
-                above += shape(ShapeType.RECTANGLE, w / 2, blockTop - 28f, 70f, 2f, accent, 1f)
-                above += shape(ShapeType.DIAMOND, w / 2, blockTop - 28f, 9f, 9f, accent, 1f)
-            }
-            1 -> { // top fade + underline
-                val gh = bh + 90f
-                deco += shape(ShapeType.RECTANGLE, w / 2, gh / 2f, w, gh, scrimColor, if (midArt) 0.84f else 0.72f, tag = "grad:t")
-                above += shape(ShapeType.RECTANGLE, w / 2, blockTop + bh + 28f, 90f, 2f, accent, 1f)
-            }
-            2 -> { // double hairline frame, soft overall veil, corner diamonds
-                deco += shape(ShapeType.RECTANGLE, w / 2, h / 2, w, h, scrimColor, if (midArt) 0.52f else 0.30f)
-                val g = 14f; val th = 1.6f
-                above += shape(ShapeType.RECTANGLE, w / 2, g, w - 2 * g, th, accent, 0.95f)
-                above += shape(ShapeType.RECTANGLE, w / 2, h - g, w - 2 * g, th, accent, 0.95f)
-                above += shape(ShapeType.RECTANGLE, g, h / 2, th, h - 2 * g, accent, 0.95f)
-                above += shape(ShapeType.RECTANGLE, w - g, h / 2, th, h - 2 * g, accent, 0.95f)
-                val g2 = 21f
-                above += shape(ShapeType.RECTANGLE, w / 2, g2, w - 2 * g2, 0.8f, accent, 0.7f)
-                above += shape(ShapeType.RECTANGLE, w / 2, h - g2, w - 2 * g2, 0.8f, accent, 0.7f)
-                for ((px, py) in listOf(g to g, w - g to g, g to h - g, w - g to h - g))
-                    above += shape(ShapeType.DIAMOND, px, py, 11f, 11f, accent, 1f)
-            }
-            3 -> { // left-side fade + vertical gold bar
-                deco += shape(ShapeType.RECTANGLE, w * 0.36f, h / 2, w * 0.72f, h, scrimColor, if (midArt) 0.82f else 0.70f, tag = "grad:l")
-                above += shape(ShapeType.RECTANGLE, 24f, blockMid, 3f, bh * 0.9f, accent, 1f)
-                above += shape(ShapeType.CIRCLE, 24f, blockMid - bh * 0.45f - 7f, 8f, 8f, accent, 1f)
-            }
-            4 -> { // bottom fade + corner brackets + badge star
-                val gh = bh + 80f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.82f else 0.68f, tag = "grad:b")
-                val g = 16f; val l = 34f; val th = 2.4f
-                above += shape(ShapeType.RECTANGLE, g + l / 2, g, l, th, accent, 1f)
-                above += shape(ShapeType.RECTANGLE, g, g + l / 2, th, l, accent, 1f)
-                above += shape(ShapeType.RECTANGLE, w - g - l / 2, g, l, th, accent, 1f)
-                above += shape(ShapeType.RECTANGLE, w - g, g + l / 2, th, l, accent, 1f)
-                above += shape(ShapeType.STAR, w / 2, blockTop - 30f, 16f, 16f, accent, 1f)
-            }
-            else -> { // bottom fade + slim gold edge line across the page + small side stars
-                val gh = bh + 100f
-                deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, if (midArt) 0.86f else 0.74f, tag = "grad:b")
-                above += shape(ShapeType.RECTANGLE, w / 2, h - 8f, w - 40f, 2f, accent, 1f)
-                above += shape(ShapeType.STAR, 40f, blockTop - 26f, 12f, 12f, accent, 1f)
-                above += shape(ShapeType.STAR, w - 40f, blockTop - 26f, 12f, 12f, accent, 1f)
-            }
+            1 -> deco += shape(ShapeType.RECTANGLE, w / 2, (bh + 90f) / 2f, w, bh + 90f, scrimColor, fadeOp, tag = "grad:t")
+            3 -> deco += shape(ShapeType.RECTANGLE, w * 0.36f, h / 2, w * 0.72f, h, scrimColor, fadeOp, tag = "grad:l")
+            2 -> { val gh = bh + 120f; deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, fadeOp, tag = "grad:b") }
+            else -> { val gh = bh + 90f; deco += shape(ShapeType.RECTANGLE, w / 2, h - gh / 2f, w, gh, scrimColor, fadeOp, tag = "grad:b") }
         }
 
-        val shapes = t.elements.filter { it.type == CanvasElementType.SHAPE }
-        val mapped = t.elements.map { e ->
+        val shapes = t.elements.filter { it.type == CanvasElementType.SHAPE && it.shapeType != ShapeType.STAR && it.height <= 60f && it.width <= 300f }
+        fun carriesText(sh: CanvasElement) = t.elements.any { x ->
+            x.type != CanvasElementType.SHAPE && abs(x.x - sh.x) <= sh.width / 2 && abs(x.y - sh.y) <= sh.height / 2
+        }
+        val keepEls = t.elements.filter { e ->
+            e.type != CanvasElementType.SHAPE ||
+                (e.shapeType != ShapeType.STAR && carriesText(e) && e.height <= 60f && e.width <= 300f)
+        }
+        val mapped = keepEls.map { e ->
             val ny = if (isIcon(e)) blockTop + iconH * 0.38f
                 else if (ymax == ymin) blockMid + iconH / 2f
                 else blockTop + iconH + (bh - iconH) * (((yEff[e.id] ?: e.y) - ymin) / span)
