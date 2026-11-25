@@ -145,13 +145,13 @@ fun GalleryTile(
     ) {
         IconButton(
             onClick = onToggleFavorite,
-            modifier = Modifier.align(Alignment.TopEnd).padding(5.dp).size(28.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.92f))
+            modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(24.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.9f))
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = "Favorite",
                 tint = if (isFavorite) Color(0xFFEF4444) else Color(0xFF3A3326),
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(14.dp)
             )
         }
         if (isPro) {

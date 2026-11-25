@@ -48,8 +48,16 @@ object TemplateDesigner {
      * (never a big opaque box). Six compositions, chosen per template, each with its own ornaments.
      * Text colours follow the real brightness of the art behind them (see [TemplateArtMeta]).
      */
-    fun enrich(t: DesignTemplate): DesignTemplate {
-        if (t.elements.isEmpty()) return t
+    private val ornamentChars = setOf('✨', '⭐', '🌟', '★', '☆', '✦', '✧', '➜', '➔', '→', '←', '»', '«', '❖', '◆', '✪')
+    private fun isOrnament(e: CanvasElement): Boolean {
+        val tx = e.text.trim()
+        return (e.type == CanvasElementType.TEXT || e.type == CanvasElementType.CALLIGRAPHY) && tx.isNotEmpty() && tx.length <= 4 &&
+            tx.all { it in ornamentChars || it == '\uFE0F' || it.code in 0xD800..0xDFFF }.and(tx.any { it in ornamentChars || it.code in 0xD800..0xDFFF })
+    }
+
+    fun enrich(t0: DesignTemplate): DesignTemplate {
+        val t = t0.copy(elements = t0.elements.filter { !isOrnament(it) })
+        if (t.elements.isEmpty()) return t0
         val w = 360f
         val h = w / ratio(t.aspectRatio)
         val seed = abs(t.id.hashCode())
