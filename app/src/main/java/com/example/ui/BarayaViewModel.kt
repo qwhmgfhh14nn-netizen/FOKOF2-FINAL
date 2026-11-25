@@ -1348,11 +1348,6 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun startNewWebsiteFromTemplate(template: WebsiteTemplate) {
-        if (currentUser.value.isGuest) {
-            showToast("سجّل الدخول أولًا حتى يتم حفظ الموقع في حسابك.")
-            _currentNav.value = AppNavDestination.ACCOUNT
-            return
-        }
         val slug = "site-${System.currentTimeMillis() % 100000}"
         val newSite = UserWebsite(
             id = "site_${UUID.randomUUID().toString().take(8)}",
@@ -1378,7 +1373,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun editExistingWebsite(website: UserWebsite) {
-        if (currentUser.value.isGuest || website.userId != currentUser.value.id) {
+        if (website.userId != currentUser.value.id) {
             showToast("لا تملك صلاحية تعديل هذا الموقع.")
             return
         }

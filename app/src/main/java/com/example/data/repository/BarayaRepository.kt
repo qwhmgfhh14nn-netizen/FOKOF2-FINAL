@@ -378,11 +378,7 @@ class BarayaRepository(context: Context) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val userWebsites: Flow<List<UserWebsite>> = _currentUser.flatMapLatest { current ->
-        if (current.isGuest) {
-            flowOf<List<UserWebsiteEntity>>(emptyList())
-        } else {
-            userWebsiteDao.getUserWebsites(current.id)
-        }
+        userWebsiteDao.getUserWebsites(current.id)
     }.map { list -> list.map { entityToUserWebsite(it) } }
 
     val websiteSettings: Flow<WebsiteBuilderSettings> = websiteSettingsDao.getSettings().map { entity ->
@@ -400,7 +396,7 @@ class BarayaRepository(context: Context) {
 
     suspend fun saveUserWebsite(website: UserWebsite) {
         val current = _currentUser.value
-        if (current.isGuest || website.userId != current.id) return
+        if (website.userId != current.id) return
         val existing = userWebsiteDao.getWebsiteById(website.id)
         if (existing != null && existing.userId != current.id) return
         val entity = userWebsiteToEntity(website)
@@ -409,7 +405,6 @@ class BarayaRepository(context: Context) {
 
     suspend fun deleteUserWebsite(id: String) {
         val current = _currentUser.value
-        if (current.isGuest) return
         val existing = userWebsiteDao.getWebsiteById(id) ?: return
         if (existing.userId != current.id && !hasOwnerControlPermission()) return
         userWebsiteDao.deleteWebsite(id)
