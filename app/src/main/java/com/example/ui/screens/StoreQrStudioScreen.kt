@@ -26,6 +26,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material3.Card
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,6 +65,7 @@ fun StoreQrStudioScreen(
 
     var selectedFrameStyle by remember { mutableStateOf(QrFrameStyle.TABLE_TENT) }
     var qrColorHex by remember { mutableStateOf(website.primaryColorHex) }
+    val qrLink = "https://wa.me/" + website.whatsappNumber.filter { it.isDigit() }
 
     val presetColors = listOf(
         website.primaryColorHex to "لون البراند",
@@ -224,38 +227,18 @@ fun StoreQrStudioScreen(
                             .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.QrCode2,
-                                contentDescription = null,
-                                tint = parseColor(qrColorHex),
-                                modifier = Modifier.size(64.dp)
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "رمز QR الحقيقي غير متاح بعد",
-                                fontFamily = CairoFontFamily,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF334155),
-                                fontSize = 14.sp
-                            )
-                            Text(
-                                text = "اربط نطاقًا وانشر الموقع أولًا لإنشاء رمز قابل للمسح",
-                                fontFamily = CairoFontFamily,
-                                color = Color(0xFF64748B),
-                                fontSize = 11.sp,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 12.dp)
-                            )
+                        val qrBitmap = androidx.compose.runtime.remember(qrLink, qrColorHex) {
+                            com.example.ui.util.QrCodeMaker.make(qrLink, parseColor(qrColorHex).toArgb(), 720)
                         }
+                        androidx.compose.foundation.Image(
+                            bitmap = qrBitmap.asImageBitmap(),
+                            contentDescription = "QR",
+                            modifier = Modifier.fillMaxSize().testTag("qr_image")
+                        )
                     }
 
                     Text(
-                        text = "حالة الموقع: لم يتم ربط نطاق عام أو نشره بعد",
+                        text = "الرمز يفتح محادثة واتساب مع ${website.siteTitle}: $qrLink",
                         fontFamily = CairoFontFamily,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -371,13 +354,26 @@ fun StoreQrStudioScreen(
                 }
             }
 
-            Text(
-                text = "يمكنك الآن تخصيص شكل الإطار والألوان فقط. تنزيل رمز QR ومشاركته سيتاحان بعد ربط الموقع الفعلي وتوليد رمز قياسي قابل للمسح.",
-                fontFamily = CairoFontFamily,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            val ctx = androidx.compose.ui.platform.LocalContext.current
+            androidx.compose.material3.Button(
+                onClick = {
+                    val bmp = com.example.ui.util.QrCodeMaker.make(qrLink, parseColor(qrColorHex).toArgb(), 1024)
+                    val ok = com.example.ui.util.QrCodeMaker.saveToGallery(ctx, bmp, "QR-${website.siteSlug}")
+                    android.widget.Toast.makeText(ctx, if (ok) "اتحفظ الباركود في معرض الصور" else "الحفظ في المعرض مش متاح على الأندرويد ده، استخدم زر المشاركة", android.widget.Toast.LENGTH_LONG).show()
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).testTag("qr_save_btn"),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = GoldPrimary)
+            ) { Text("احفظ الباركود في المعرض", color = Color(0xFF101014), fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold) }
+            androidx.compose.material3.OutlinedButton(
+                onClick = {
+                    val i = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(android.content.Intent.EXTRA_TEXT, "تواصل مع ${website.siteTitle} على واتساب: $qrLink")
+                    }
+                    ctx.startActivity(android.content.Intent.createChooser(i, "مشاركة"))
+                },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
-            )
+            ) { Text("شارك رابط واتساب", fontFamily = CairoFontFamily) }
         }
     }
 }
