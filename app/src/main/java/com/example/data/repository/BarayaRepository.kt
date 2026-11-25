@@ -68,7 +68,7 @@ import java.util.UUID
 
 private const val DEFAULT_TEMPLATES_VERSION = 4
 // Bump when assets/templates/catalog.json gains templates (append-only file).
-private const val CATALOG_TEMPLATES_VERSION = 2
+private const val CATALOG_TEMPLATES_VERSION = 3
 
 class BarayaRepository(context: Context) {
     private val appContext = context.applicationContext

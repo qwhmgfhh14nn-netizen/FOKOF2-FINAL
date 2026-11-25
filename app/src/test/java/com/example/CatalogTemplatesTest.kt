@@ -41,7 +41,16 @@ class CatalogTemplatesTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
 
-    private val json: String get() = File("src/main/assets/templates/catalog.json").readText()
+    private val files: List<File> get() {
+        val dir = File("src/main/assets/templates")
+        return CatalogTemplates.fileNames(dir.list() ?: emptyArray()).map { File(dir, it) }
+    }
+    /** All batch files merged into one JSON array, in load order. */
+    private val json: String get() {
+        val all = JSONArray()
+        files.forEach { f -> val a = JSONArray(f.readText()); for (i in 0 until a.length()) all.put(a.get(i)) }
+        return all.toString()
+    }
     private val hexRe = Regex("#[0-9A-Fa-f]{6}")
 
     @Test

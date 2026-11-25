@@ -15,8 +15,15 @@ import org.json.JSONArray
 object CatalogTemplates {
     const val ASSET = "templates/catalog.json"
 
+    /** Catalog is split into append-only files: catalog.json, then catalog_b3.json, catalog_b4.json ... */
+    fun fileNames(names: Array<String>): List<String> =
+        names.filter { it.startsWith("catalog") && it.endsWith(".json") }
+            .sortedWith(compareBy({ if (it == "catalog.json") 0 else 1 }, { it.length }, { it }))
+
     fun load(context: Context): List<DesignTemplate> =
-        context.assets.open(ASSET).use { parse(it.readBytes().toString(Charsets.UTF_8)) }
+        fileNames(context.assets.list("templates") ?: emptyArray()).flatMap { n ->
+            context.assets.open("templates/$n").use { parse(it.readBytes().toString(Charsets.UTF_8)) }
+        }
 
     fun parse(json: String): List<DesignTemplate> {
         val arr = JSONArray(json)
