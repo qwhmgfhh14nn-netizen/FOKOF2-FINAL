@@ -68,7 +68,6 @@ object DesignEngine {
         val b = B(W, 480f)
         val dark = p.bg == "#16140F"
         b.rect(0f, 0f, W, 480f, p.bg)
-        b.rect(0f, 240f, W, 480f, p.bg2, 0.55f)
         when (layout) {
             0 -> { // top band + avatar
                 b.rect(0f, 0f, W, 130f, p.accent)
