@@ -10,9 +10,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
 class VideoComposerTest {
     private fun solid(c: Int): Bitmap = Bitmap.createBitmap(40, 60, Bitmap.Config.ARGB_8888).also { Canvas(it).drawColor(c) }
 
