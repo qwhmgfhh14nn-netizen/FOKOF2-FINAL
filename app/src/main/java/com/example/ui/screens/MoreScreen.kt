@@ -190,6 +190,8 @@ fun MoreScreen(
             Column {
                 MenuRow(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.BRAND_KIT) }, "more_brand")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
+                MenuRow(if (ar) "اعمل سيرتك الذاتية" else "CV maker", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.CV_MAKER) }, "more_cv")
+                HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "منشئ المواقع" else "Website builder", Icons.Default.Language, GoldPrimary, { onNavigate(AppNavDestination.WEBSITES) }, "more_websites")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "توليد الصور بالذكاء" else "AI image generator", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.AI_IMAGE) }, "more_ai_image")

@@ -193,6 +193,38 @@ object DesignEngine {
             elements = els, bgStartHex = p.bg, bgEndHex = p.bg2
         )
 
+    data class CvData(
+        val name: String = "", val job: String = "", val phone: String = "", val email: String = "", val city: String = "",
+        val about: String = "", val job1: String = "", val job2: String = "", val edu: String = "", val skills: String = ""
+    )
+
+    /** Fills a CV layout's sample text with the user's own data. Blank fields keep the sample so nothing looks broken. */
+    fun cvFilled(layout: Int, p: Palette, d: CvData): List<CanvasElement> {
+        val contactParts = listOf(d.phone, d.email, d.city).filter { it.isNotBlank() }
+        val map = mapOf(
+            "اسم صاحب السيرة" to d.name, "مدير مبيعات" to d.job,
+            "م.ش" to d.name.trim().split(" ").filter { it.isNotEmpty() }.take(2).joinToString(".") { it.take(1) },
+            "0100 000 0000  •  name@email.com  •  القاهرة" to contactParts.joinToString("  •  "),
+            "0100 000 0000  •  name@email.com" to contactParts.take(2).joinToString("  •  "),
+            "متخصص بخبرة تزيد عن 5 سنوات في مجال العمل" to d.about,
+            "مدير مبيعات | شركة النور | 2021 - الآن" to d.job1,
+            "مسؤول مبيعات | شركة الأمل | 2018 - 2021" to d.job2,
+            "بكالوريوس تجارة | جامعة القاهرة | 2018" to d.edu,
+            "التواصل  •  التفاوض  •  إكسل  •  اللغة الإنجليزية" to d.skills
+        )
+        return cv(layout, p).map { e ->
+            if (e.type == CanvasElementType.TEXT) {
+                val v = map[e.text]
+                if (v != null && v.isNotBlank()) e.copy(text = v) else e
+            } else e
+        }
+    }
+
+    fun cvTemplate(layout: Int, pal: Int, d: CvData): DesignTemplate {
+        val p = palettes[pal]
+        return template("cv", layout, pal, "سير ذاتية احترافية", "3:4", "سيرتي الذاتية", "My CV", p, cvFilled(layout, p, d))
+    }
+
     fun cvTemplates(): List<DesignTemplate> = cvLayoutNames.indices.flatMap { i ->
         palettes.mapIndexed { j, p ->
             template("cv", i, j, "سير ذاتية احترافية", "3:4", "سيرة ذاتية ${cvLayoutNames[i]} ${p.nameAr}", "CV ${i + 1}-${j + 1}", p, cv(i, p))
