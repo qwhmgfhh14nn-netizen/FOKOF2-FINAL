@@ -661,6 +661,22 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
                 }
             }
 
+            Text("شكل الموقع", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            Text("اللون (التاني: حسب لون موقعك)", fontFamily = CairoFontFamily)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                item { androidx.compose.material3.FilterChip(selected = extras.theme == 0, onClick = { onChange(extras.copy(theme = 0)) }, label = { Text("حسب لوني") }) }
+                items(SITE_THEMES.size) { i ->
+                    androidx.compose.material3.FilterChip(selected = extras.theme == i + 1, onClick = { onChange(extras.copy(theme = i + 1)) }, label = { Text(SITE_THEMES[i].first) })
+                }
+            }
+            Text("الخط", fontFamily = CairoFontFamily)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(SITE_FONTS.size) { i ->
+                    androidx.compose.material3.FilterChip(selected = extras.font == i, onClick = { onChange(extras.copy(font = i)) }, label = { Text(SITE_FONTS[i].first) })
+                }
+            }
+            OutlinedTextField(value = extras.announcement, onValueChange = { onChange(extras.copy(announcement = it.take(120))) }, label = { Text("شريط إعلان أعلى الموقع (اتركه فاضي لو مش عايزه)") }, modifier = Modifier.fillMaxWidth())
+            androidx.compose.material3.FilterChip(selected = extras.hideFooter, onClick = { onChange(extras.copy(hideFooter = !extras.hideFooter)) }, label = { Text("إخفاء سطر 'تم إنشاؤه بواسطة FOKOF2' في الأسفل") })
             Text("روابط السوشيال ميديا", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
             OutlinedTextField(value = extras.facebook, onValueChange = { onChange(extras.copy(facebook = it)) }, label = { Text("فيسبوك (رابط أو اسم الصفحة)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
             OutlinedTextField(value = extras.instagram, onValueChange = { onChange(extras.copy(instagram = it)) }, label = { Text("إنستجرام (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
@@ -1920,8 +1936,24 @@ private val SITE_FEATURES: Map<String, List<Triple<String, String, String>>> = m
     "BAKERY" to listOf(Triple("🥐", "مخبوزات طازجة", "نخبز يومياً بأجود المكونات"), Triple("🎂", "تورت حسب الطلب", "نصمم لك تورتة مناسبتك"), Triple("🚚", "توصيل للمنزل", "طلبك يوصل طازج"))
 )
 
+internal val SITE_THEMES = listOf(
+    Triple("ذهبي ملكي", "#D4AF37", "#fffdf8"), Triple("زمردي", "#0F766E", "#f6fbf9"), Triple("ياقوتي", "#B91C1C", "#fff8f7"),
+    Triple("أزرق ملكي", "#1D4ED8", "#f7f9ff"), Triple("بنفسجي", "#6D28D9", "#faf7ff"), Triple("وردي", "#DB2777", "#fff7fb"),
+    Triple("برتقالي", "#EA580C", "#fffaf5"), Triple("أخضر زيتي", "#4D7C0F", "#fafcf5"), Triple("تركوازي", "#0891B2", "#f5fcfd"),
+    Triple("بني قهوة", "#78350F", "#fcf8f4"), Triple("رمادي أنيق", "#374151", "#f9fafb"), Triple("ليلي ذهبي", "#D4AF37", "#121110")
+)
+internal val SITE_FONTS = listOf("Cairo" to "Cairo", "Tajawal" to "Tajawal", "Almarai" to "Almarai", "Amiri (كلاسيك)" to "Amiri", "Changa" to "Changa", "El Messiri" to "El Messiri")
+
 internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null): String {
-    val primary = if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
+    val themeSel = site.extras.theme
+    val primary = if (themeSel in 1..SITE_THEMES.size) SITE_THEMES[themeSel - 1].second
+        else if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
+    val paperCss = if (themeSel in 1..SITE_THEMES.size) ":root { --paper: " + SITE_THEMES[themeSel - 1].third + "; }" else ""
+    val darkAttr = if (themeSel == SITE_THEMES.size) " data-theme=\"dark\"" else ""
+    val fontName = SITE_FONTS[site.extras.font.coerceIn(0, SITE_FONTS.size - 1)].second
+    val fontUrl = fontName.replace(" ", "+")
+    val annHtml = if (site.extras.announcement.isNotBlank()) "<div class=\"ann\">" + siteEsc(site.extras.announcement) + "</div>" else ""
+    val footerHtml = if (site.extras.hideFooter) "" else "<footer data-t=\"تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2\">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>"
     val hero = siteHeroDataUri(context, site.businessType)
     val storeHero = siteImageSrc(site.extras.heroImage, 900_000)
     val heroCss = if (storeHero.isNotEmpty()) "url('" + storeHero + "')" else if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
@@ -2031,7 +2063,7 @@ $itemsHtml
 
     return """
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl"$darkAttr>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2044,11 +2076,13 @@ $itemsHtml
 <meta property="og:locale" content="ar_EG">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">$ldJson</script>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=$fontUrl:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
 [data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: '$fontName', 'Cairo', sans-serif; }
+$paperCss
+.ann { background: var(--primary); color: #fff; text-align: center; padding: 8px 14px; font-weight: 700; font-size: .92rem; }
 html { scroll-behavior: smooth; }
 body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
 nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
@@ -2135,6 +2169,7 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
 </style>
 </head>
 <body>
+$annHtml
 <nav>
   <b>${siteEsc(site.siteTitle)}</b>
   <div class="links">
@@ -2179,7 +2214,7 @@ $mapHtml
   <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
   <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
 </div>
-<footer data-t="تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+$footerHtml
 <button id="cartbtn" type="button"></button>
 <div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
 <div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
@@ -2196,6 +2231,7 @@ $mapHtml
     els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
   }
   var root = document.documentElement, tb = document.getElementById('theme');
+  if (root.getAttribute('data-theme') === 'dark') tb.textContent = '☀️';
   tb.addEventListener('click', function () {
     var dark = root.getAttribute('data-theme') === 'dark';
     if (dark) { root.removeAttribute('data-theme'); tb.textContent = '🌙'; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }

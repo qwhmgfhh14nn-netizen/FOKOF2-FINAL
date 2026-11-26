@@ -1734,6 +1734,7 @@ class BarayaRepository(context: Context) {
         o.put("gallery", g)
         o.put("facebook", x.facebook).put("instagram", x.instagram).put("tiktok", x.tiktok)
         o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website).put("heroImage", x.heroImage)
+        o.put("announcement", x.announcement).put("theme", x.theme).put("font", x.font).put("hideFooter", x.hideFooter)
         return o.toString()
     }
 
@@ -1748,7 +1749,8 @@ class BarayaRepository(context: Context) {
                 gallery = (0 until ga.length()).map { ga.getString(it) },
                 facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
                 youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website"),
-                heroImage = o.optString("heroImage")
+                heroImage = o.optString("heroImage"),
+                announcement = o.optString("announcement"), theme = o.optInt("theme", 0), font = o.optInt("font", 0), hideFooter = o.optBoolean("hideFooter", false)
             )
         } catch (e: Exception) { SiteExtras() }
     }

@@ -84,7 +84,12 @@ data class SiteExtras(
     val youtube: String = "",
     val telegram: String = "",
     val website: String = "",
-    val heroImage: String = ""
+    val heroImage: String = "",
+    /** Announcement bar text (empty = none), colour theme (0 = owner colour, 1..12 presets), font (0..5) and footer credit toggle. */
+    val announcement: String = "",
+    val theme: Int = 0,
+    val font: Int = 0,
+    val hideFooter: Boolean = false
 )
 
 data class UserWebsite(
