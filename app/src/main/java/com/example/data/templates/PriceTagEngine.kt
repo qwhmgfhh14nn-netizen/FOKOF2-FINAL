@@ -27,9 +27,7 @@ object PriceTagEngine {
             8 -> { b.shape(ShapeType.CIRCLE, 50f, 50f, 130f, 130f, p.accent); b.shape(ShapeType.CIRCLE, 70f, 42f, 110f, 110f, p.bg) }
             else -> { b.rect(0f, 0f, W, 44f, p.accent); b.rect(0f, W - 22f, W, W, p.accent); b.shape(ShapeType.DIAMOND, W / 2, 44f, 22f, 22f, p.accent) }
         }
-        val labelColor = if (style == 0 || style == 9 || style == 7) p.bg else p.accent
-        val ly = if (style == 9) 22f else if (style == 0) 35f else 40f
-        b.text(d.label.ifBlank { "عرض خاص" }, if (style == 1 || style == 2 || style == 3 || style == 5) 90f else W / 2, if (style == 7) 62f else ly + 30f, 16f, p.accent, true)
+        b.text(d.label.ifBlank { "عرض خاص" }, W / 2, 100f, 17f, p.accent, true)
         b.text(d.product.ifBlank { "اسم المنتج" }, W / 2, 140f, 30f, p.ink, true)
         b.rect(W / 2 - 40f, 168f, W / 2 + 40f, 169.5f, p.accent)
         b.text(d.price.ifBlank { "199 ج.م" }, W / 2, 224f, 56f, p.accent, true)
