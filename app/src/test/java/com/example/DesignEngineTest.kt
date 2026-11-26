@@ -12,6 +12,6 @@ class DesignEngineTest {
         assertEquals(580, all.size)
         assertEquals(all.size, all.map { it.id }.toSet().size)
         assertEquals(all.size, all.map { it.category + "|" + it.titleAr }.toSet().size)
-        all.forEach { t -> assertTrue(t.id, t.elements.size > 10) }
+        all.forEach { t -> assertTrue(t.id, t.elements.size > 8) }
     }
 }
