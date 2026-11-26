@@ -9,6 +9,9 @@ class DesignEngineTest {
     @Test
     fun cv_templates_unique_and_in_bounds() {
         val all = DesignEngine.all()
+        assertEquals(200, com.example.data.templates.BookEngine.templates().size)
+        assertEquals(200, com.example.data.templates.LogoEngine.templates().size)
+        assertEquals(200, com.example.data.templates.InviteEngine.templates().size)
         assertEquals(1380, all.size)
         assertEquals(all.size, all.map { it.id }.toSet().size)
         assertEquals(all.size, all.map { it.category + "|" + it.titleAr }.toSet().size)
