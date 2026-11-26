@@ -194,6 +194,8 @@ fun MoreScreen(
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "صمم بالنموذج (شهادة، كارت، منيو...)" else "Design by form", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.ENGINE_MAKER) }, "more_engine")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
+                MenuRow(if (ar) "صانع الفيديو (صور وانتقالات)" else "Video maker", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_MAKER) }, "more_video")
+                HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "منشئ المواقع" else "Website builder", Icons.Default.Language, GoldPrimary, { onNavigate(AppNavDestination.WEBSITES) }, "more_websites")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "توليد الصور بالذكاء" else "AI image generator", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.AI_IMAGE) }, "more_ai_image")
