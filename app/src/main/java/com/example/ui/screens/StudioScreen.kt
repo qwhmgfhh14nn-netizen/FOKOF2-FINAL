@@ -162,6 +162,7 @@ fun StudioScreen(
     }
     var showResizeDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
+    var capturing by remember { mutableStateOf(false) }
     val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
     val exportScope = androidx.compose.runtime.rememberCoroutineScope()
     var showBgColorDialog by remember { mutableStateOf(false) }
@@ -312,10 +313,12 @@ fun StudioScreen(
                     .testTag("interactive_design_canvas"),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }.drawWithContent {
-                    exportLayer.record { this@drawWithContent.drawContent() }
-                    drawLayer(exportLayer)
-                }) {
+                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }.then(
+                    if (capturing) Modifier.drawWithContent {
+                        exportLayer.record { this@drawWithContent.drawContent() }
+                        drawLayer(exportLayer)
+                    } else Modifier
+                )) {
                     DesignBackground(
                         bgStartHex, bgEndHex, canvasBgImageUri, canvasBgImageRes,
                         Modifier.fillMaxSize()
@@ -566,7 +569,8 @@ fun StudioScreen(
         val doExport: (String) -> Unit = { mode ->
             showExportDialog = false
             exportScope.launch {
-                kotlinx.coroutines.delay(150)
+                capturing = true
+                kotlinx.coroutines.delay(350)
                 try {
                     val bmp = exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false)
                     val name = "FOKOF2_" + System.currentTimeMillis()
@@ -581,6 +585,8 @@ fun StudioScreen(
                     }
                 } catch (e: Exception) {
                     onShowToast("حصلت مشكلة أثناء التصدير، جرب تاني")
+                } finally {
+                    capturing = false
                 }
             }
         }
