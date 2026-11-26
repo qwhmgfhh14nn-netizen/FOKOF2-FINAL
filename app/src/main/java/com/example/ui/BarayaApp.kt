@@ -586,6 +586,10 @@ fun BarayaApp(
                                     )
                                 }
 
+                                AppNavDestination.PHOTO_TOOLS -> {
+                                    com.example.ui.screens.PhotoToolsScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
+                                }
+
                                 AppNavDestination.VIDEO_TRIM -> {
                                     com.example.ui.screens.VideoTrimScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
                                 }
@@ -794,5 +798,5 @@ fun BarayaFixedNavRail(
 private val moreGroup = setOf(
     AppNavDestination.ACCOUNT, AppNavDestination.SETTINGS, AppNavDestination.PURCHASES, AppNavDestination.ADMIN,
     AppNavDestination.BRAND_KIT, AppNavDestination.WEBSITES, AppNavDestination.AI_IMAGE, AppNavDestination.AI_MARKETING,
-    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER, AppNavDestination.VIDEO_MAKER, AppNavDestination.VIDEO_TRIM
+    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER, AppNavDestination.VIDEO_MAKER, AppNavDestination.VIDEO_TRIM, AppNavDestination.PHOTO_TOOLS
 )

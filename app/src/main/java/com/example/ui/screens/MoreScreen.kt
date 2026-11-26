@@ -198,6 +198,8 @@ fun MoreScreen(
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "قص ودمج فيديو" else "Trim and join video", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_TRIM) }, "more_trim")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
+                MenuRow(if (ar) "أدوات الصور (تعديل، ميم، كولاج، ملصقات)" else "Photo tools", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.PHOTO_TOOLS) }, "more_photo")
+                HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "منشئ المواقع" else "Website builder", Icons.Default.Language, GoldPrimary, { onNavigate(AppNavDestination.WEBSITES) }, "more_websites")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "توليد الصور بالذكاء" else "AI image generator", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.AI_IMAGE) }, "more_ai_image")
