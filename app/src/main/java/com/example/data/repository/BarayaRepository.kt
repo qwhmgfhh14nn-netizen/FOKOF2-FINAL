@@ -1110,7 +1110,7 @@ class BarayaRepository(context: Context) {
     // ---------------- TEMPLATES STREAM & ADMIN ----------------
 
     val publishedTemplates: Flow<List<DesignTemplate>> = templateDao.getPublishedTemplates().map { entities ->
-        entities.map { entityToTemplate(it) }
+        entities.map { entityToTemplate(it) }.filter { com.example.data.templates.CatalogTemplates.isShownInTemplatesTab(it) }
     }
 
     val allTemplatesForAdmin: Flow<List<DesignTemplate>> = templateDao.getAllTemplates().map { entities ->

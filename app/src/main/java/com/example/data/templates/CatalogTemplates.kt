@@ -15,6 +15,21 @@ import org.json.JSONArray
 object CatalogTemplates {
     const val ASSET = "templates/catalog.json"
 
+    /** Default categories that are real designed layouts (logos, cards, CVs). All other color-only defaults are hidden. */
+    val DESIGNED_DEFAULT_CATEGORIES = setOf("الشعارات والهويات", "سير ذاتية احترافية", "كروت العمل الشخصية")
+
+    /**
+     * Templates tab filter. Hides every color-only template: the procedural catalog (cg_*) and the built-in
+     * defaults outside the designed categories. A template with real photo art (assets/templates/photo/) always shows.
+     * Owner-created templates are never hidden. Hidden rows stay in the database and come back when rebuilt with photo art.
+     */
+    fun isShownInTemplatesTab(t: DesignTemplate): Boolean {
+        if (t.imageUri?.contains("/templates/photo/") == true) return true
+        if (t.id.startsWith("cg_")) return false
+        if (t.id.startsWith("free_") || t.id.startsWith("pro_")) return t.category in DESIGNED_DEFAULT_CATEGORIES
+        return true
+    }
+
     /** Catalog is split into append-only files: catalog.json, then catalog_b3.json, catalog_b4.json ... */
     fun fileNames(names: Array<String>): List<String> =
         names.filter { it.startsWith("catalog") && it.endsWith(".json") }
