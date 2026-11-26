@@ -42,6 +42,7 @@ import com.example.data.templates.InviteEngine
 import com.example.data.templates.LogoEngine
 import com.example.data.templates.MenuEngine
 import com.example.data.templates.PresentEngine
+import com.example.data.templates.PriceTagEngine
 import com.example.ui.components.TemplateDesignView
 import com.example.ui.theme.GoldPrimary
 
@@ -56,7 +57,8 @@ private val kinds = listOf(
     Kind("لوجو", listOf("اسم العلامة", "الشعار النصي", "حرف الشعار"), 20, 340),
     Kind("إنفوجرافيك", listOf("العنوان", "الجملة التوضيحية"), 20, 420),
     Kind("نشرة إيميل", listOf("العنوان", "الجملة", "نص الزر", "الفوتر"), 10, 280),
-    Kind("شريحة عرض", listOf("العنوان", "العنوان الفرعي"), 20, 220)
+    Kind("شريحة عرض", listOf("العنوان", "العنوان الفرعي"), 20, 220),
+    Kind("بطاقة سعر / عرض", listOf("العنوان (عرض خاص)", "اسم المنتج", "السعر", "السعر القديم", "ملاحظة"), 10, 340)
 )
 
 private fun build(k: Int, l: Int, p: Int, v: List<String>): DesignTemplate {
@@ -70,7 +72,8 @@ private fun build(k: Int, l: Int, p: Int, v: List<String>): DesignTemplate {
         5 -> LogoEngine.template(l, p, LogoEngine.LogoData(name = g(0), tagline = g(1), letter = g(2)))
         6 -> InfoEngine.template(l, p, InfoEngine.InfoData(title = g(0), subtitle = g(1)))
         7 -> EmailEngine.template(l, p, EmailEngine.EmailData(title = g(0), subtitle = g(1), button = g(2), footer = g(3)))
-        else -> PresentEngine.template(l, p, PresentEngine.SlideData(title = g(0), subtitle = g(1)))
+        8 -> PresentEngine.template(l, p, PresentEngine.SlideData(title = g(0), subtitle = g(1)))
+        else -> PriceTagEngine.template(l, p, PriceTagEngine.TagData(label = g(0), product = g(1), price = g(2), oldPrice = g(3), note = g(4)))
     }
 }
 
