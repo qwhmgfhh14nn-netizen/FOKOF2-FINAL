@@ -51,7 +51,7 @@ class TemplateUpgradeTest {
         assertTrue("new photo template missing after upgrade", dao.getTemplateById("ph5_banner_eid") != null)
         assertTrue("owner price must be preserved", dao.getTemplateById("ph_food_pizza")!!.priceEgp == 91)
         val v = ctx.getSharedPreferences("baraya_user_prefs", android.content.Context.MODE_PRIVATE).getInt("catalog_templates_version", 0)
-        assertTrue("version should be bumped to 5, was $v", v >= 5)
+        assertTrue("version should be bumped to 6, was $v", v >= 6)
         println("CATALOG_UPGRADE_OK version=$v")
     }
 }
