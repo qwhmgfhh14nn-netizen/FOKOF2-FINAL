@@ -70,12 +70,14 @@ fun PhotoToolsScreen(onBack: () -> Unit) {
     var emoji by remember { mutableStateOf("⭐") }
     var sx by remember { mutableFloatStateOf(0.5f) }
     var sy by remember { mutableFloatStateOf(0.5f) }
+    var cutout by remember { mutableStateOf<Bitmap?>(null) }
+    var cutBusy by remember { mutableStateOf(false) }
     var ssize by remember { mutableFloatStateOf(0.25f) }
 
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         scope.launch {
             val l = withContext(Dispatchers.IO) { uris.take(4).mapNotNull { loadPhoto(ctx, it) } }
-            if (l.isNotEmpty()) photos = l
+            if (l.isNotEmpty()) { photos = l; cutout = null }
         }
     }
 
@@ -89,10 +91,11 @@ fun PhotoToolsScreen(onBack: () -> Unit) {
             0 -> PhotoOps.adjust(fit(first), bright, contrast, sat, rot, mirror)
             1 -> PhotoOps.meme(fit(first), top, bottom)
             2 -> PhotoOps.collage(photos.map { fit(it) }, layout, minOf(maxSide, 1080))
+            4 -> cutout ?: fit(first)
             else -> PhotoOps.sticker(fit(first), emoji.ifBlank { "⭐" }, sx, sy, ssize)
         }
     }
-    val preview = remember(photos, mode, bright, contrast, sat, rot, mirror, top, bottom, layout, emoji, sx, sy, ssize) { render(600) }
+    val preview = remember(photos, cutout, mode, bright, contrast, sat, rot, mirror, top, bottom, layout, emoji, sx, sy, ssize) { render(600) }
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -101,8 +104,8 @@ fun PhotoToolsScreen(onBack: () -> Unit) {
         }
         Button(onClick = { pick.launch("image/*") }, modifier = Modifier.fillMaxWidth()) { Text(if (photos.isEmpty()) "اختار صورة (أو لحد 4 للكولاج)" else "غيّر الصور") }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            val names = listOf("تعديل وتدوير", "ميم", "كولاج", "ملصقات")
-            items(4) { i -> FilterChip(selected = mode == i, onClick = { mode = i }, label = { Text(names[i]) }) }
+            val names = listOf("تعديل وتدوير", "ميم", "كولاج", "ملصقات", "إزالة الخلفية")
+            items(5) { i -> FilterChip(selected = mode == i, onClick = { mode = i }, label = { Text(names[i]) }) }
         }
         if (preview != null) Image(preview.asImageBitmap(), contentDescription = "معاينة", modifier = Modifier.fillMaxWidth().height(320.dp))
         when (mode) {
@@ -123,6 +126,16 @@ fun PhotoToolsScreen(onBack: () -> Unit) {
             2 -> LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 val names = listOf("جنب بعض", "فوق بعض", "4 مربعات", "كبيرة + 2")
                 items(4) { i -> FilterChip(selected = layout == i, onClick = { layout = i }, label = { Text(names[i]) }) }
+            }
+            4 -> {
+                Text("بيقص الشيء الأساسي في الصورة ويسيب الخلفية شفافة (الصورة بتتحفظ PNG شفاف). أول مرة محتاج إنترنت عشان ينزل النموذج، وبيحتاج خدمات جوجل على الموبايل. النتيجة ساعات بتبقى خشنة على الحواف.", style = MaterialTheme.typography.bodySmall)
+                Button(enabled = photos.isNotEmpty() && !cutBusy, modifier = Modifier.fillMaxWidth(), onClick = {
+                    cutBusy = true
+                    com.example.ui.util.BackgroundRemover.remove(photos.first()) { b, err ->
+                        cutBusy = false
+                        if (b != null) cutout = b else Toast.makeText(ctx, "تعذرت إزالة الخلفية (تأكد من الإنترنت وخدمات جوجل وجرب تاني)", Toast.LENGTH_LONG).show()
+                    }
+                }) { Text(if (cutBusy) "بيشتغل..." else "إزالة الخلفية") }
             }
             else -> {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

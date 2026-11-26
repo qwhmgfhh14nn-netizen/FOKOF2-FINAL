@@ -104,6 +104,7 @@ dependencies {
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation("com.google.zxing:core:3.5.3")
+  implementation("com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1")
   // implementation(libs.play.services.location)
   testImplementation(libs.androidx.compose.ui.test.junit4)
   testImplementation(libs.androidx.core)
