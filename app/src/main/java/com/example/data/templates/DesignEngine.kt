@@ -231,5 +231,5 @@ object DesignEngine {
         }
     }
 
-    fun all(): List<DesignTemplate> = cvTemplates() + CertEngine.templates() + CardEngine.templates() + MenuEngine.templates() + InviteEngine.templates() + BookEngine.templates() + LogoEngine.templates() + InfoEngine.templates() + EmailEngine.templates()
+    fun all(): List<DesignTemplate> = cvTemplates() + CertEngine.templates() + CardEngine.templates() + MenuEngine.templates() + InviteEngine.templates() + BookEngine.templates() + LogoEngine.templates() + InfoEngine.templates() + EmailEngine.templates() + PresentEngine.templates()
 }

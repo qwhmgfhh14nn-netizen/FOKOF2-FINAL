@@ -16,7 +16,7 @@ class DesignEngineTest {
         assertEquals(200, com.example.data.templates.CertEngine.templates().size)
         assertEquals(200, com.example.data.templates.CardEngine.templates().size)
         assertEquals(200, com.example.data.templates.MenuEngine.templates().size)
-        assertEquals(1680, all.size)
+        assertEquals(1880, all.size)
         assertEquals(all.size, all.map { it.id }.toSet().size)
         assertEquals(all.size, all.map { it.category + "|" + it.titleAr }.toSet().size)
         all.forEach { t -> assertTrue(t.id, t.elements.size > 8) }
