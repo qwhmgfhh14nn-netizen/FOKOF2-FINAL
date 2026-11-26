@@ -117,6 +117,10 @@ fun StudioScreen(
     onDeleteElement: () -> Unit,
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
+    canUndo: Boolean = false,
+    canRedo: Boolean = false,
+    onUndo: () -> Unit = {},
+    onRedo: () -> Unit = {},
     onSetCanvasAspectRatio: (String) -> Unit,
     onSetCanvasBg: (String, String) -> Unit,
     onLoadTemplate: (DesignTemplate) -> Unit,
@@ -210,6 +214,12 @@ fun StudioScreen(
             }
 
             Row {
+                IconButton(onClick = onUndo, enabled = canUndo) {
+                    Text("↶", color = if (canUndo) GoldPrimary else GoldPrimary.copy(alpha = 0.3f), style = MaterialTheme.typography.titleLarge)
+                }
+                IconButton(onClick = onRedo, enabled = canRedo) {
+                    Text("↷", color = if (canRedo) GoldPrimary else GoldPrimary.copy(alpha = 0.3f), style = MaterialTheme.typography.titleLarge)
+                }
                 IconButton(onClick = { showResizeDialog = true }) {
                     Icon(imageVector = Icons.Default.AspectRatio, contentDescription = "Resize", tint = GoldPrimary)
                 }

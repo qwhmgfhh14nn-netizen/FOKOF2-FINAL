@@ -300,7 +300,60 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
+    // ---- Undo / redo of the canvas elements (snapshots; quick edits within 600 ms merge into one step) ----
+    private val undoStack = ArrayDeque<List<CanvasElement>>()
+    private val redoStack = ArrayDeque<List<CanvasElement>>()
+    private var histLast: List<CanvasElement>? = null
+    private var histApplying = false
+    private var histPushedAt = 0L
+    private val _canUndo = MutableStateFlow(false)
+    val canUndo: StateFlow<Boolean> = _canUndo.asStateFlow()
+    private val _canRedo = MutableStateFlow(false)
+    val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
+
+    private fun startHistory() {
+        viewModelScope.launch {
+            _canvasElements.collect { cur ->
+                if (histApplying) { histApplying = false; histLast = cur; return@collect }
+                val prev = histLast
+                if (prev != null && prev != cur) {
+                    val now = System.currentTimeMillis()
+                    if (now - histPushedAt > 600L) {
+                        undoStack.addLast(prev)
+                        if (undoStack.size > 60) undoStack.removeFirst()
+                        histPushedAt = now
+                    }
+                    redoStack.clear()
+                }
+                histLast = cur
+                _canUndo.value = undoStack.isNotEmpty()
+                _canRedo.value = redoStack.isNotEmpty()
+            }
+        }
+    }
+
+    fun undo() {
+        val prev = undoStack.removeLastOrNull() ?: return
+        redoStack.addLast(_canvasElements.value)
+        histApplying = true
+        _canvasElements.value = prev
+        _selectedElementId.value = null
+        histPushedAt = 0L
+        _canUndo.value = undoStack.isNotEmpty(); _canRedo.value = redoStack.isNotEmpty()
+    }
+
+    fun redo() {
+        val next = redoStack.removeLastOrNull() ?: return
+        undoStack.addLast(_canvasElements.value)
+        histApplying = true
+        _canvasElements.value = next
+        _selectedElementId.value = null
+        histPushedAt = 0L
+        _canUndo.value = undoStack.isNotEmpty(); _canRedo.value = redoStack.isNotEmpty()
+    }
+
     init {
+        startHistory()
         // Database seeding/sync (JSON, hashing, 64 inserts) must never run on the main thread.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             repository.ensureTemplatesInitialized()

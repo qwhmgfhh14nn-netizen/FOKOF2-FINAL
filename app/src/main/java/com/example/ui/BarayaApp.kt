@@ -92,6 +92,8 @@ fun BarayaApp(
     val canvasBgImageRes by viewModel.canvasBgImageRes.collectAsState()
     val canvasBgImageUri by viewModel.canvasBgImageUri.collectAsState()
     val canvasAspectRatio by viewModel.canvasAspectRatio.collectAsState()
+    val canUndo by viewModel.canUndo.collectAsState()
+    val canRedo by viewModel.canRedo.collectAsState()
     val savedProjects by viewModel.savedProjects.collectAsState()
     val userProjects by viewModel.userProjects.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
@@ -283,6 +285,10 @@ fun BarayaApp(
                                         onDeleteElement = { viewModel.deleteSelectedElement() },
                                         onDuplicateElement = { viewModel.duplicateSelectedElement() },
                                         onClearCanvas = { viewModel.clearCanvas() },
+                                        canUndo = canUndo,
+                                        canRedo = canRedo,
+                                        onUndo = { viewModel.undo() },
+                                        onRedo = { viewModel.redo() },
                                         onSetCanvasAspectRatio = { viewModel.setCanvasAspectRatio(it) },
                                         onSetCanvasBg = { start, end -> viewModel.setCanvasBg(start, end) },
                                         onLoadTemplate = { viewModel.loadTemplate(it) },
