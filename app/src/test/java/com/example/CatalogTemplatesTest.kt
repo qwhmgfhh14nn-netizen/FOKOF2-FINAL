@@ -41,7 +41,16 @@ class CatalogTemplatesTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
 
-    private val json: String get() = File("src/main/assets/templates/catalog.json").readText()
+    private val files: List<File> get() {
+        val dir = File("src/main/assets/templates")
+        return CatalogTemplates.fileNames(dir.list() ?: emptyArray()).map { File(dir, it) }
+    }
+    /** All batch files merged into one JSON array, in load order. */
+    private val json: String get() {
+        val all = JSONArray()
+        files.forEach { f -> val a = JSONArray(f.readText()); for (i in 0 until a.length()) all.put(a.get(i)) }
+        return all.toString()
+    }
     private val hexRe = Regex("#[0-9A-Fa-f]{6}")
 
     @Test
@@ -87,6 +96,37 @@ class CatalogTemplatesTest {
         }
         println("CATALOG_OK templates=${list.size} categories=${perCat.size} problems=${problems.size}")
         assertTrue("catalog problems: ${problems.take(20)}", problems.isEmpty())
+    }
+
+    @Test
+    fun photo_templates_have_images_and_render() {
+        val files = (File("src/main/assets/templates").listFiles() ?: emptyArray())
+            .filter { it.name.startsWith("catalog_photo") && it.name.endsWith(".json") }.sortedBy { it.name.length * 100 + it.name.hashCode() % 50 }
+        if (files.isEmpty()) return
+        val list = files.flatMap { CatalogTemplates.parse(it.readText()) }
+        for (t in list) {
+            val u = t.imageUri ?: error("no image ${t.id}")
+            assertTrue("missing asset $u", File("src/main/assets/templates/" + u.substringAfter("templates/")).length() > 5000)
+        }
+        val out = File("build/screenshots").also { it.mkdirs() }
+        var page by mutableIntStateOf(0)
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            val items = list.drop(page * 8).take(8)
+            Column(Modifier.background(Color.White)) {
+                items.chunked(4).forEach { row ->
+                    Row { row.forEach { t -> Box(Modifier.width(240.dp).padding(4.dp)) { TemplateThumb(template = t, maxHeight = 420.dp) } } }
+                }
+            }
+        }
+        for (p in 0 until (list.size + 7) / 8) {
+            rule.runOnUiThread { page = p }
+            repeat(10) { rule.mainClock.advanceTimeBy(400); ShadowLooper.idleMainLooper(); Thread.sleep(250); ShadowLooper.idleMainLooper() }
+            val dv = rule.activity.window.decorView
+            val bmp = Bitmap.createBitmap(dv.width.coerceAtLeast(1), dv.height.coerceAtLeast(1), Bitmap.Config.ARGB_8888)
+            rule.runOnUiThread { dv.draw(Canvas(bmp)) }
+            File(out, "photo_sheet_${p + 1}.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
     }
 
     @Test
