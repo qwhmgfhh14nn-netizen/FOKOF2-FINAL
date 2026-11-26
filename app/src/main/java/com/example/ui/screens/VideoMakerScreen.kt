@@ -68,6 +68,7 @@ fun VideoMakerScreen(onBack: () -> Unit) {
     var transition by remember { mutableIntStateOf(VideoComposer.FADE) }
     var aspect by remember { mutableIntStateOf(0) }
     var t by remember { mutableFloatStateOf(0f) }
+    var voice by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(-1f) }
     val sizes = listOf(Triple("9:16 (ريلز/ستوري)", 720, 1280), Triple("1:1 (مربع)", 720, 720), Triple("16:9 (عريض)", 1280, 720))
     val (_, vw, vh) = sizes[aspect]
@@ -106,6 +107,7 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                 val names = listOf("تلاشي", "سحب", "زوم")
                 items(3) { i -> FilterChip(selected = transition == i, onClick = { transition = i }, label = { Text(names[i]) }) }
             }
+            FilterChip(selected = voice, onClick = { voice = !voice }, label = { Text("تعليق صوتي: اقرأ التعليقات بصوت الموبايل") })
             Text("المقاس")
             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(sizes.size) { i -> FilterChip(selected = aspect == i, onClick = { aspect = i }, label = { Text(sizes[i].first) }) }
@@ -126,7 +128,7 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                 enabled = progress < 0f || progress >= 1f,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    val snap = slides; val sp = secPer; val tr = transition; val w = vw; val h = vh
+                    val snap = slides; val sp = secPer; val tr = transition; val w = vw; val h = vh; val wantVoice = voice && slides.any { it.caption.isNotBlank() }
                     progress = 0f
                     scope.launch {
                         val file = File(ctx.cacheDir, "video_" + System.currentTimeMillis() + ".mp4")
@@ -135,11 +137,24 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                             val bmps = snap.map { it.bmp }; val caps = snap.map { it.caption }
                             VideoEncoder.encode(file, w, h, 24, frames, { c, f -> VideoComposer.draw(c, w, h, bmps, caps, f / 24f, sp, tr) }, { p -> progress = p })
                         }
-                        val uri = if (ok) withContext(Dispatchers.IO) { VideoEncoder.saveToMovies(ctx, file, "FOKOF2_video_" + System.currentTimeMillis()) } else null
-                        file.delete()
+                        var finalFile = file
+                        var voiceNote = ""
+                        if (ok && wantVoice) {
+                            val wavs = com.example.ui.util.VoiceOver.synth(ctx, snap.map { it.caption }, ctx.cacheDir)
+                            val pcm = if (wavs == null) null else com.example.ui.util.VoiceOver.buildPcm(wavs, sp)
+                            if (pcm == null) voiceNote = " (من غير صوت: الموبايل ملوش صوت عربي للقراءة)"
+                            else withContext(Dispatchers.Default) {
+                                val aac = File(ctx.cacheDir, "vo.m4a"); val mixed = File(ctx.cacheDir, "mixed.mp4")
+                                if (com.example.ui.util.VoiceOver.encodeAac(pcm.first, pcm.second, aac) && com.example.ui.util.VoiceOver.mux(file, aac, mixed)) finalFile = mixed
+                                else voiceNote = " (من غير صوت: تعذر دمج الصوت)"
+                                aac.delete()
+                            }
+                        }
+                        val uri = if (ok) withContext(Dispatchers.IO) { VideoEncoder.saveToMovies(ctx, finalFile, "FOKOF2_video_" + System.currentTimeMillis()) } else null
+                        file.delete(); finalFile.delete()
                         progress = -1f
                         if (uri != null) {
-                            Toast.makeText(ctx, "تم حفظ الفيديو في Movies/FOKOF2", Toast.LENGTH_LONG).show()
+                            Toast.makeText(ctx, "تم حفظ الفيديو في Movies/FOKOF2" + voiceNote, Toast.LENGTH_LONG).show()
                             DesignExporter.share(ctx, uri, "video/mp4")
                         } else Toast.makeText(ctx, "تعذر إنشاء الفيديو على الجهاز ده", Toast.LENGTH_LONG).show()
                     }
