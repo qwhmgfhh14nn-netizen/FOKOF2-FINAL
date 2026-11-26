@@ -385,7 +385,7 @@ fun StudioScreen(
                                 onUpdateElement { it.copy(text = newTxt) }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("محتوى النص (Cairo)") },
+                            label = { Text("محتوى النص") },
                             singleLine = true
                         )
 
@@ -424,6 +424,40 @@ fun StudioScreen(
                                     imageVector = Icons.Default.FormatBold,
                                     contentDescription = "Bold",
                                     tint = if (selectedElement.isBold) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            listOf(0 to "وسط", 1 to "يمين", 2 to "شمال").forEach { (a, label) ->
+                                val on = selectedElement.align == a
+                                Text(
+                                    text = label,
+                                    color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier
+                                        .padding(end = 6.dp)
+                                        .border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable {
+                                            onUpdateElement { it.copy(align = a, width = if (a != 0 && it.width < 200f) 280f else it.width) }
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(com.example.ui.theme.DesignFonts.all) { fnt ->
+                                val on = selectedElement.font == fnt.key
+                                Text(
+                                    text = fnt.label,
+                                    fontFamily = fnt.family,
+                                    color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(font = fnt.key) } }
+                                        .padding(horizontal = 12.dp, vertical = 5.dp)
                                 )
                             }
                         }

@@ -87,7 +87,7 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                 fontSize = fs,
                 lineHeight = fs * 1.3f,
                 fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
-                fontFamily = CairoFontFamily,
+                fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
                 color = color.copy(alpha = el.opacity),
                 textAlign = when (el.align) { 1 -> TextAlign.Right; 2 -> TextAlign.Left; else -> TextAlign.Center },
                 style = if (light) TextStyle(shadow = Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, 2f), 4f)) else TextStyle.Default,
