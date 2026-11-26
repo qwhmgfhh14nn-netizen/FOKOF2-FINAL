@@ -69,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -560,7 +561,7 @@ private fun GeneralInfoTab(
 
 @Composable
 private fun SitePhoto(path: String, modifier: Modifier = Modifier) {
-    val bmp = remember(path) { try { android.graphics.BitmapFactory.decodeFile(path)?.let { androidx.compose.ui.graphics.asImageBitmap(it) } } catch (e: Exception) { null } }
+    val bmp = remember(path) { try { android.graphics.BitmapFactory.decodeFile(path)?.asImageBitmap() } catch (e: Exception) { null } }
     if (bmp != null) androidx.compose.foundation.Image(bitmap = bmp, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = modifier)
 }
 
