@@ -32,7 +32,11 @@ data class CanvasElement(
     val shapeType: ShapeType = ShapeType.ROUNDED_RECT,
     val width: Float = 140f,
     val height: Float = 70f,
-    val opacity: Float = 1f
+    val opacity: Float = 1f,
+    /** Text alignment inside a box of [width]: 0 = centered (old behaviour), 1 = right (Arabic), 2 = left. */
+    val align: Int = 0,
+    /** Font key (see DesignFonts). Empty = default Cairo. */
+    val font: String = ""
 )
 
 enum class ProTier(val titleAr: String, val titleEn: String, val defaultPriceEgp: Int) {

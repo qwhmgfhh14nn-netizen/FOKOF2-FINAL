@@ -39,7 +39,7 @@ class EngineSheetTest {
     fun cv_sheets() {
         val out = File("build/screenshots").also { it.mkdirs() }
         val all = DesignEngine.cvTemplates()
-        val pick = (0 until 12).flatMap { l -> listOf(0, 2, 4).map { p -> all[l * 10 + p] } }
+        val pick = (0 until 18).flatMap { l -> listOf(0, 4).map { p -> all[l * 10 + p] } }
         var page by mutableIntStateOf(0)
         rule.mainClock.autoAdvance = false
         rule.setContent {

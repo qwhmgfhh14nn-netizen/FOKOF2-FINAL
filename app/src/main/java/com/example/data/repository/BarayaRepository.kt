@@ -1471,6 +1471,8 @@ class BarayaRepository(context: Context) {
                 put("width", elem.width.toDouble())
                 put("height", elem.height.toDouble())
                 put("opacity", elem.opacity.toDouble())
+                put("align", elem.align)
+                put("font", elem.font)
             }
             jsonArray.put(obj)
         }
@@ -1501,7 +1503,9 @@ class BarayaRepository(context: Context) {
                         shapeType = shapeType,
                         width = obj.optDouble("width", 140.0).toFloat(),
                         height = obj.optDouble("height", 70.0).toFloat(),
-                        opacity = obj.optDouble("opacity", 1.0).toFloat()
+                        opacity = obj.optDouble("opacity", 1.0).toFloat(),
+                        align = obj.optInt("align", 0),
+                        font = obj.optString("font", "")
                     )
                 )
             }

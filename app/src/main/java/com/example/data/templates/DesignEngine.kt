@@ -28,7 +28,7 @@ object DesignEngine {
         Palette("أسود وأبيض", "#FFFFFF", "#F0F0F0", "#0D0D0D", "#0D0D0D", "#D9D9D9", "#FFFFFF")
     )
 
-    class B(val w: Float, val h: Float) {
+    class B(val w: Float, val h: Float, val rtl: Boolean = false) {
         val els = ArrayList<CanvasElement>()
         fun shape(t: ShapeType, cx: Float, cy: Float, sw: Float, sh: Float, color: String, op: Float = 1f, rot: Float = 0f, tag: String = "") {
             els += CanvasElement(id = "e${els.size}", type = CanvasElementType.SHAPE, shapeType = t, x = cx, y = cy,
@@ -40,10 +40,16 @@ object DesignEngine {
             els += CanvasElement(id = "e${els.size}", type = CanvasElementType.TEXT, text = s, x = cx, y = cy,
                 fontSize = size, isBold = bold, colorHex = color, opacity = op)
         }
+        /** Text in a box of [bw] units centred at [cx]; align 1 = right (Arabic), 2 = left. */
+        fun textBox(s: String, cx: Float, cy: Float, bw: Float, size: Float, color: String, align: Int, bold: Boolean = false, op: Float = 1f) {
+            els += CanvasElement(id = "e${els.size}", type = CanvasElementType.TEXT, text = s, x = cx, y = cy,
+                fontSize = size, isBold = bold, colorHex = color, opacity = op, width = bw, align = align)
+        }
     }
 
     val cvLayoutNames = listOf("شريط علوي", "عمود جانبي", "دائرة كبيرة", "مينيمال", "فاصل ماسي", "شريط سفلي",
-        "سداسي", "ركن مائل", "خطين", "شريط شريطة", "نصف علوي", "إطار")
+        "سداسي", "ركن مائل", "خطين", "شريط شريطة", "نصف علوي", "إطار",
+        "مينيمال يمين", "ماسي يمين", "خطين يمين", "إطار يمين", "شريط سفلي يمين", "شريط علوي يمين")
 
     private fun sections(b: B, p: Palette, top: Float, step: Float = 62f, titleColor: String = p.accent, cx: Float = b.w / 2) {
         val data = listOf(
@@ -54,9 +60,16 @@ object DesignEngine {
         )
         var y = top
         data.forEach { (t, lines) ->
-            b.text(t, cx, y, 13f, titleColor, true)
-            b.rect(cx - 18f, y + 11f, cx + 18f, y + 12.5f, p.accent, 0.8f)
-            lines.forEachIndexed { i, l -> b.text(l, cx, y + 25f + i * 15f, 10.5f, p.ink, false, 0.9f) }
+            if (b.rtl) {
+                val rx = b.w - 44f
+                b.textBox(t, rx - 130f, y, 260f, 13f, titleColor, 1, true)
+                b.rect(rx - 36f, y + 11f, rx, y + 12.5f, p.accent, 0.8f)
+                lines.forEachIndexed { i, l -> b.textBox(l, rx - 130f, y + 25f + i * 15f, 260f, 10.5f, p.ink, 1, false, 0.9f) }
+            } else {
+                b.text(t, cx, y, 13f, titleColor, true)
+                b.rect(cx - 18f, y + 11f, cx + 18f, y + 12.5f, p.accent, 0.8f)
+                lines.forEachIndexed { i, l -> b.text(l, cx, y + 25f + i * 15f, 10.5f, p.ink, false, 0.9f) }
+            }
             y += step + (lines.size - 1) * 15f
         }
     }
@@ -64,8 +77,12 @@ object DesignEngine {
     private fun contact(b: B, cx: Float, y: Float, color: String) =
         b.text("0100 000 0000  •  name@email.com  •  القاهرة", cx, y, 10f, color, false, 0.9f)
 
+    private val rtlBases = listOf(3, 4, 8, 11, 5, 0)
+
     fun cv(layout: Int, p: Palette): List<CanvasElement> {
-        val b = B(W, 480f)
+        val rtl = layout >= 12
+        val layout = if (rtl) rtlBases[layout - 12] else layout
+        val b = B(W, 480f, rtl)
         val dark = p.bg == "#16140F"
         b.rect(0f, 0f, W, 480f, p.bg)
         when (layout) {

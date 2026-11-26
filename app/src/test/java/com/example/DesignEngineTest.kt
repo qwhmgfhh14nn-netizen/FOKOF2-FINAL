@@ -9,7 +9,7 @@ class DesignEngineTest {
     @Test
     fun cv_templates_unique_and_in_bounds() {
         val all = DesignEngine.cvTemplates()
-        assertEquals(120, all.size)
+        assertEquals(180, all.size)
         assertEquals(all.size, all.map { it.id }.toSet().size)
         assertEquals(all.size, all.map { it.category + "|" + it.titleAr }.toSet().size)
         all.forEach { t -> assertTrue(t.id, t.elements.size > 10) }

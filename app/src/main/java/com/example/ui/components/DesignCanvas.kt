@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -88,9 +89,9 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                 fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
                 fontFamily = CairoFontFamily,
                 color = color.copy(alpha = el.opacity),
-                textAlign = TextAlign.Center,
+                textAlign = when (el.align) { 1 -> TextAlign.Right; 2 -> TextAlign.Left; else -> TextAlign.Center },
                 style = if (light) TextStyle(shadow = Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, 2f), 4f)) else TextStyle.Default,
-                modifier = Modifier.widthIn(max = (330f * k).dp)
+                modifier = if (el.align == 0) Modifier.widthIn(max = (330f * k).dp) else Modifier.width((el.width * k).dp)
             )
         }
         CanvasElementType.SHAPE -> {
