@@ -6,7 +6,8 @@ enum class CanvasElementType {
     TEXT,
     SHAPE,
     CALLIGRAPHY,
-    IMAGE_BADGE
+    IMAGE_BADGE,
+    IMAGE
 }
 
 enum class ShapeType {
@@ -36,7 +37,11 @@ data class CanvasElement(
     /** Text alignment inside a box of [width]: 0 = centered (old behaviour), 1 = right (Arabic), 2 = left. */
     val align: Int = 0,
     /** Font key (see DesignFonts). Empty = default Cairo. */
-    val font: String = ""
+    val font: String = "",
+    /** IMAGE elements: file uri, crop shape (0 rect, 1 rounded, 2 circle, 3 hexagon, 4 star) and colour filter (0 none, 1 B&W, 2 sepia, 3 vivid, 4 warm, 5 cool, 6 fade). */
+    val imageUri: String = "",
+    val imgShape: Int = 0,
+    val filter: Int = 0
 )
 
 enum class ProTier(val titleAr: String, val titleEn: String, val defaultPriceEgp: Int) {

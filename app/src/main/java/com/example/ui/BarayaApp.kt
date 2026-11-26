@@ -285,6 +285,7 @@ fun BarayaApp(
                                         onDeleteElement = { viewModel.deleteSelectedElement() },
                                         onDuplicateElement = { viewModel.duplicateSelectedElement() },
                                         onClearCanvas = { viewModel.clearCanvas() },
+                                        onAddImage = { viewModel.addImageElement(it) },
                                         canUndo = canUndo,
                                         canRedo = canRedo,
                                         onUndo = { viewModel.undo() },

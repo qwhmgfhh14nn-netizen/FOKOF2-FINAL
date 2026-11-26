@@ -57,6 +57,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.itemsIndexed
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -121,6 +122,7 @@ fun StudioScreen(
     onDeleteElement: () -> Unit,
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
+    onAddImage: (String) -> Unit = {},
     canUndo: Boolean = false,
     canRedo: Boolean = false,
     onUndo: () -> Unit = {},
@@ -158,6 +160,19 @@ fun StudioScreen(
                 onShowToast("ما قدرناش نفتح الصورة دي، جرب صورة تانية")
             }
             showReplacePhotoDialog = false
+        }
+    }
+    val addPhotoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { picked ->
+        if (picked != null) {
+            val saved = runCatching {
+                val dir = java.io.File(galleryContext.filesDir, "design_img").apply { mkdirs() }
+                val out = java.io.File(dir, "img_" + System.currentTimeMillis() + ".jpg")
+                galleryContext.contentResolver.openInputStream(picked)?.use { input -> out.outputStream().use { input.copyTo(it) } }
+                if (out.length() > 0L) android.net.Uri.fromFile(out).toString() else null
+            }.getOrNull()
+            if (saved != null) onAddImage(saved) else onShowToast("ما قدرناش نفتح الصورة دي، جرب صورة تانية")
         }
     }
     var showResizeDialog by remember { mutableStateOf(false) }
@@ -247,6 +262,13 @@ fun StudioScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            item {
+                StudioToolChip(
+                    icon = Icons.Default.AddPhotoAlternate,
+                    label = "أضف صورة",
+                    onClick = { addPhotoPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                )
+            }
             item {
                 StudioToolChip(
                     icon = Icons.Default.AddPhotoAlternate,
@@ -482,6 +504,35 @@ fun StudioScreen(
                                         .clickable { onUpdateElement { it.copy(font = fnt.key) } }
                                         .padding(horizontal = 12.dp, vertical = 5.dp)
                                 )
+                            }
+                        }
+                    }
+
+                    if (selectedElement.type == CanvasElementType.IMAGE) {
+                        Text("شكل القص", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            itemsIndexed(com.example.ui.components.imageShapeNames) { i, nm ->
+                                val on = selectedElement.imgShape == i
+                                Text(nm, color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(imgShape = i) } }.padding(horizontal = 12.dp, vertical = 5.dp))
+                            }
+                        }
+                        Text("الفلتر", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            itemsIndexed(com.example.ui.components.imageFilterNames) { i, nm ->
+                                val on = selectedElement.filter == i
+                                Text(nm, color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(filter = i) } }.padding(horizontal = 12.dp, vertical = 5.dp))
+                            }
+                        }
+                        Text("الحجم", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            listOf("صغير" to 100f, "وسط" to 160f, "كبير" to 240f, "عريض" to -1f).forEach { (nm, w) ->
+                                Text(nm, color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(width = if (w < 0f) 320f else w, height = if (w < 0f) 180f else w) } }.padding(horizontal = 12.dp, vertical = 5.dp))
                             }
                         }
                     }
@@ -1172,6 +1223,7 @@ fun RenderElement(element: CanvasElement) {
                 ShapeType.HEXAGON -> Box(modifier = shapeModifier.clip(RoundedCornerShape(8.dp)))
             }
         }
+        CanvasElementType.IMAGE -> {}
         CanvasElementType.IMAGE_BADGE -> {
             Box(
                 modifier = Modifier
