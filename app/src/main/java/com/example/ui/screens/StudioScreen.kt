@@ -60,7 +60,6 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
-import androidx.compose.ui.graphics.layer.toImageBitmap
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
