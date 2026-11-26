@@ -14,7 +14,7 @@ class VoiceOverTest {
         val bb = ByteBuffer.allocate(44 + n * 2).order(ByteOrder.LITTLE_ENDIAN)
         bb.putShort(22, 1); bb.putInt(24, sr)
         for (i in 0 until n) bb.putShort(44 + i * 2, v)
-        return File.createTempFile("vo", ".wav").also { it.writeBytes(bb.array()); it.deleteOnExit() }
+        return File.createTempFile("voice", ".wav").also { it.writeBytes(bb.array()); it.deleteOnExit() }
     }
 
     @Test fun narration_is_placed_at_slide_starts_and_cut_to_slide_length() {

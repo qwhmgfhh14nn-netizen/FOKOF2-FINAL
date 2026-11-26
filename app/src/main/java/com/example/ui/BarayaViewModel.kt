@@ -69,6 +69,7 @@ enum class AppNavDestination {
     CV_MAKER,
     ENGINE_MAKER,
     VIDEO_MAKER,
+    VIDEO_TRIM,
     STORE_QR_STUDIO,
     FEATURE_OFF,
     MORE,
