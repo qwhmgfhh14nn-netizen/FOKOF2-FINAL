@@ -48,7 +48,7 @@ object CertEngine {
                 b.rect(38f, 0f, 39f, H, p.soft); b.rect(W - 39f, 0f, W - 38f, H, p.soft) }
             7 -> { b.rect(12f, 12f, W - 12f, 13f, p.accent, 0.8f); b.rect(12f, H - 13f, W - 12f, H - 12f, p.accent, 0.8f)
                 b.rect(12f, 12f, 13f, H - 12f, p.accent, 0.8f); b.rect(W - 13f, 12f, W - 12f, H - 12f, p.accent, 0.8f)
-                b.shape(ShapeType.HEXAGON, W / 2, H - 30f, 54f, 48f, p.accent); b.shape(ShapeType.HEXAGON, W / 2, H - 30f, 42f, 37f, p.bg) }
+}
             8 -> { listOf(0f to 0f, W to 0f, 0f to H, W to H).forEach { (x, y) ->
                     b.shape(ShapeType.RECTANGLE, x, y, 90f, 90f, p.accent, 1f, 45f); b.shape(ShapeType.RECTANGLE, x, y, 62f, 62f, p.soft, 0.9f, 45f) } }
             else -> { b.rect(12f, 12f, W - 12f, 14f, p.accent); b.rect(12f, H - 14f, W - 12f, H - 12f, p.accent)
@@ -69,12 +69,13 @@ object CertEngine {
         b.text(d.name.ifBlank { "اسم المُكرَّم" }, W / 2, 138f, 25f, p.ink, true)
         b.rect(W / 2 - 80f, 156f, W / 2 + 80f, 157f, p.accent, 0.8f)
         b.text(d.reason.ifBlank { "تقديرا لجهوده المتميزة وتفوقه في العمل" }, W / 2, 178f, 11.5f, p.ink, false, 0.9f)
-        val y = if (style == 7) 232f else 226f
+        val y = 226f
         b.text(d.date.ifBlank { "التاريخ: 2026/01/01" }, 100f, y, 10.5f, p.ink, false, 0.9f)
         b.rect(60f, y - 14f, 140f, y - 13f, p.ink, 0.5f)
         b.text(d.signer.ifBlank { "التوقيع" }, 260f, y, 10.5f, p.ink, false, 0.9f)
         b.rect(220f, y - 14f, 300f, y - 13f, p.ink, 0.5f)
-        if (style != 7) { b.shape(ShapeType.STAR, W / 2, y - 4f, 30f, 30f, p.accent); b.shape(ShapeType.CIRCLE, W / 2, y - 4f, 11f, 11f, p.bg) }
+        if (style == 7) { b.shape(ShapeType.HEXAGON, W / 2, y - 4f, 38f, 33f, p.accent); b.shape(ShapeType.HEXAGON, W / 2, y - 4f, 28f, 24f, p.bg) }
+        else { b.shape(ShapeType.STAR, W / 2, y - 4f, 30f, 30f, p.accent); b.shape(ShapeType.CIRCLE, W / 2, y - 4f, 11f, 11f, p.bg) }
         return b.els
     }
 
