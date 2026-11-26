@@ -290,6 +290,7 @@ fun BarayaApp(
                                         onAddImage = { viewModel.addImageElement(it) },
                                         canUndo = canUndo,
                                         pageCount = pageCount,
+                                        onMoveLayer = { viewModel.moveSelectedLayer(it) },
                                         pageIndex = pageIndex,
                                         onSelectPage = { viewModel.selectPage(it) },
                                         onAddPage = { viewModel.addPage(it) },

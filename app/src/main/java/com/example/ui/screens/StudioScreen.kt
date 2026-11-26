@@ -126,6 +126,7 @@ fun StudioScreen(
     onClearCanvas: () -> Unit,
     onAddImage: (String) -> Unit = {},
     pageCount: Int = 1,
+    onMoveLayer: (Int) -> Unit = {},
     pageIndex: Int = 0,
     onSelectPage: (Int) -> Unit = {},
     onAddPage: (Boolean) -> Unit = {},
@@ -184,6 +185,7 @@ fun StudioScreen(
     }
     var showResizeDialog by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
+    val lockedIds = remember { androidx.compose.runtime.mutableStateListOf<String>() }
     var capturing by remember { mutableStateOf(false) }
     val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
     val exportScope = androidx.compose.runtime.rememberCoroutineScope()
@@ -370,7 +372,7 @@ fun StudioScreen(
                         selectedId = selectedElementId,
                         onSelect = onSelectElement,
                         onMove = { id, dx, dy ->
-                            onUpdateElementById(id) { cur ->
+                            if (id !in lockedIds) onUpdateElementById(id) { cur ->
                                 cur.copy(
                                     x = (cur.x + dx).coerceIn(0f, DESIGN_W),
                                     y = (cur.y + dy).coerceIn(0f, DESIGN_W / canvasRatio)
@@ -424,6 +426,11 @@ fun StudioScreen(
 
                         Row {
                             IconButton(
+                                onClick = { if (selectedElement.id in lockedIds) lockedIds.remove(selectedElement.id) else lockedIds.add(selectedElement.id) },
+                                modifier = Modifier.size(32.dp)
+                            ) { Text(if (selectedElement.id in lockedIds) "🔒" else "🔓") }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            IconButton(
                                 onClick = onDuplicateElement,
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -437,6 +444,13 @@ fun StudioScreen(
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
                             }
                         }
+                    }
+
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        item { AssistChip(onClick = { onMoveLayer(2) }, label = { Text("لقدّام خالص") }) }
+                        item { AssistChip(onClick = { onMoveLayer(1) }, label = { Text("طبقة لقدّام") }) }
+                        item { AssistChip(onClick = { onMoveLayer(-1) }, label = { Text("طبقة لورا") }) }
+                        item { AssistChip(onClick = { onMoveLayer(-2) }, label = { Text("لورا خالص") }) }
                     }
 
                     // Text Editing

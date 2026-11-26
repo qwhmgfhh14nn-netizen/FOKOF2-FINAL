@@ -701,6 +701,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _selectedElementId.value = _canvasElements.value.lastOrNull()?.id
     }
 
+    /** Layer order: 2 = to front, -2 = to back, 1 = one step forward, -1 = one step back. */
+    fun moveSelectedLayer(mode: Int) {
+        val id = _selectedElementId.value ?: return
+        val list = _canvasElements.value.toMutableList()
+        val i = list.indexOfFirst { it.id == id }
+        if (i < 0) return
+        val e = list.removeAt(i)
+        val to = when (mode) { 2 -> list.size; -2 -> 0; 1 -> minOf(i + 1, list.size); else -> maxOf(i - 1, 0) }
+        list.add(to, e)
+        _canvasElements.value = list
+    }
+
     fun duplicateSelectedElement() {
         val current = _canvasElements.value.find { it.id == _selectedElementId.value } ?: return
         val duplicate = current.copy(
