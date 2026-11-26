@@ -269,13 +269,16 @@ fun HomeScreen(
             val tools = listOf(
                 Triple(if (ar) "توليد صور" else "AI images", Icons.Default.AutoAwesome, AppNavDestination.AI_IMAGE),
                 Triple(if (ar) "كتابة إعلانات" else "Ad copy", Icons.Default.Campaign, AppNavDestination.AI_MARKETING),
-                Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, AppNavDestination.BRAND_KIT),
+                Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, null),
                 Triple(if (ar) "منشئ المواقع" else "Websites", Icons.Default.Language, AppNavDestination.WEBSITES),
                 Triple(if (ar) "موك آب" else "Mockups", Icons.Default.ShoppingBag, AppNavDestination.MOCKUP_STUDIO)
             )
             items(tools.size) { i ->
                 val (label, icon, dest) = tools[i]
-                CircleShortcut(label, icon, Color(0xFF8A6B12), tag = "quick_tool_$i", onClick = { onNavigate(dest) })
+                CircleShortcut(label, icon, Color(0xFF8A6B12), tag = "quick_tool_$i", onClick = {
+                    // The brand-identity icon opens the logos and identities templates
+                    if (dest == null) onOpenTemplates("", "الشعارات والهويات") else onNavigate(dest)
+                })
             }
         }
 
