@@ -33,4 +33,25 @@ class TemplateUpgradeTest {
         val all = com.example.data.templates.FreeTemplatesData.getTemplates()
         println("UPGRADE_REWRITE_OK id=${before.id} total_free=${all.size}")
     }
+
+    /** An install on catalog version 4 (before photo batches 3 to 6) must receive the new photo templates and keep owner prices. */
+    @Test fun older_catalog_version_gets_new_photo_templates() = runBlocking {
+        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
+        BarayaRepository(ctx).ensureTemplatesInitialized()
+        val dao = AppDatabase.getDatabase(ctx).templateDao()
+        val keep = dao.getTemplateById("ph_food_pizza")!!
+        dao.insertAll(listOf(keep.copy(priceEgp = 91)))
+        dao.deleteTemplate("ph6_car_luxury")
+        dao.deleteTemplate("ph5_banner_eid")
+        assertTrue("setup: ph6 row should be gone", dao.getTemplateById("ph6_car_luxury") == null)
+        ctx.getSharedPreferences("baraya_user_prefs", android.content.Context.MODE_PRIVATE)
+            .edit().putInt("catalog_templates_version", 4).commit()
+        BarayaRepository(ctx).ensureTemplatesInitialized()
+        assertTrue("new photo template missing after upgrade", dao.getTemplateById("ph6_car_luxury") != null)
+        assertTrue("new photo template missing after upgrade", dao.getTemplateById("ph5_banner_eid") != null)
+        assertTrue("owner price must be preserved", dao.getTemplateById("ph_food_pizza")!!.priceEgp == 91)
+        val v = ctx.getSharedPreferences("baraya_user_prefs", android.content.Context.MODE_PRIVATE).getInt("catalog_templates_version", 0)
+        assertTrue("version should be bumped to 5, was $v", v >= 5)
+        println("CATALOG_UPGRADE_OK version=$v")
+    }
 }
