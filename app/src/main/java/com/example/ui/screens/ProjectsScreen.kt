@@ -77,8 +77,18 @@ fun ProjectsScreen(
     onDeleteProject: (String) -> Unit,
     onStartNewDesign: () -> Unit,
     onSubmitManualPayment: (email: String, plan: String, amount: String, method: String, ref: String) -> Unit,
+    onBuildBackup: () -> String = { "" },
+    onRestoreBackup: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val backupCtx = androidx.compose.ui.platform.LocalContext.current
+    val saveBackupLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) runCatching { backupCtx.contentResolver.openOutputStream(uri)?.use { it.write(onBuildBackup().toByteArray(Charsets.UTF_8)) } }
+    }
+    val openBackupLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) runCatching { backupCtx.contentResolver.openInputStream(uri)?.use { onRestoreBackup(it.readBytes().toString(Charsets.UTF_8)) } }
+    }
+
     var showPaymentModal by remember { mutableStateOf(false) }
     var userEmailInput by remember { mutableStateOf("") }
     var selectedPlanId by remember { mutableStateOf("sub_annual") }
@@ -97,6 +107,10 @@ fun ProjectsScreen(
 
     val headerBlock: @Composable () -> Unit = {
         Column {
+        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            androidx.compose.material3.OutlinedButton(onClick = { saveBackupLauncher.launch("FOKOF2-backup.json") }, modifier = Modifier.weight(1f)) { Text("نسخة احتياطية لمشاريعك") }
+            androidx.compose.material3.OutlinedButton(onClick = { openBackupLauncher.launch(arrayOf("application/json", "text/plain", "*/*")) }, modifier = Modifier.weight(1f)) { Text("استرجاع نسخة") }
+        }
         // Account Tier Banner & User Identity
         Card(
             modifier = Modifier.fillMaxWidth(),

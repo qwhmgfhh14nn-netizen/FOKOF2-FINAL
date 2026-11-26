@@ -1076,6 +1076,51 @@ class BarayaRepository(context: Context) {
         return newId
     }
 
+    // ---------------- STUDIO DRAFT (autosave) AND PROJECT BACKUP ----------------
+    class Draft(val elements: List<CanvasElement>, val bgStart: String, val bgEnd: String, val aspect: String, val title: String)
+
+    fun saveDraft(elements: List<CanvasElement>, bgStart: String, bgEnd: String, aspect: String, title: String) {
+        val o = JSONObject().put("els", serializeElementsJson(elements)).put("bgS", bgStart).put("bgE", bgEnd).put("asp", aspect).put("title", title)
+        prefs.edit().putString("studio_draft", o.toString()).apply()
+    }
+
+    fun loadDraft(): Draft? {
+        val raw = prefs.getString("studio_draft", null) ?: return null
+        return try {
+            val o = JSONObject(raw)
+            val els = parseElementsJson(o.optString("els"))
+            if (els.isEmpty()) null else Draft(els, o.optString("bgS", "#FFFFFF"), o.optString("bgE", "#FFFFFF"), o.optString("asp", "1:1"), o.optString("title", ""))
+        } catch (e: Exception) { null }
+    }
+
+    /** Portable backup of saved projects (photo backgrounds picked from the gallery are not included, only colours and layers). */
+    fun backupJson(projects: List<DesignTemplate>): String {
+        val arr = JSONArray()
+        projects.forEach { t ->
+            arr.put(JSONObject().put("title", t.titleAr).put("category", t.category).put("asp", t.aspectRatio)
+                .put("bgS", t.bgStartHex).put("bgE", t.bgEndHex).put("els", serializeElementsJson(t.elements)))
+        }
+        return JSONObject().put("app", "FOKOF2").put("v", 1).put("projects", arr).toString()
+    }
+
+    suspend fun restoreBackup(json: String): Int {
+        return try {
+            val o = JSONObject(json)
+            if (o.optString("app") != "FOKOF2") return -1
+            val arr = o.getJSONArray("projects")
+            var n = 0
+            for (i in 0 until arr.length()) {
+                val p = arr.getJSONObject(i)
+                val id = saveProject(
+                    title = p.optString("title", "مشروع مسترجع"), category = p.optString("category", "Custom"),
+                    elements = parseElementsJson(p.optString("els")), bgStart = p.optString("bgS", "#FFFFFF"), bgEnd = p.optString("bgE", "#FFFFFF")
+                )
+                if (id.isNotEmpty()) n++
+            }
+            n
+        } catch (e: Exception) { -1 }
+    }
+
     suspend fun renameProject(projectId: String, newTitle: String) {
         val current = _currentUser.value
         if (current.isGuest || newTitle.isBlank()) return

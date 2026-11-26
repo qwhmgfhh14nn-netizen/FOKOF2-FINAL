@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.debounce
 import com.example.data.model.UserProfile
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -300,6 +301,36 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
+    // ---- Autosave of the studio canvas and project backup ----
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    private fun startAutosave() {
+        repository.loadDraft()?.let { d ->
+            if (_canvasElements.value.isEmpty()) {
+                _canvasElements.value = d.elements
+                _canvasBgStart.value = d.bgStart
+                _canvasBgEnd.value = d.bgEnd
+                _canvasAspectRatio.value = d.aspect
+                _activeTemplateTitle.value = d.title
+            }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(_canvasElements, _canvasBgStart, _canvasBgEnd, _canvasAspectRatio) { e, a, b, r -> listOf(e, a, b, r) }
+                .debounce(1500)
+                .collect {
+                    repository.saveDraft(_canvasElements.value, _canvasBgStart.value, _canvasBgEnd.value, _canvasAspectRatio.value, _activeTemplateTitle.value)
+                }
+        }
+    }
+
+    fun buildBackupJson(): String = repository.backupJson(savedProjects.value)
+
+    fun restoreBackupJson(json: String) {
+        viewModelScope.launch {
+            val n = repository.restoreBackup(json)
+            showToast(if (n >= 0) "تم استرجاع $n مشروع" else "الملف ده مش نسخة احتياطية من FOKOF2")
+        }
+    }
+
     // ---- Undo / redo of the canvas elements (snapshots; quick edits within 600 ms merge into one step) ----
     private val undoStack = ArrayDeque<List<CanvasElement>>()
     private val redoStack = ArrayDeque<List<CanvasElement>>()
@@ -354,6 +385,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
 
     init {
         startHistory()
+        startAutosave()
         // Database seeding/sync (JSON, hashing, 64 inserts) must never run on the main thread.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             repository.ensureTemplatesInitialized()

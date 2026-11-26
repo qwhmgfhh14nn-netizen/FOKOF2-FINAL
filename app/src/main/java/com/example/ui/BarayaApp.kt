@@ -395,7 +395,9 @@ fun BarayaApp(
                                         onStartNewDesign = { viewModel.createNewProject() },
                                         onSubmitManualPayment = { email, plan, amount, method, ref ->
                                             viewModel.submitManualPayment(email, plan, amount, method, ref)
-                                        }
+                                        },
+                                        onBuildBackup = { viewModel.buildBackupJson() },
+                                        onRestoreBackup = { viewModel.restoreBackupJson(it) }
                                     )
                                 }
 
