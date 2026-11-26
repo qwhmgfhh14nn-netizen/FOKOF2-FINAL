@@ -41,7 +41,7 @@ object LogoEngine {
 
     fun templates(): List<DesignTemplate> = (0 until 20).flatMap { i ->
         DesignEngine.palettes.mapIndexed { j, p ->
-            DesignEngine.template("logo", i, j, "شعارات", "1:1", "شعار ${styleNames[i / 2]} ${p.nameAr}", "Logo ${i + 1}-${j + 1}", p, logo(i, p))
+            DesignEngine.template("logo", i, j, "شعارات", "1:1", "شعار ${styleNames[i / 2]} ${if (i % 2 == 0) "بسيط" else "بشعار نصي"} ${p.nameAr}", "Logo ${i + 1}-${j + 1}", p, logo(i, p))
         }
     }
 
