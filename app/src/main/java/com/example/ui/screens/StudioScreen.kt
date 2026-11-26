@@ -57,6 +57,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.layer.toImageBitmap
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -157,6 +162,9 @@ fun StudioScreen(
         }
     }
     var showResizeDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
+    val exportScope = androidx.compose.runtime.rememberCoroutineScope()
     var showBgColorDialog by remember { mutableStateOf(false) }
 
     val selectedElement = canvasElements.find { it.id == selectedElementId }
@@ -305,7 +313,10 @@ fun StudioScreen(
                     .testTag("interactive_design_canvas"),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }) {
+                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }.drawWithContent {
+                    exportLayer.record { this@drawWithContent.drawContent() }
+                    drawLayer(exportLayer)
+                }) {
                     DesignBackground(
                         bgStartHex, bgEndHex, canvasBgImageUri, canvasBgImageRes,
                         Modifier.fillMaxSize()
@@ -536,9 +547,7 @@ fun StudioScreen(
             }
 
             OutlinedButton(
-                onClick = {
-                    onShowToast("تم حفظ التصميم وتنزيله بجودة Ultra HD 4K!")
-                },
+                onClick = { onSelectElement(null); showExportDialog = true },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp)
@@ -551,6 +560,45 @@ fun StudioScreen(
                 Text(text = strings.exportDesign, color = GoldPrimary, fontWeight = FontWeight.Bold)
             }
         }
+    }
+
+    // Export: renders the canvas exactly as it looks on screen (at this phone's screen resolution) to a real file.
+    if (showExportDialog) {
+        val doExport: (String) -> Unit = { mode ->
+            showExportDialog = false
+            exportScope.launch {
+                kotlinx.coroutines.delay(150)
+                try {
+                    val bmp = exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+                    val name = "FOKOF2_" + System.currentTimeMillis()
+                    if (mode == "pdf") {
+                        val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, listOf(bmp), name)
+                        onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                    } else {
+                        val u = com.example.ui.util.DesignExporter.savePng(galleryContext, bmp, name)
+                        if (u == null) onShowToast("تعذر حفظ الصورة (يحتاج أندرويد 10 أو أحدث)")
+                        else if (mode == "share") com.example.ui.util.DesignExporter.share(galleryContext, u, "image/png")
+                        else onShowToast("تم حفظ الصورة في معرض الصور (مجلد FOKOF2)")
+                    }
+                } catch (e: Exception) {
+                    onShowToast("حصلت مشكلة أثناء التصدير، جرب تاني")
+                }
+            }
+        }
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text(text = strings.exportDesign, color = GoldPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("الملف بيطلع بنفس دقة شاشة موبايلك.", style = MaterialTheme.typography.bodySmall)
+                    Button(onClick = { doExport("png") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ صورة PNG في المعرض") }
+                    Button(onClick = { doExport("pdf") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ PDF") }
+                    OutlinedButton(onClick = { doExport("share") }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة الصورة") }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { showExportDialog = false }) { Text("إلغاء", color = GoldPrimary) } }
+        )
     }
 
     // Dialog 1: Add Text
