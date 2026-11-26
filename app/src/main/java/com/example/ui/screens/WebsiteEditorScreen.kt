@@ -1942,14 +1942,15 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
             "<div class=\"price\">" + item.priceEgp + " ج.م " + old + off + "</div>"
         }
         """
-        <div class="card reveal" data-cat="${siteEsc(item.category)}">
+        <div class="card reveal" data-cat="${siteEsc(item.category)}" data-name="${siteEsc(item.nameAr)}" data-en="${siteEsc(item.nameEn)}" data-price="${item.priceEgp}">
             $pimg
             <div class="card-body">
                 <h3>${siteEsc(item.nameAr)} $badge</h3>
                 <p>${siteEsc(item.descriptionAr)}</p>
                 $priceHtml
             </div>
-            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener">طلب الآن</a>
+            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+            ${if (item.priceEgp > 0 && t.featureWhatsappOrders) "<button type=\"button\" class=\"add-btn\" data-t=\"+ أضف للسلة|+ Add to cart\">+ أضف للسلة</button>" else ""}
         </div>
         """.trimIndent()
     }
@@ -2020,6 +2021,13 @@ $itemsHtml
   </section>""" else ""
     val callBtn = if (t.featureDirectCalling) "<a href=\"tel:" + siteEsc(site.phoneNumber) + "\" class=\"btn btn-call\">اتصل بنا: " + siteEsc(site.phoneNumber) + "</a>" else ""
     val desc = siteEsc(site.headline + " - " + site.subheadline)
+    val ldJson = org.json.JSONObject().apply {
+        put("@context", "https://schema.org"); put("@type", "LocalBusiness")
+        put("name", site.siteTitle); put("description", site.headline + " - " + site.subheadline)
+        if (site.phoneNumber.isNotBlank()) put("telephone", site.phoneNumber)
+        if (site.address.isNotBlank()) put("address", site.address)
+        if (site.workingHours.isNotBlank()) put("openingHours", site.workingHours)
+    }.toString().replace("</", "<\\/")
 
     return """
 <!DOCTYPE html>
@@ -2033,6 +2041,9 @@ $itemsHtml
 <meta property="og:title" content="${siteEsc(site.siteTitle)}">
 <meta property="og:description" content="$desc">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="ar_EG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">$ldJson</script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
@@ -2103,6 +2114,22 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
 @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.add-btn { margin-top: 8px; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn:hover { background: var(--primary); color: #fff; }
+.card { cursor: pointer; }
+#lang { background: none; border: 1px solid var(--line); color: var(--ink); height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.share { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin: 0 0 30px; }
+.share a, .share button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: .9rem; }
+#cartbtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 12; background: var(--primary); color: #fff; border: 0; padding: 13px 24px; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(0,0,0,.3); cursor: pointer; display: none; }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet-in { background: var(--card); color: var(--ink); width: min(560px, 100%); max-height: 86vh; overflow: auto; border-radius: 22px 22px 0 0; padding: 22px; }
+.sheet-in h3 { margin-bottom: 12px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.crow .q button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; font-weight: 800; }
+.ctotal { font-weight: 800; font-size: 1.15rem; margin: 14px 0; }
+.sheet-in .x { float: left; background: none; border: 0; color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+.sheet-in .pimg { width: 100%; margin: 0 0 12px; border-radius: 14px; }
 @media (max-width: 560px) { nav .links a { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
 </style>
@@ -2112,7 +2139,7 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
   <b>${siteEsc(site.siteTitle)}</b>
   <div class="links">
     <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
-    <button id="theme" title="الوضع الليلي">🌙</button>
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">🌙</button>
   </div>
 </nav>
 <section class="hero">
@@ -2146,7 +2173,16 @@ $faqHtml
   </section>
 $mapHtml
 </div>
-<footer>تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+<footer data-t="تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
 <a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
 <button id="top" title="لأعلى">↑</button>
 <script>
@@ -2176,6 +2212,85 @@ $mapHtml
         card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
       });
     });
+  });
+  var WA = 'https://wa.me/$waNum';
+  var en = false, cart = {};
+  function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
+  function applyLang() {
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+    document.querySelectorAll('[data-p]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-p')); });
+    document.getElementById('lang').textContent = en ? 'عربي' : 'EN';
+    document.querySelectorAll('.card').forEach(function (c) {
+      var h = c.querySelector('h3'); var tn = h && h.firstChild;
+      if (tn && tn.nodeType === 3) { var n = c.getAttribute('data-en'); tn.textContent = (en && n ? n : c.getAttribute('data-name')) + ' '; }
+    });
+    renderCart();
+  }
+  document.getElementById('lang').addEventListener('click', function () { en = !en; applyLang(); });
+  function nm(k) { var c = document.querySelector('.card[data-name="' + k.replace(/"/g, '\\"') + '"]'); var e = c && c.getAttribute('data-en'); return en && e ? e : k; }
+  function renderCart() {
+    var keys = Object.keys(cart), total = 0, count = 0, html = '';
+    keys.forEach(function (k) {
+      var it = cart[k]; total += it.p * it.q; count += it.q;
+      html += '<div class="crow"><span></span><span class="q"><button data-d="-1" data-k="' + encodeURIComponent(k) + '">-</button> ' + it.q + ' <button data-d="1" data-k="' + encodeURIComponent(k) + '">+</button></span><b>' + (it.p * it.q) + '</b></div>';
+    });
+    var box = document.getElementById('clines'); box.innerHTML = html;
+    box.querySelectorAll('.crow').forEach(function (row, i) { row.firstChild.textContent = nm(keys[i]); });
+    box.querySelectorAll('button[data-d]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = decodeURIComponent(b.getAttribute('data-k')); cart[k].q += parseInt(b.getAttribute('data-d'), 10);
+        if (cart[k].q <= 0) delete cart[k]; renderCart();
+      });
+    });
+    document.getElementById('ctotal').textContent = T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var cb = document.getElementById('cartbtn');
+    cb.style.display = count ? 'block' : 'none';
+    cb.textContent = '🛒 ' + T('السلة|Cart') + ' (' + count + ') - ' + total + ' ' + T('ج.م|EGP');
+    if (!count) document.getElementById('cartsheet').classList.remove('open');
+  }
+  document.querySelectorAll('.add-btn').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var c = b.closest('.card'), k = c.getAttribute('data-name');
+      if (!cart[k]) cart[k] = { p: parseInt(c.getAttribute('data-price'), 10) || 0, q: 0 };
+      cart[k].q += 1; renderCart();
+    });
+  });
+  document.getElementById('cartbtn').addEventListener('click', function () { document.getElementById('cartsheet').classList.add('open'); });
+  document.querySelectorAll('.sheet').forEach(function (sh) {
+    sh.addEventListener('click', function (ev) { if (ev.target === sh || ev.target.getAttribute('data-close')) sh.classList.remove('open'); });
+  });
+  document.getElementById('c-send').addEventListener('click', function () {
+    var keys = Object.keys(cart); if (!keys.length) return;
+    var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
+    keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
+    lines.push(T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP'));
+    var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
+    if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
+    window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      if (ev.target.closest('a,button')) return;
+      var copy = c.cloneNode(true);
+      copy.querySelectorAll('a,button').forEach(function (x) { x.remove(); });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'btn btn-wa'; add.textContent = T('+ أضف للسلة|+ Add to cart');
+      add.addEventListener('click', function () { var b = c.querySelector('.add-btn'); if (b) b.click(); document.getElementById('detsheet').classList.remove('open'); });
+      var body = document.getElementById('detbody'); body.innerHTML = '';
+      var inner = copy.querySelector('.card-body'); var im = copy.querySelector('.pimg');
+      if (im) body.appendChild(im); if (inner) body.appendChild(inner);
+      if (c.querySelector('.add-btn')) body.appendChild(add);
+      document.getElementById('detsheet').classList.add('open');
+    });
+  });
+  var pageUrl = location.href;
+  document.getElementById('sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + pageUrl);
+  document.getElementById('sh-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl);
+  document.getElementById('sh-cp').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
   });
   var bf = document.getElementById('bf');
   if (bf) bf.addEventListener('submit', function (e) {

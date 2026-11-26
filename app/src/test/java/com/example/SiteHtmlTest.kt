@@ -44,6 +44,8 @@ class SiteHtmlTest {
             assertTrue("reviews missing for $t", html.contains("id=\"reviews\"") && html.contains("خدمة ممتازة"))
             assertTrue("gallery missing for $t", html.contains("id=\"gallery\""))
             assertTrue("instagram missing for $t", html.contains("https://instagram.com/fokof2"))
+            assertTrue("cart missing for $t", html.contains("id=\"cartsheet\""))
+            assertTrue("share/lang/seo missing for $t", html.contains("id=\"sh-wa\"") && html.contains("id=\"lang\"") && html.contains("application/ld+json"))
             assertFalse("unsafe link for $t", html.contains("javascript:"))
             assertFalse("unescaped title for $t", html.contains("<b>اسم</b>"))
             println("SITE_HTML_OK $t bytes=${html.length}")
