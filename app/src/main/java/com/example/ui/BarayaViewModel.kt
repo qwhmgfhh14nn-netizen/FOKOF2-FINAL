@@ -468,7 +468,19 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _selectedElementId.value = id
     }
 
+    private fun ratioValue(r: String): Float = when (r) {
+        "16:9" -> 16f / 9f; "9:16" -> 9f / 16f; "4:5" -> 4f / 5f; "3:4" -> 3f / 4f; "4:3" -> 4f / 3f; else -> 1f
+    }
+
+    /** One-tap resize: the canvas is always 360 wide, so changing the ratio changes its height. Elements keep their x and follow the height. */
     fun setCanvasAspectRatio(ratio: String) {
+        val f = ratioValue(_canvasAspectRatio.value) / ratioValue(ratio)
+        if (kotlin.math.abs(f - 1f) > 0.001f) {
+            _canvasElements.value = _canvasElements.value.map { el ->
+                val box = el.type == CanvasElementType.SHAPE && (el.shapeType == ShapeType.RECTANGLE || el.shapeType == ShapeType.ROUNDED_RECT)
+                el.copy(y = el.y * f, height = if (box) el.height * f else el.height)
+            }
+        }
         _canvasAspectRatio.value = ratio
     }
 
