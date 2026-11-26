@@ -35,6 +35,9 @@ object LogoEngine {
         val ny = if (tag) 214f else 232f
         b.text(d.name.ifBlank { "اسم العلامة" }, W / 2, ny, 34f, p.ink, true)
         b.rect(W / 2 - 40f, ny + 28f, W / 2 + 40f, ny + 29.5f, p.accent)
+        b.shape(ShapeType.DIAMOND, W / 2 - 46f, ny + 28.7f, 6f, 6f, p.accent)
+        b.shape(ShapeType.DIAMOND, W / 2 + 46f, ny + 28.7f, 6f, 6f, p.accent)
+        b.rect(W / 2 - 20f, W - 22f, W / 2 + 20f, W - 21f, p.accent, 0.6f)
         if (tag) b.text(d.tagline.ifBlank { "شعارك هنا" }, W / 2, ny + 52f, 15f, p.accent, false)
         return b.els
     }

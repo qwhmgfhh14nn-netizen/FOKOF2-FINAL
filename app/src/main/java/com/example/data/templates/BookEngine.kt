@@ -34,6 +34,9 @@ object BookEngine {
         b.text(d.title.ifBlank { "عنوان الكتاب" }, W / 2, ty, 38f, p.accent, true)
         b.rect(W / 2 - 50f, ty + 32f, W / 2 + 50f, ty + 33.5f, p.accent)
         b.text(d.subtitle.ifBlank { "عنوان فرعي يشرح فكرة الكتاب" }, W / 2, ty + 58f, 15f, p.ink, false, 0.9f)
+        b.rect(W / 2 - 30f, H - 78f, W / 2 + 30f, H - 77f, p.accent, 0.8f)
+        b.shape(ShapeType.DIAMOND, W / 2, H - 77.5f, 7f, 7f, p.accent)
+        b.rect(0f, H - 8f, W, H, p.accent, 0.9f)
         b.text(d.author.ifBlank { "اسم المؤلف" }, W / 2, H - 52f, 18f, p.ink, true)
         return b.els
     }
