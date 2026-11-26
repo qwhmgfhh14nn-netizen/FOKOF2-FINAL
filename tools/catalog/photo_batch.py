@@ -30,15 +30,18 @@ SPECS = [
  ("ph_fit_yoga","صحة ولياقة","1:1","yoga mat, water bottle and towel in a bright minimal studio with large windows, calm","#E8C766","#10261A","يوجا","اهدى","وارتاح","حصص يومية للمبتدئين","جرّب حصة مجانية","b"),
  ("ph_fit_food","صحة ولياقة","9:16","colorful healthy meal prep bowls with vegetables and grilled chicken, overhead, bright","#F5B83D","#10261A","نظام غذائي","كُل صح","وعيش أحسن","وجبات صحية جاهزة كل يوم","اطلب وجباتك","t"),
  ("ph_sale_bags","عروض وتخفيضات","4:5","colorful shopping bags and gift boxes on a pastel pink background, studio shot, festive","#FFFFFF","#3A1220","عروض الموسم","خصم ٥٠","على كل حاجة","لفترة محدودة بس","تسوق الآن","b"),
- ("ph_sale_gift","عروض وتخفيضات","1:1","gift box with a gold ribbon on a soft ivory background with confetti, studio","#F5D58A","#2A1204","عرض خاص","اشتري ١","واخد ١ هدية","العرض ساري لحد آخر الأسبوع","اطلب العرض","b"),
- ("ph_sale_cart","عروض وتخفيضات","9:16","red shopping cart on a clean white studio background with colorful boxes, bright, minimal","#FFFFFF","#2A0A0A","أكبر تخفيضات","ماتفوتش","الفرصة","خصومات تصل لـ ٧٠ بالمية","تسوق دلوقتي","t"),
+ ("ph_sale_gift","عروض وتخفيضات","4:5","gift box with a gold ribbon on a soft ivory background with confetti, studio","#F5D58A","#2A1204","عرض خاص","اشتري ١","واخد ١ هدية","العرض ساري لحد آخر الأسبوع","اطلب العرض","l"),
+ ("ph_sale_cart","عروض وتخفيضات","9:16","red shopping cart on a clean white studio background with colorful boxes, bright, minimal","#FFFFFF","#2A0A0A","أكبر تخفيضات","ماتفوتش","الفرصة","خصومات تصل لـ ٧٠ بالمية","تسوق دلوقتي","l"),
 ]
 WHITE2 = {"ph_car_service","ph_tech_server","ph_fit_food","ph_edu_books","ph_tech_laptop","ph_social_phone","ph_biz_desk","ph_edu_class","ph_edu_lab"}
 def layout(asp, acc, scr, k, l1, l2, sub, cta, var, sid=""):
     H = SIZES[asp][2]; W = 360
     e = []
     def T(t,y,s,b,c,o=1.0): e.append(["T",t,180,y,s,b,c,o])
-    if var == "t" and asp == "9:16":
+    if var == "l":
+        DK="#3A2A12"; GD="#B8892B"
+        T(k,H-150,15,1,GD); T(l1,H-112,36,1,DK); T(l2,H-68,36,1,GD); T(sub,H-40,13,0,DK,0.9); T(cta,H-18,15,1,DK); e.append(["S","RECTANGLE",180,H-6,60,2,GD,1.0,0,""])
+    elif var == "t" and asp == "9:16":
         e.append(["S","RECTANGLE",180.0,140.0,W,280,scr,0.93,0,"grad:t"])
         e.append(["S","RECTANGLE",180.0,H-120.0,W,240,scr,0.9,0,"grad:b"])
         e.append(["S","RECTANGLE",180.0,95.0,W,190,scr,0.7,0,"grad:t"])
