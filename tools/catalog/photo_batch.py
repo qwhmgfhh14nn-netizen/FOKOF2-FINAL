@@ -34,26 +34,31 @@ SPECS = [
  ("ph_sale_cart","عروض وتخفيضات","9:16","red shopping cart on a clean white studio background with colorful boxes, bright, minimal","#FFFFFF","#2A0A0A","أكبر تخفيضات","ماتفوتش","الفرصة","خصومات تصل لـ ٧٠ بالمية","تسوق دلوقتي","l"),
 ]
 WHITE2 = {"ph_car_service","ph_tech_server","ph_fit_food","ph_edu_books","ph_tech_laptop","ph_social_phone","ph_biz_desk","ph_edu_class","ph_edu_lab"}
+BIGSUB = {"ph_fit_food","ph3_prod_perfume","ph3_menu_coffee","ph3_invite_gold","ph3_social_gold","ph3_sale_gold","ph3_banner_store"}
 def layout(asp, acc, scr, k, l1, l2, sub, cta, var, sid=""):
     H = SIZES[asp][2]; W = 360
     e = []
+    SS = 15 if sid in BIGSUB else 13
+    SO = 1.0 if sid in BIGSUB else 0.95
     def T(t,y,s,b,c,o=1.0): e.append(["T",t,180,y,s,b,c,o])
     if var == "l":
         DK="#3A2A12"; GD="#B8892B"
-        T(k,H-150,15,1,GD); T(l1,H-112,36,1,DK); T(l2,H-68,36,1,GD); T(sub,H-40,13,0,DK,0.9); T(cta,H-18,15,1,DK); e.append(["S","RECTANGLE",180,H-6,60,2,GD,1.0,0,""])
+        T(k,H-150,15,1,GD); T(l1,H-112,36,1,DK); T(l2,H-68,36,1,GD); T(sub,H-40,SS,0 if SS==13 else 1,DK,1.0); T(cta,H-18,15,1,DK); e.append(["S","RECTANGLE",180,H-6,60,2,GD,1.0,0,""])
     elif var == "t" and asp == "9:16":
         e.append(["S","RECTANGLE",180.0,140.0,W,280,scr,0.93,0,"grad:t"])
         e.append(["S","RECTANGLE",180.0,H-120.0,W,240,scr,0.9,0,"grad:b"])
         e.append(["S","RECTANGLE",180.0,95.0,W,190,scr,0.7,0,"grad:t"])
         T(k,56,15,1,acc); T(l1,108,36,1,"#FFFFFF"); T(l2,156,42,1,"#FFFFFF" if sid in WHITE2 else acc)
-        T(sub,H-98,14,0,"#FFFFFF",0.95); T(cta,H-58,16,1,acc)
+        if sid in BIGSUB: e.append(["S","RECTANGLE",180.0,H-90.0,W,180,scr,0.8,0,"grad:b"])
+        T(sub,H-98,SS+1 if SS>13 else 14,1 if SS>13 else 0,"#FFFFFF",1.0); T(cta,H-58,16,1,acc)
         e.append(["S","RECTANGLE",180,H-44,60,2,acc,1.0,0,""])
     else:
         h = 300
         e.append(["S","RECTANGLE",180.0,H-h/2,W,h,scr,0.95,0,"grad:b"])
         e.append(["S","RECTANGLE",180.0,H-100.0,W,200,scr,0.7,0,"grad:b"])
+        if sid in BIGSUB: e.append(["S","RECTANGLE",180.0,H-60.0,W,120,scr,0.8,0,"grad:b"])
         T(k,H-150,15,1,"#FFFFFF" if sid in WHITE2 else acc); T(l1,H-112,36,1,"#FFFFFF"); T(l2,H-68,36,1,"#FFFFFF" if sid in WHITE2 else acc)
-        T(sub,H-40,13,0,"#FFFFFF",0.95)
+        T(sub,H-40,SS,1 if SS>13 else 0,"#FFFFFF",SO)
         # cta below sub would crowd small canvases: put cta on same block bottom
         e[-1][3]=H-40
         T(cta,H-18,15,1,acc); e.append(["S","RECTANGLE",180,H-6,60,2,acc,1.0,0,""])
