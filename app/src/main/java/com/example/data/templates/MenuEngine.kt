@@ -54,16 +54,16 @@ object MenuEngine {
             b.textBox(price, a + (wBox - nameW) / 2 - 2f, y, wBox - nameW, 10.5f, p.accent, 2, true)
         }
         if (!two) {
-            var y = 126f
+            var y = 114f
             secs.take(3).forEach { (sec, items) ->
                 b.text(sec, W / 2, y, 14f, p.accent, true)
                 b.rect(W / 2 - 22f, y + 11f, W / 2 + 22f, y + 12.5f, p.accent, 0.8f)
                 items.take(3).forEachIndexed { i, (n, pr) ->
-                    val yy = y + 32f + i * 22f
+                    val yy = y + 30f + i * 21f
                     row(50f, 260f, yy, n, pr)
                     b.rect(50f, yy + 10f, W - 50f, yy + 10.8f, p.soft, 0.8f)
                 }
-                y += 104f
+                y += 96f
             }
         } else {
             val cols = listOf(196f to listOf(0, 2), 20f to listOf(1, 3))
@@ -82,7 +82,7 @@ object MenuEngine {
                 }
             }
         }
-        b.text("للطلب والتوصيل: " + d.phone.ifBlank { "0100 000 0000" }, W / 2, H - 52f, 11f, p.ink, true, 0.9f)
+        b.text("للطلب والتوصيل: " + d.phone.ifBlank { "0100 000 0000" }, W / 2, if (two) H - 52f else H - 38f, 11f, p.ink, true, 0.9f)
         return b.els
     }
 
