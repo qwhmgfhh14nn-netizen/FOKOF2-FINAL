@@ -42,6 +42,8 @@ import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -123,6 +125,11 @@ fun StudioScreen(
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
     onAddImage: (String) -> Unit = {},
+    pageCount: Int = 1,
+    pageIndex: Int = 0,
+    onSelectPage: (Int) -> Unit = {},
+    onAddPage: (Boolean) -> Unit = {},
+    onDeletePage: () -> Unit = {},
     canUndo: Boolean = false,
     canRedo: Boolean = false,
     onUndo: () -> Unit = {},
@@ -256,6 +263,17 @@ fun StudioScreen(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            items(pageCount) { i ->
+                FilterChip(selected = i == pageIndex, onClick = { onSelectPage(i) }, label = { Text("صفحة ${i + 1}") })
+            }
+            item { AssistChip(onClick = { onAddPage(false) }, label = { Text("+ صفحة جديدة") }) }
+            item { AssistChip(onClick = { onAddPage(true) }, label = { Text("نسخ الصفحة") }) }
+            if (pageCount > 1) item { AssistChip(onClick = onDeletePage, label = { Text("حذف الصفحة") }) }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Quick Tools Toolbar
         LazyRow(
@@ -625,7 +643,18 @@ fun StudioScreen(
                 try {
                     val bmp = exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false)
                     val name = "FOKOF2_" + System.currentTimeMillis()
-                    if (mode == "pdf") {
+                    if (mode == "pdfall") {
+                        val startPage = pageIndex
+                        val bmps = ArrayList<android.graphics.Bitmap>()
+                        for (pi in 0 until pageCount) {
+                            onSelectPage(pi)
+                            kotlinx.coroutines.delay(500)
+                            bmps.add(exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false))
+                        }
+                        onSelectPage(startPage)
+                        val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, bmps, name)
+                        onShowToast(if (u != null) "تم حفظ PDF بـ ${bmps.size} صفحة في Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                    } else if (mode == "pdf") {
                         val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, listOf(bmp), name)
                         onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
                     } else {
@@ -648,7 +677,8 @@ fun StudioScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("الملف بيطلع بنفس دقة شاشة موبايلك.", style = MaterialTheme.typography.bodySmall)
                     Button(onClick = { doExport("png") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ صورة PNG في المعرض") }
-                    Button(onClick = { doExport("pdf") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ PDF") }
+                    Button(onClick = { doExport("pdf") }, modifier = Modifier.fillMaxWidth()) { Text(if (pageCount > 1) "حفظ PDF (الصفحة الحالية)" else "حفظ PDF") }
+                    if (pageCount > 1) Button(onClick = { doExport("pdfall") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ PDF لكل الصفحات ($pageCount)") }
                     OutlinedButton(onClick = { doExport("share") }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة الصورة") }
                 }
             },

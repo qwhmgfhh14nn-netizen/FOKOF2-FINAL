@@ -93,6 +93,8 @@ fun BarayaApp(
     val canvasBgImageUri by viewModel.canvasBgImageUri.collectAsState()
     val canvasAspectRatio by viewModel.canvasAspectRatio.collectAsState()
     val canUndo by viewModel.canUndo.collectAsState()
+    val pageCount by viewModel.pageCount.collectAsState()
+    val pageIndex by viewModel.pageIndex.collectAsState()
     val canRedo by viewModel.canRedo.collectAsState()
     val savedProjects by viewModel.savedProjects.collectAsState()
     val userProjects by viewModel.userProjects.collectAsState()
@@ -287,6 +289,11 @@ fun BarayaApp(
                                         onClearCanvas = { viewModel.clearCanvas() },
                                         onAddImage = { viewModel.addImageElement(it) },
                                         canUndo = canUndo,
+                                        pageCount = pageCount,
+                                        pageIndex = pageIndex,
+                                        onSelectPage = { viewModel.selectPage(it) },
+                                        onAddPage = { viewModel.addPage(it) },
+                                        onDeletePage = { viewModel.deleteCurrentPage() },
                                         canRedo = canRedo,
                                         onUndo = { viewModel.undo() },
                                         onRedo = { viewModel.redo() },

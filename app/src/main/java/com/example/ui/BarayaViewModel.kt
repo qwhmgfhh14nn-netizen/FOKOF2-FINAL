@@ -383,6 +383,54 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _canUndo.value = undoStack.isNotEmpty(); _canRedo.value = redoStack.isNotEmpty()
     }
 
+    // ---- Multi-page documents: the live page is the canvas state; other pages are stored snapshots ----
+    private data class PageSnap(val elements: List<CanvasElement>, val bgStart: String, val bgEnd: String)
+    private val pageStore = mutableListOf(PageSnap(emptyList(), "#0C0C10", "#1D1912"))
+    private val _pageIndex = MutableStateFlow(0)
+    val pageIndex: StateFlow<Int> = _pageIndex.asStateFlow()
+    private val _pageCount = MutableStateFlow(1)
+    val pageCount: StateFlow<Int> = _pageCount.asStateFlow()
+
+    private fun storeCurrentPage() {
+        val i = _pageIndex.value.coerceIn(0, pageStore.lastIndex)
+        pageStore[i] = PageSnap(_canvasElements.value, _canvasBgStart.value, _canvasBgEnd.value)
+    }
+
+    private fun loadPage(i: Int) {
+        val pg = pageStore[i]
+        _pageIndex.value = i
+        histApplying = true
+        _canvasElements.value = pg.elements
+        _canvasBgStart.value = pg.bgStart
+        _canvasBgEnd.value = pg.bgEnd
+        _selectedElementId.value = null
+        undoStack.clear(); redoStack.clear(); histPushedAt = 0L
+        _canUndo.value = false; _canRedo.value = false
+    }
+
+    fun selectPage(i: Int) {
+        if (i == _pageIndex.value || i !in pageStore.indices) return
+        storeCurrentPage()
+        loadPage(i)
+    }
+
+    fun addPage(duplicateCurrent: Boolean = false) {
+        storeCurrentPage()
+        val cur = pageStore[_pageIndex.value]
+        val at = _pageIndex.value + 1
+        pageStore.add(at, if (duplicateCurrent) cur else PageSnap(emptyList(), cur.bgStart, cur.bgEnd))
+        _pageCount.value = pageStore.size
+        loadPage(at)
+    }
+
+    fun deleteCurrentPage() {
+        if (pageStore.size <= 1) { showToast("لازم يفضل صفحة واحدة على الأقل"); return }
+        val i = _pageIndex.value
+        pageStore.removeAt(i)
+        _pageCount.value = pageStore.size
+        loadPage(minOf(i, pageStore.lastIndex))
+    }
+
     init {
         startHistory()
         startAutosave()
