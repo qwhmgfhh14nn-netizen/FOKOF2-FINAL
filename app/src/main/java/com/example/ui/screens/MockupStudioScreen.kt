@@ -49,6 +49,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,6 +95,24 @@ fun MockupStudioScreen(
 ) {
     BackHandler { onBack() }
     val context = LocalContext.current
+    val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
+    val exportScope = androidx.compose.runtime.rememberCoroutineScope()
+    var capturing by remember { mutableStateOf(false) }
+    val doExport: () -> Unit = {
+        exportScope.launch {
+            capturing = true
+            kotlinx.coroutines.delay(350)
+            try {
+                val bmp = exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+                val u = com.example.ui.util.DesignExporter.savePng(context, bmp, "FOKOF2_mockup_" + System.currentTimeMillis())
+                onExportMockup(if (u != null) "تم حفظ صورة الموك آب في معرض الصور (مجلد FOKOF2)" else "تعذر حفظ الصورة (يحتاج أندرويد 10 أو أحدث)")
+            } catch (e: Exception) {
+                onExportMockup("حصلت مشكلة أثناء التصدير، جرب تاني")
+            } finally {
+                capturing = false
+            }
+        }
+    }
 
     var brandName by remember { mutableStateOf("برجر رويال") }
     var brandTagline by remember { mutableStateOf("طعم الأصالة الملكية") }
@@ -156,7 +178,7 @@ fun MockupStudioScreen(
 
                 Button(
                     onClick = {
-                        onExportMockup("تم حفظ الموك آب عالي الدقة ${selectedType.titleAr} بنجاح!")
+                        doExport()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                     shape = RoundedCornerShape(10.dp),
@@ -245,7 +267,12 @@ fun MockupStudioScreen(
                     .height(340.dp)
                     .shadow(12.dp, RoundedCornerShape(20.dp))
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize().then(
+                    if (capturing) Modifier.drawWithContent {
+                        exportLayer.record { this@drawWithContent.drawContent() }
+                        drawLayer(exportLayer)
+                    } else Modifier
+                )) {
                     // Custom Realistic 3D Mockup Canvas
                     MockupRenderCanvas(
                         mockupType = selectedType,
@@ -404,7 +431,7 @@ fun MockupStudioScreen(
                     ) {
                         Button(
                             onClick = {
-                                onExportMockup("تم تجهيز وحفظ صورة الموك آب بدقة 4K في معرض الصور!")
+                                doExport()
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
                             shape = RoundedCornerShape(10.dp),
