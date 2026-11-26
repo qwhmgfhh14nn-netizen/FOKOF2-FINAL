@@ -186,7 +186,7 @@ object DesignEngine {
         return b.els
     }
 
-    private fun template(prefix: String, i: Int, j: Int, cat: String, asp: String, titleAr: String, titleEn: String, p: Palette, els: List<CanvasElement>) =
+    fun template(prefix: String, i: Int, j: Int, cat: String, asp: String, titleAr: String, titleEn: String, p: Palette, els: List<CanvasElement>) =
         DesignTemplate(
             id = "%s_%02d_%02d".format(prefix, i + 1, j + 1), titleAr = titleAr, titleEn = titleEn, category = cat,
             aspectRatio = asp, isPremium = false, pricingType = "FREE", priceEgp = 0, salesCount = 0,
@@ -231,5 +231,5 @@ object DesignEngine {
         }
     }
 
-    fun all(): List<DesignTemplate> = cvTemplates()
+    fun all(): List<DesignTemplate> = cvTemplates() + CertEngine.templates()
 }
