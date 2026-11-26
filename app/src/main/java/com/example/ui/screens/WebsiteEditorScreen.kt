@@ -558,7 +558,23 @@ private fun GeneralInfoTab(
     }
 }
 
-private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri): String? {
+@Composable
+private fun SitePhoto(path: String, modifier: Modifier = Modifier) {
+    val bmp = remember(path) { try { android.graphics.BitmapFactory.decodeFile(path)?.let { androidx.compose.ui.graphics.asImageBitmap(it) } } catch (e: Exception) { null } }
+    if (bmp != null) androidx.compose.foundation.Image(bitmap = bmp, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = modifier)
+}
+
+/** A picked photo as a data URI for the exported site, or an http(s) link as is; empty when missing or too large. */
+private fun siteImageSrc(path: String, maxBytes: Int = 600_000): String {
+    if (path.isBlank()) return ""
+    if (path.startsWith("http://") || path.startsWith("https://")) return siteEsc(path)
+    return try {
+        val f = java.io.File(path)
+        if (f.exists() && f.length() < maxBytes) "data:image/jpeg;base64," + android.util.Base64.encodeToString(f.readBytes(), android.util.Base64.NO_WRAP) else ""
+    } catch (e: Exception) { "" }
+}
+
+private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri, maxDim: Float = 800f): String? {
     return try {
         val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
@@ -567,7 +583,7 @@ private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri): String
         val bmp = context.contentResolver.openInputStream(uri)?.use {
             android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
         } ?: return null
-        val scale = 800f / maxOf(bmp.width, bmp.height).toFloat()
+        val scale = maxDim / maxOf(bmp.width, bmp.height).toFloat()
         val out = if (scale < 1f) android.graphics.Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt().coerceAtLeast(1), (bmp.height * scale).toInt().coerceAtLeast(1), true) else bmp
         val dir = java.io.File(context.filesDir, "site_gallery").apply { mkdirs() }
         val f = java.io.File(dir, java.util.UUID.randomUUID().toString() + ".jpg")
@@ -587,6 +603,14 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
             if (path != null) onChange(extras.copy(gallery = (extras.gallery + path).take(8)))
         }
     }
+    val heroPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val path = saveSiteGalleryPhoto(context, uri, 1400f)
+            if (path != null) onChange(extras.copy(heroImage = path))
+        }
+    }
     var tName by remember { mutableStateOf("") }
     var tText by remember { mutableStateOf("") }
     Card(
@@ -594,6 +618,19 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("الصورة الرئيسية للمتجر (الغلاف)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            if (extras.heroImage.isNotBlank()) {
+                SitePhoto(extras.heroImage, Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(12.dp)))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    heroPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text(if (extras.heroImage.isBlank()) "إضافة صورة الغلاف" else "تغيير صورة الغلاف", fontFamily = CairoFontFamily) }
+                if (extras.heroImage.isNotBlank()) {
+                    OutlinedButton(onClick = { onChange(extras.copy(heroImage = "")) }) { Text("حذف الصورة", fontFamily = CairoFontFamily) }
+                }
+            }
+
             Text("آراء العملاء", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
             extras.testimonials.forEachIndexed { i, tm ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -717,6 +754,10 @@ private fun CatalogItemsTab(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
+                            if (item.imagePath.isNotBlank()) {
+                                SitePhoto(item.imagePath, Modifier.size(60.dp).clip(RoundedCornerShape(10.dp)))
+                                Spacer(modifier = Modifier.width(10.dp))
+                            }
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
@@ -778,6 +819,11 @@ private fun CatalogItemsTab(
         var descriptionAr by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("عام") }
         var badgeAr by remember { mutableStateOf("") }
+        var imagePath by remember { mutableStateOf("") }
+        val dlgContext = LocalContext.current
+        val productPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+        ) { uri -> if (uri != null) saveSiteGalleryPhoto(dlgContext, uri)?.let { imagePath = it } }
 
         androidx.compose.ui.window.Dialog(onDismissRequest = { showDialog = false }) {
             Surface(
@@ -799,6 +845,17 @@ private fun CatalogItemsTab(
                         fontSize = 16.sp,
                         color = GoldPrimary
                     )
+
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (imagePath.isNotBlank()) SitePhoto(imagePath, Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)))
+                        OutlinedButton(
+                            onClick = { productPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                            shape = RoundedCornerShape(8.dp)
+                        ) { Text(if (imagePath.isBlank()) "إضافة صورة المنتج" else "تغيير الصورة", fontFamily = CairoFontFamily) }
+                        if (imagePath.isNotBlank()) {
+                            androidx.compose.material3.TextButton(onClick = { imagePath = "" }) { Text("حذف", fontFamily = CairoFontFamily) }
+                        }
+                    }
 
                     OutlinedTextField(
                         value = nameAr,
@@ -862,7 +919,8 @@ private fun CatalogItemsTab(
                                         descriptionAr = descriptionAr,
                                         category = category.ifBlank { "عام" },
                                         badgeAr = badgeAr.ifBlank { null },
-                                        isAvailable = true
+                                        isAvailable = true,
+                                        imagePath = imagePath
                                     )
                                     onAddItem(newItem)
                                     showDialog = false
@@ -989,6 +1047,10 @@ private fun LivePreviewTab(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (website.extras.heroImage.isNotBlank()) {
+                                SitePhoto(website.extras.heroImage, Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(14.dp)))
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                             // Brand Badge
                             Surface(
                                 color = brandColor.copy(alpha = 0.2f),
@@ -1193,6 +1255,10 @@ private fun LivePreviewTab(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
+                                if (item.imagePath.isNotBlank()) {
+                                    SitePhoto(item.imagePath, Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)))
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                }
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
@@ -1856,7 +1922,8 @@ private val SITE_FEATURES: Map<String, List<Triple<String, String, String>>> = m
 internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null): String {
     val primary = if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
     val hero = siteHeroDataUri(context, site.businessType)
-    val heroCss = if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
+    val storeHero = siteImageSrc(site.extras.heroImage, 900_000)
+    val heroCss = if (storeHero.isNotEmpty()) "url('" + storeHero + "')" else if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
     val t = site.featureToggles
     val waNum = site.whatsappNumber.filter { it.isDigit() }
     val cats = site.items.map { it.category }.distinct()
@@ -1865,6 +1932,8 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
     } else ""
     val itemsHtml = site.items.joinToString("\n") { item ->
         val msg = java.net.URLEncoder.encode("مرحباً أود طلب: " + item.nameAr, "UTF-8")
+        val pimgSrc = siteImageSrc(item.imagePath)
+        val pimg = if (pimgSrc.isNotEmpty()) "<img class=\"pimg\" loading=\"lazy\" alt=\"" + siteEsc(item.nameAr) + "\" src=\"" + pimgSrc + "\">" else ""
         val badge = if (!item.badgeAr.isNullOrBlank()) "<span class=\"badge\">" + siteEsc(item.badgeAr) + "</span>" else ""
         val priceHtml = if (item.priceEgp <= 0) "<div class=\"price\">اتصل للسعر</div>" else {
             val old = if (item.originalPriceEgp > item.priceEgp) "<s class=\"old\">" + item.originalPriceEgp + "</s>" else ""
@@ -1873,6 +1942,7 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
         }
         """
         <div class="card reveal" data-cat="${siteEsc(item.category)}">
+            $pimg
             <div class="card-body">
                 <h3>${siteEsc(item.nameAr)} $badge</h3>
                 <p>${siteEsc(item.descriptionAr)}</p>
@@ -2003,6 +2073,7 @@ h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px;
 .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
 .chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.pimg { width: calc(100% + 44px); max-width: none; margin: -22px -22px 14px; height: 180px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
 .card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
 .card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
 .card h3 { font-size: 1.15rem; margin-bottom: 6px; }

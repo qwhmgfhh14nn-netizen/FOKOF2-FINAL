@@ -1557,6 +1557,7 @@ class BarayaRepository(context: Context) {
                 put("category", item.category)
                 put("badgeAr", item.badgeAr ?: "")
                 put("isAvailable", item.isAvailable)
+                put("imagePath", item.imagePath)
             }
             arr.put(obj)
         }
@@ -1581,7 +1582,8 @@ class BarayaRepository(context: Context) {
                         descriptionAr = obj.optString("descriptionAr", ""),
                         category = obj.optString("category", "عام"),
                         badgeAr = if (badge.isNotBlank()) badge else null,
-                        isAvailable = obj.optBoolean("isAvailable", true)
+                        isAvailable = obj.optBoolean("isAvailable", true),
+                        imagePath = obj.optString("imagePath", "")
                     )
                 )
             }
@@ -1676,7 +1678,7 @@ class BarayaRepository(context: Context) {
         val g = JSONArray(); x.gallery.forEach { g.put(it) }
         o.put("gallery", g)
         o.put("facebook", x.facebook).put("instagram", x.instagram).put("tiktok", x.tiktok)
-        o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website)
+        o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website).put("heroImage", x.heroImage)
         return o.toString()
     }
 
@@ -1690,7 +1692,8 @@ class BarayaRepository(context: Context) {
                 testimonials = (0 until ta.length()).map { i -> ta.getJSONObject(i).let { SiteTestimonial(it.optString("name"), it.optString("text"), it.optInt("stars", 5)) } },
                 gallery = (0 until ga.length()).map { ga.getString(it) },
                 facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
-                youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website")
+                youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website"),
+                heroImage = o.optString("heroImage")
             )
         } catch (e: Exception) { SiteExtras() }
     }

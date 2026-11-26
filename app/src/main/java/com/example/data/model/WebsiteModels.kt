@@ -36,7 +36,8 @@ data class WebsiteItem(
     val descriptionAr: String = "",
     val category: String = "عام",
     val badgeAr: String? = null,
-    val isAvailable: Boolean = true
+    val isAvailable: Boolean = true,
+    val imagePath: String = ""
 )
 
 /**
@@ -82,7 +83,8 @@ data class SiteExtras(
     val tiktok: String = "",
     val youtube: String = "",
     val telegram: String = "",
-    val website: String = ""
+    val website: String = "",
+    val heroImage: String = ""
 )
 
 data class UserWebsite(
