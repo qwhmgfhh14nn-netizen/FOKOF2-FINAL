@@ -19,7 +19,7 @@ object BookEngine {
         val b = B(W, H)
         b.rect(0f, 0f, W, H, p.bg)
         when (style) {
-            0 -> { b.shape(ShapeType.CIRCLE, W / 2, 130f, 260f, 260f, p.accent, 0.95f); b.shape(ShapeType.CIRCLE, W / 2 + 40f, 110f, 220f, 220f, p.bg, 1f) }
+            0 -> { b.shape(ShapeType.CIRCLE, W / 2, 110f, 200f, 200f, p.accent, 0.95f); b.shape(ShapeType.CIRCLE, W / 2 + 34f, 94f, 170f, 170f, p.bg, 1f) }
             1 -> { for (i in 0..5) b.rect(0f, 20f + i * 18f, W, 30f + i * 18f, p.accent, 0.95f - i * 0.12f) }
             2 -> { b.rect(24f, 24f, W - 24f, H - 24f, p.soft, 0.5f); b.rect(24f, 24f, W - 24f, 27f, p.accent); b.rect(24f, H - 27f, W - 24f, H - 24f, p.accent); b.rect(24f, 24f, 27f, H - 24f, p.accent); b.rect(W - 27f, 24f, W - 24f, H - 24f, p.accent) }
             3 -> { b.shape(ShapeType.CIRCLE, 40f, 60f, 190f, 190f, p.accent, 0.9f); b.shape(ShapeType.CIRCLE, W - 30f, 150f, 130f, 130f, p.soft, 0.9f); b.shape(ShapeType.CIRCLE, 90f, H - 40f, 160f, 160f, p.soft, 0.8f); b.shape(ShapeType.CIRCLE, W - 40f, H - 60f, 110f, 110f, p.accent, 0.9f) }
