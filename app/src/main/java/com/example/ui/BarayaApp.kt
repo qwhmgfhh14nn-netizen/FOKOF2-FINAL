@@ -569,6 +569,16 @@ fun BarayaApp(
                                     )
                                 }
 
+                                AppNavDestination.ENGINE_MAKER -> {
+                                    com.example.ui.screens.EngineMakerScreen(
+                                        onOpenInStudio = {
+                                            viewModel.loadTemplate(it)
+                                            viewModel.setDestination(AppNavDestination.STUDIO)
+                                        },
+                                        onBack = { viewModel.setDestination(AppNavDestination.HOME) }
+                                    )
+                                }
+
                                 // 3D Mockup Studio
                                 AppNavDestination.MOCKUP_STUDIO -> {
                                     MockupStudioScreen(
@@ -759,5 +769,5 @@ fun BarayaFixedNavRail(
 private val moreGroup = setOf(
     AppNavDestination.ACCOUNT, AppNavDestination.SETTINGS, AppNavDestination.PURCHASES, AppNavDestination.ADMIN,
     AppNavDestination.BRAND_KIT, AppNavDestination.WEBSITES, AppNavDestination.AI_IMAGE, AppNavDestination.AI_MARKETING,
-    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER
+    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER
 )

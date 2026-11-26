@@ -66,6 +66,7 @@ enum class AppNavDestination {
     WEBSITE_EDITOR,
     MOCKUP_STUDIO,
     CV_MAKER,
+    ENGINE_MAKER,
     STORE_QR_STUDIO,
     FEATURE_OFF,
     MORE,

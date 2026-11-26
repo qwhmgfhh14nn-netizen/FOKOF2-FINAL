@@ -192,6 +192,8 @@ fun MoreScreen(
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "اعمل سيرتك الذاتية" else "CV maker", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.CV_MAKER) }, "more_cv")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
+                MenuRow(if (ar) "صمم بالنموذج (شهادة، كارت، منيو...)" else "Design by form", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.ENGINE_MAKER) }, "more_engine")
+                HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "منشئ المواقع" else "Website builder", Icons.Default.Language, GoldPrimary, { onNavigate(AppNavDestination.WEBSITES) }, "more_websites")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "توليد الصور بالذكاء" else "AI image generator", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.AI_IMAGE) }, "more_ai_image")
