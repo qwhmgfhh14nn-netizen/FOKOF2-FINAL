@@ -49,6 +49,9 @@ jobs:
           gradle-version: 9.3.1
 
       - name: Tests and debug APK
+        env:
+          AI_IMAGE_WORKER_URL: ${{ secrets.AI_IMAGE_WORKER_URL }}
+          AI_IMAGE_APP_SECRET: ${{ secrets.AI_IMAGE_APP_SECRET }}
         run: |
           set -o pipefail
           gradle --no-daemon --stacktrace --continue testDebugUnitTest assembleDebug 2>&1 | tee build.log
