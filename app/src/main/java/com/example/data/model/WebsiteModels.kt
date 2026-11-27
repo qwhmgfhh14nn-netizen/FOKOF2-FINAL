@@ -74,6 +74,16 @@ data class WebsiteTemplate(
 /** One customer review shown on the site. */
 data class SiteTestimonial(val name: String = "", val text: String = "", val stars: Int = 5)
 
+/** One section inside an extra site page. Types: hero, text, items, gallery, reviews, faq, map, contact. */
+data class PageSection(val type: String = "text", val text: String = "")
+
+/** An extra page of a multi-page site. Page 0 is always the home page (its content comes from the main site fields). */
+data class SitePage(
+    val id: String = UUID.randomUUID().toString(),
+    val title: String = "صفحة",
+    val sections: List<PageSection> = emptyList()
+)
+
 /** Extra per-site content: reviews, gallery photos (urls or local file paths) and social links. */
 data class SiteExtras(
     val testimonials: List<SiteTestimonial> = emptyList(),
@@ -89,7 +99,9 @@ data class SiteExtras(
     val announcement: String = "",
     val theme: Int = 0,
     val font: Int = 0,
-    val hideFooter: Boolean = false
+    val hideFooter: Boolean = false,
+    /** Extra pages of a multi-page site; empty = classic single-page site. When used, page 0 is the home page. */
+    val pages: List<SitePage> = emptyList()
 )
 
 data class UserWebsite(

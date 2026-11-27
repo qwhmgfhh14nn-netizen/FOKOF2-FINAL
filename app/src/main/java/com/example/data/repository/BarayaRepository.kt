@@ -1735,6 +1735,15 @@ class BarayaRepository(context: Context) {
         o.put("facebook", x.facebook).put("instagram", x.instagram).put("tiktok", x.tiktok)
         o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website).put("heroImage", x.heroImage)
         o.put("announcement", x.announcement).put("theme", x.theme).put("font", x.font).put("hideFooter", x.hideFooter)
+        val ps = JSONArray()
+        x.pages.forEach { p ->
+            val po = JSONObject().put("id", p.id).put("title", p.title)
+            val ss = JSONArray()
+            p.sections.forEach { s -> ss.put(JSONObject().put("type", s.type).put("text", s.text)) }
+            po.put("sections", ss)
+            ps.put(po)
+        }
+        o.put("pages", ps)
         return o.toString()
     }
 
@@ -1750,7 +1759,21 @@ class BarayaRepository(context: Context) {
                 facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
                 youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website"),
                 heroImage = o.optString("heroImage"),
-                announcement = o.optString("announcement"), theme = o.optInt("theme", 0), font = o.optInt("font", 0), hideFooter = o.optBoolean("hideFooter", false)
+                announcement = o.optString("announcement"), theme = o.optInt("theme", 0), font = o.optInt("font", 0), hideFooter = o.optBoolean("hideFooter", false),
+                pages = (o.optJSONArray("pages") ?: JSONArray()).let { pa ->
+                    (0 until pa.length()).map { i ->
+                        val po = pa.getJSONObject(i)
+                        val sa = po.optJSONArray("sections") ?: JSONArray()
+                        com.example.data.model.SitePage(
+                            id = po.optString("id").ifBlank { java.util.UUID.randomUUID().toString() },
+                            title = po.optString("title").ifBlank { "صفحة" },
+                            sections = (0 until sa.length()).map { j ->
+                                val so = sa.getJSONObject(j)
+                                com.example.data.model.PageSection(so.optString("type", "text"), so.optString("text"))
+                            }
+                        )
+                    }
+                }
             )
         } catch (e: Exception) { SiteExtras() }
     }

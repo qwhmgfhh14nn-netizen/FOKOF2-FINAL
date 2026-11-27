@@ -27,17 +27,17 @@ object SiteExporter {
     private val STYLE_BLOCK = Regex("<style>(.*?)</style>", RegexOption.DOT_MATCHES_ALL)
     private val SCRIPT_BLOCK = Regex("<script>(.*?)</script>", RegexOption.DOT_MATCHES_ALL)
 
-    /** Builds the full site ZIP into the app cache and returns it, or null on failure. */
+    /** Builds the full site ZIP into the app cache and returns it, or null on failure.
+     *  Multi-page sites (extras.pages.size > 1) export one HTML file per page: index.html is the
+     *  home page and page-2.html, page-3.html ... are the extra pages, all linked in the nav. */
     fun buildZip(context: Context, site: UserWebsite): ZipResult? {
         return try {
-            var html = generateStandaloneHtml(site, context)
             val entries = LinkedHashMap<String, ByteArray>()
-
-            // 1) Images: decode each embedded data URI into a real file, rewrite references.
-            //    index.html, style.css and img/ all sit at the ZIP root, so "img/..." resolves everywhere.
             var imgN = 0
+            // 1) Images: decode each embedded data URI into a real file, rewrite references.
+            //    All html files and img/ sit at the ZIP root, so "img/..." resolves everywhere.
             val seen = HashMap<String, String>()
-            html = DATA_URI.replace(html) { m ->
+            fun processImages(html: String): String = DATA_URI.replace(html) { m ->
                 val ext = when (m.groupValues[1]) { "png" -> "png"; "webp" -> "webp"; else -> "jpg" }
                 val key = m.groupValues[2].take(96)
                 seen.getOrPut(key) {
@@ -49,19 +49,32 @@ object SiteExporter {
                 }
             }
 
-            // 2) CSS: move the inline <style> block into style.css
-            STYLE_BLOCK.find(html)?.let { m ->
+            val pages = site.extras.pages
+            val multi = pages.size > 1
+            val pageFiles: List<Pair<String, String>> = if (multi) {
+                val rel = com.example.ui.screens.relativePageLinks(site)
+                pages.indices.map { i ->
+                    com.example.ui.screens.pageFileName(i) to processImages(com.example.ui.screens.generateSitePageHtml(site, context, i, rel))
+                }
+            } else {
+                listOf("index.html" to processImages(generateStandaloneHtml(site, context)))
+            }
+
+            // 2) CSS: move the home page's inline <style> block into style.css (all pages share the design)
+            var firstHtml = pageFiles[0].second
+            STYLE_BLOCK.find(firstHtml)?.let { m ->
                 entries["style.css"] = m.groupValues[1].trim().toByteArray(Charsets.UTF_8)
-                html = html.replaceRange(m.range, "<link rel=\"stylesheet\" href=\"style.css\">")
+                firstHtml = firstHtml.replaceRange(m.range, "<link rel=\"stylesheet\" href=\"style.css\">")
             }
 
-            // 3) JS: move the last plain inline <script> into script.js (the ld+json block keeps its type attribute, so it stays inline)
-            SCRIPT_BLOCK.findAll(html).lastOrNull()?.let { m ->
+            // 3) JS: move the home page's last plain inline <script> into script.js
+            SCRIPT_BLOCK.findAll(firstHtml).lastOrNull()?.let { m ->
                 entries["script.js"] = m.groupValues[1].trim().toByteArray(Charsets.UTF_8)
-                html = html.replaceRange(m.range, "<script src=\"script.js\"></script>")
+                firstHtml = firstHtml.replaceRange(m.range, "<script src=\"script.js\"></script>")
             }
 
-            entries["index.html"] = html.toByteArray(Charsets.UTF_8)
+            entries[pageFiles[0].first] = firstHtml.toByteArray(Charsets.UTF_8)
+            pageFiles.drop(1).forEach { (name, html) -> entries[name] = html.toByteArray(Charsets.UTF_8) }
             entries["site.json"] = toJson(site).toString(2).toByteArray(Charsets.UTF_8)
             entries["README.md"] = readme(site).toByteArray(Charsets.UTF_8)
 
@@ -136,6 +149,20 @@ object SiteExporter {
             revs.put(ro)
         }
         ex.put("testimonials", revs)
+        val pgs = JSONArray()
+        site.extras.pages.forEach { p ->
+            val po = JSONObject()
+            po.put("id", p.id); po.put("title", p.title)
+            val secs = JSONArray()
+            p.sections.forEach { s ->
+                val so = JSONObject()
+                so.put("type", s.type); so.put("text", s.text)
+                secs.put(so)
+            }
+            po.put("sections", secs)
+            pgs.put(po)
+        }
+        ex.put("pages", pgs)
         o.put("extras", ex)
         return o
     }
@@ -187,6 +214,21 @@ object SiteExporter {
                 testimonials = (0 until revsArr.length()).map {
                     val ro = revsArr.getJSONObject(it)
                     SiteTestimonial(ro.optString("name"), ro.optString("text"), ro.optInt("stars", 5))
+                },
+                pages = run {
+                    val pgsArr = exo.optJSONArray("pages") ?: JSONArray()
+                    (0 until pgsArr.length()).map {
+                        val po = pgsArr.getJSONObject(it)
+                        val secsArr = po.optJSONArray("sections") ?: JSONArray()
+                        com.example.data.model.SitePage(
+                            id = po.optString("id").ifBlank { java.util.UUID.randomUUID().toString() },
+                            title = po.optString("title", "صفحة"),
+                            sections = (0 until secsArr.length()).map { k ->
+                                val so = secsArr.getJSONObject(k)
+                                com.example.data.model.PageSection(so.optString("type", "text"), so.optString("text"))
+                            }
+                        )
+                    }
                 }
             )
             UserWebsite(
@@ -212,13 +254,20 @@ object SiteExporter {
         }
     }
 
-    private fun readme(site: UserWebsite): String = """
+    private fun readme(site: UserWebsite): String {
+        val pageLines = if (site.extras.pages.size > 1)
+            site.extras.pages.mapIndexed { i, p -> "- " + com.example.ui.screens.pageFileName(i) + " — صفحة \"" + p.title + "\"." }.joinToString("\n")
+        else "- index.html — صفحة الموقع."
+        val multiNote = if (site.extras.pages.size > 1)
+            "- موقعك متعدد الصفحات: افتح index.html وستجد روابط باقي الصفحات في القائمة العلوية. ارفع كل الملفات معاً في نفس المجلد."
+        else "- افتح index.html للمعاينة محلياً في المتصفح."
+        return """
 # موقع "${site.siteTitle}" — مُصدَّر من FOKOF2
 
 هذا الملف يحتوي موقعك كاملاً كملفات مستقلة تملكها وتشغّلها على أي استضافة ثابتة.
 
 ## المحتويات
-- index.html — صفحة الموقع.
+$pageLines
 - style.css — ملف التنسيقات.
 - script.js — ملف التفاعل (السلة، البحث، النموذج).
 - img/ — الصور المستخدمة في الموقع.
@@ -228,7 +277,7 @@ object SiteExporter {
 ## التشغيل والنشر
 1. افكَ ضغط الملف.
 2. ارفع كل الملفات كما هي إلى أي استضافة ثابتة: Netlify أو Vercel أو GitHub Pages أو cPanel (المجلد العام public_html).
-3. افتح index.html للمعاينة محلياً في المتصفح.
+3. $multiNote
 
 ## متطلبات وحدود مهمة
 - الموقع ثابت (Static): لا يحتاج قاعدة بيانات ولا خادماً خاصاً.
@@ -236,4 +285,5 @@ object SiteExporter {
 - نموذج الطلب/الحجز يرسل عبر واتساب مباشرة؛ لا يُخزَّن في قاعدة بيانات بعد التصدير.
 - زر السلة وطلبات واتساب تعمل على رقم الواتساب المسجل داخل الموقع.
 """.trimIndent()
+    }
 }
