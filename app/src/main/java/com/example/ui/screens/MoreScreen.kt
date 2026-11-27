@@ -205,6 +205,8 @@ fun MoreScreen(
                 MenuRow(if (ar) "توليد الصور بالذكاء" else "AI image generator", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.AI_IMAGE) }, "more_ai_image")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "كتابة الإعلانات" else "Ad copywriter", Icons.Default.Campaign, GoldPrimary, { onNavigate(AppNavDestination.AI_MARKETING) }, "more_ai_copy")
+
+MenuRow(if (ar) "الرد الذكي على العملاء" else "Smart customer replies", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.SMART_REPLY) }, "more_smart_reply")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "استوديو الموك آب" else "Mockup studio", Icons.Default.ViewInAr, GoldPrimary, { onNavigate(AppNavDestination.MOCKUP_STUDIO) }, "more_mockup")
             }

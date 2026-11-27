@@ -1,12 +1,26 @@
 package com.example.data.ai
 
+import android.content.Context
+import com.example.BuildConfig
 import com.example.data.model.BrandIdentityResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.net.URL
+import java.util.UUID
 
-/** Local-only AI helper. Remote Gemini calls stay disabled until a protected server proxy exists. */
-class GeminiAiService {
+/** AI helper backed by the free FOKOF2 Cloudflare worker (Workers AI text); local rules are the offline fallback. */
+class GeminiAiService(private val appContext: Context? = null) {
+
+    private fun deviceId(): String {
+        val ctx = appContext ?: return "fokof2-noctx-device"
+        val prefs = ctx.getSharedPreferences("fokof2_ai", Context.MODE_PRIVATE)
+        val existing = prefs.getString("device_id", null)
+        if (!existing.isNullOrBlank()) return existing
+        val created = UUID.randomUUID().toString()
+        prefs.edit().putString("device_id", created).apply()
+        return created
+    }
 
     suspend fun generateCopy(
         topic: String,
@@ -60,7 +74,7 @@ class GeminiAiService {
         val systemPrompt = if (isArabic) {
             "أنت المساعد الإبداعي الذكي لمنصة 'FOKOF2'. شعارنا: 'أفكارك تتحول إلى تصاميم قبل أن تتكلم'. أنت مستشار فني خبير في التصميم الجرافيكي، تناغم الألوان، الخطوط العربية، وتصميم الهويات البصرية والشعارات. أجب بأسلوب راقٍ، ملهم، عملي، ومختصر ومباشر."
         } else {
-            "You are the FOKOF2 creative helper. Provide concise, practical design advice on color harmony, Arabic/Latin typography, branding, and layouts. You run locally using fixed response rules; do not claim to be a live AI model."
+            "You are the FOKOF2 creative helper. Provide concise, practical design advice on color harmony, Arabic/Latin typography, branding, and layouts. Answer briefly and practically in the user's language."
         }
 
         val remoteResult = callGeminiApi(systemPrompt, userMessage)
@@ -138,27 +152,49 @@ class GeminiAiService {
         listOf("$base بلس", "لمسة $base", "$base هاوس", "دار $base", "$base ستوديو", "نجمة $base", "$base برو", "ركن $base")
     }
 
-    /** Free, keyless text generation (Pollinations). Returns null on any failure so callers use local fallbacks. */
+    /** Smart reply: drafts a business reply to a customer message. Remote free AI first, local template as fallback. */
+    suspend fun draftSmartReply(businessInfo: String, customerMessage: String, isArabic: Boolean): String = withContext(Dispatchers.IO) {
+        val systemPrompt = if (isArabic) {
+            "أنت مساعد خدمة عملاء محترف لنشاط تجاري مصري. اكتب ردًا مهذبًا ومختصرًا ومقنعًا بالعامية المصرية المحترمة على رسالة العميل، مناسبًا للإرسال مباشرة في واتساب أو ماسنجر. التزم بمعلومات النشاط المعطاة ولا تخترع التزامات غير موجودة فيها."
+        } else {
+            "You are a professional customer-service assistant for a small business. Write a polite, concise reply to the customer's message, ready to send as-is. Stick to the provided business info; never invent commitments."
+        }
+        val userPrompt = (if (isArabic) "معلومات النشاط: " else "Business info: ") + businessInfo.ifBlank { "-" } +
+            (if (isArabic) "\nرسالة العميل: " else "\nCustomer message: ") + customerMessage
+        val remote = callGeminiApi(systemPrompt, userPrompt)
+        if (!remote.isNullOrBlank()) return@withContext remote
+        if (isArabic) {
+            "أهلًا بحضرتك، شكرًا لتواصلك معنا.\nاستلمنا رسالتك وهنراجعها ونرد عليك بكل التفاصيل في أقرب وقت.\nلو عايز تضيف أي تفاصيل تانية ابعتها هنا واحنا في الخدمة."
+        } else {
+            "Hello, thank you for reaching out.\nWe received your message and will get back to you with all the details shortly. Feel free to add anything else here."
+        }
+    }
+
+    /** Free text AI through the FOKOF2 Cloudflare worker (Workers AI, no key on device). Null on any failure so callers use local fallbacks. */
     private fun callGeminiApi(systemPrompt: String, userPrompt: String): String? {
         return try {
-            val url = java.net.URL("https://text.pollinations.ai/")
+            if (BuildConfig.AI_IMAGE_WORKER_URL.isBlank() || BuildConfig.AI_IMAGE_APP_SECRET.isBlank()) return null
+            val url = URL(BuildConfig.AI_IMAGE_WORKER_URL.trimEnd('/') + "/chat")
             val conn = url.openConnection() as java.net.HttpURLConnection
             conn.requestMethod = "POST"
             conn.connectTimeout = 15000
-            conn.readTimeout = 45000
+            conn.readTimeout = 60000
             conn.doOutput = true
-            conn.setRequestProperty("Content-Type", "application/json")
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            conn.setRequestProperty("User-Agent", "FOKOF2-Android/1.2")
             val body = JSONObject().apply {
-                put("model", "openai")
-                put("messages", org.json.JSONArray().apply {
-                    put(JSONObject().put("role", "system").put("content", systemPrompt))
-                    put(JSONObject().put("role", "user").put("content", userPrompt))
-                })
+                put("secret", BuildConfig.AI_IMAGE_APP_SECRET)
+                put("device_id", deviceId())
+                put("system", systemPrompt)
+                put("prompt", userPrompt)
             }
             conn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
             if (conn.responseCode != 200) return null
-            val text = conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }.trim()
-            if (text.length < 10 || text.startsWith("{\"error") || text.contains("Free limit reached") || text.contains("pollen key")) null else text
+            val raw = conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+            val json = JSONObject(raw)
+            if (!json.optBoolean("ok")) return null
+            val text = json.optString("text").trim()
+            if (text.length < 2) null else text
         } catch (e: Exception) {
             null
         }

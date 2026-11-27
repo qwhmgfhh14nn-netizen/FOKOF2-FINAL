@@ -62,6 +62,7 @@ enum class AppNavDestination {
     ADMIN,
     AI_IMAGE,
     AI_MARKETING,
+    SMART_REPLY,
     BRAND_KIT,
     WEBSITES,
     WEBSITE_EDITOR,
@@ -91,7 +92,8 @@ data class GeneratedImageItem(
 
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
-    private val aiService = GeminiAiService()
+    private val aiService = GeminiAiService(application)
+
     private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
@@ -245,6 +247,13 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     private val _selectedStyle = MutableStateFlow("Luxury 3D Gold")
     val selectedStyle: StateFlow<String> = _selectedStyle.asStateFlow()
 
+    private val _hdMode = MutableStateFlow(false)
+    val hdMode: StateFlow<Boolean> = _hdMode.asStateFlow()
+
+    // Remaining free images today as reported by the proxy worker (null when unknown/fallback).
+    private val _imageGenRemaining = MutableStateFlow<Int?>(null)
+    val imageGenRemaining: StateFlow<Int?> = _imageGenRemaining.asStateFlow()
+
     private val _selectedAspectRatio = MutableStateFlow("1:1")
     val selectedAspectRatio: StateFlow<String> = _selectedAspectRatio.asStateFlow()
 
@@ -258,6 +267,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     val generatedImages: StateFlow<List<GeneratedImageItem>> = _generatedImages.asStateFlow()
 
     // AI Marketing State
+    private val _smartBizInfo = MutableStateFlow(
+        application.getSharedPreferences("fokof2_smartreply", android.content.Context.MODE_PRIVATE)
+            .getString("biz_info", "") ?: ""
+    )
+    val smartBizInfo: StateFlow<String> = _smartBizInfo.asStateFlow()
+    private val _smartCustomerMsg = MutableStateFlow("")
+    val smartCustomerMsg: StateFlow<String> = _smartCustomerMsg.asStateFlow()
+    private val _smartReplyDraft = MutableStateFlow("")
+    val smartReplyDraft: StateFlow<String> = _smartReplyDraft.asStateFlow()
+    private val _isDraftingReply = MutableStateFlow(false)
+    val isDraftingReply: StateFlow<Boolean> = _isDraftingReply.asStateFlow()
+
     private val _marketingTopic = MutableStateFlow("")
     val marketingTopic: StateFlow<String> = _marketingTopic.asStateFlow()
 
@@ -920,13 +941,17 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _selectedAspectRatio.value = ratio
     }
 
+    fun setHdMode(enabled: Boolean) {
+        _hdMode.value = enabled
+    }
+
     fun enhanceImagePrompt() {
         viewModelScope.launch {
             val current = _imagePrompt.value
             if (current.isBlank()) return@launch
             val enhanced = aiService.enhancePrompt(current, _currentLanguage.value == AppLanguage.ARABIC)
             _imagePrompt.value = enhanced
-            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تحسين صياغة الفكرة محليًا." else "Prompt wording improved locally.")
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تحسين صياغة الفكرة." else "Prompt improved.")
         }
     }
 
@@ -937,13 +962,8 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isGeneratingImage.value = true
             val ratio = _selectedAspectRatio.value
-            val (w, h) = when (ratio) {
-                "16:9" -> 1024 to 576
-                "9:16" -> 576 to 1024
-                "4:5" -> 816 to 1020
-                else -> 1024 to 1024
-            }
-            val fullPrompt = prompt + ", " + _selectedStyle.value + ", high quality"
+            val (w, h) = com.example.data.ai.StylePrompts.sizeFor(ratio)
+            val fullPrompt = com.example.data.ai.StylePrompts.buildPrompt(prompt, _selectedStyle.value)
             val url = "https://image.pollinations.ai/prompt/" +
                 URLEncoder.encode(fullPrompt, "UTF-8").replace("+", "%20") +
                 "?width=" + w + "&height=" + h + "&nologo=true&seed=" + (System.currentTimeMillis() % 1000000)
@@ -960,9 +980,10 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
             // daily limits, prompt caching). Falls back to the keyless service on any failure.
             var proxyFailed = false
             if (com.example.data.ai.AiImageProxy.isConfigured()) {
-                when (val p = com.example.data.ai.AiImageProxy.generate(getApplication(), fullPrompt)) {
+                when (val p = com.example.data.ai.AiImageProxy.generate(getApplication(), fullPrompt, w, h, _hdMode.value)) {
                     is com.example.data.ai.AiImageProxy.Result.Ok -> {
                         _generatedImages.value = _generatedImages.value.map { if (it.id == newItem.id) it.copy(imageUrl = p.fileUri) else it }
+                        _imageGenRemaining.value = p.remaining
                         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "الصورة جاهزة" else "Image ready")
                         _isGeneratingImage.value = false
                         _imageWaitSeconds.value = 0
@@ -1018,6 +1039,30 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setMarketingToolType(type: String) {
         _marketingToolType.value = type
+    }
+
+    fun setSmartBizInfo(info: String) {
+        _smartBizInfo.value = info
+        getApplication<Application>().getSharedPreferences("fokof2_smartreply", android.content.Context.MODE_PRIVATE)
+            .edit().putString("biz_info", info).apply()
+    }
+
+    fun setSmartCustomerMsg(msg: String) {
+        _smartCustomerMsg.value = msg
+    }
+
+    fun draftSmartReply() {
+        val msg = _smartCustomerMsg.value
+        if (msg.isBlank()) return
+        viewModelScope.launch {
+            _isDraftingReply.value = true
+            _smartReplyDraft.value = aiService.draftSmartReply(
+                businessInfo = _smartBizInfo.value,
+                customerMessage = msg,
+                isArabic = _currentLanguage.value == AppLanguage.ARABIC
+            )
+            _isDraftingReply.value = false
+        }
     }
 
     fun generateMarketingCopy() {

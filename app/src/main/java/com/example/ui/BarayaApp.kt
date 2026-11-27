@@ -57,7 +57,9 @@ import com.example.ui.screens.AdminScreen
 import com.example.ui.screens.AiGenScreen
 import com.example.ui.screens.BrandKitScreen
 import com.example.ui.screens.HomeScreen
+import com.example.ui.screens.isArabicUi
 import com.example.ui.screens.MarketingScreen
+import com.example.ui.screens.SmartReplyScreen
 import com.example.ui.screens.MockupStudioScreen
 import com.example.ui.screens.MoreScreen
 import com.example.ui.screens.SettingsScreen
@@ -122,8 +124,14 @@ fun BarayaApp(
     val selectedAspectRatio by viewModel.selectedAspectRatio.collectAsState()
     val isGeneratingImage by viewModel.isGeneratingImage.collectAsState()
     val generatedImages by viewModel.generatedImages.collectAsState()
+    val hdMode by viewModel.hdMode.collectAsState()
+    val imageGenRemaining by viewModel.imageGenRemaining.collectAsState()
 
     // Marketing states
+    val smartBizInfo by viewModel.smartBizInfo.collectAsState()
+    val smartCustomerMsg by viewModel.smartCustomerMsg.collectAsState()
+    val smartReplyDraft by viewModel.smartReplyDraft.collectAsState()
+    val isDraftingReply by viewModel.isDraftingReply.collectAsState()
     val marketingTopic by viewModel.marketingTopic.collectAsState()
     val marketingAudience by viewModel.marketingAudience.collectAsState()
     val marketingTone by viewModel.marketingTone.collectAsState()
@@ -487,10 +495,13 @@ fun BarayaApp(
                                         selectedStyle = selectedStyle,
                                         selectedAspectRatio = selectedAspectRatio,
                                         isGenerating = isGeneratingImage,
+                                        hdMode = hdMode,
+                                        remainingToday = imageGenRemaining,
                                         generatedImages = generatedImages,
                                         onPromptChange = { viewModel.setImagePrompt(it) },
                                         onStyleChange = { viewModel.setSelectedStyle(it) },
                                         onAspectRatioChange = { viewModel.setSelectedAspectRatio(it) },
+                                        onHdChange = { viewModel.setHdMode(it) },
                                         onEnhancePrompt = { viewModel.enhanceImagePrompt() },
                                         onGenerate = { viewModel.generateImage() },
                                         onSendToStudio = { viewModel.sendGeneratedImageToStudio(it) }
@@ -498,6 +509,19 @@ fun BarayaApp(
                                 }
 
                                 // Secondary: AI Copywriting
+                                AppNavDestination.SMART_REPLY -> {
+                                    SmartReplyScreen(
+                                        isArabic = isArabicUi(strings),
+                                        businessInfo = smartBizInfo,
+                                        customerMessage = smartCustomerMsg,
+                                        draft = smartReplyDraft,
+                                        isDrafting = isDraftingReply,
+                                        onBusinessInfoChange = { viewModel.setSmartBizInfo(it) },
+                                        onCustomerMessageChange = { viewModel.setSmartCustomerMsg(it) },
+                                        onDraft = { viewModel.draftSmartReply() }
+                                    )
+                                }
+
                                 AppNavDestination.AI_MARKETING -> {
                                     MarketingScreen(
                                         strings = strings,

@@ -138,13 +138,13 @@ fun AiDirectorChatDialog(
                             .clip(RoundedCornerShape(8.dp))
                             .border(1.dp, GoldBorder, RoundedCornerShape(8.dp))
                             .clickable { onSendMessage(prompt) },
-                        color = MaterialTheme.colorScheme.surfaceVariant
+                        color = GoldPrimary.copy(alpha = 0.14f)
                     ) {
                         Text(
                             text = prompt,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = GoldLight,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontWeight = FontWeight.Medium
                             )
                         )

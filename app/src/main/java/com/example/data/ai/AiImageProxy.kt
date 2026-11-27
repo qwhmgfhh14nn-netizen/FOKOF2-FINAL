@@ -22,7 +22,7 @@ import java.util.UUID
 object AiImageProxy {
 
     sealed class Result {
-        data class Ok(val fileUri: String, val cached: Boolean) : Result()
+        data class Ok(val fileUri: String, val cached: Boolean, val remaining: Int?) : Result()
         data class Fail(val reason: String, val code: String?) : Result()
     }
 
@@ -38,7 +38,7 @@ object AiImageProxy {
         return created
     }
 
-    suspend fun generate(context: Context, prompt: String, hd: Boolean = false): Result =
+    suspend fun generate(context: Context, prompt: String, width: Int = 1024, height: Int = 1024, hd: Boolean = false): Result =
         withContext(Dispatchers.IO) {
             val endpoint = BuildConfig.AI_IMAGE_WORKER_URL.trimEnd('/') + "/generate"
             var lastReason = "تعذر الاتصال بخدمة الصور"
@@ -51,10 +51,13 @@ object AiImageProxy {
                     conn.readTimeout = 120000
                     conn.doOutput = true
                     conn.setRequestProperty("Content-Type", "application/json")
+                    conn.setRequestProperty("User-Agent", "FOKOF2-Android/1.2")
                     val body = JSONObject().apply {
                         put("secret", BuildConfig.AI_IMAGE_APP_SECRET)
                         put("device_id", deviceId(context))
                         put("prompt", prompt)
+                        put("width", width)
+                        put("height", height)
                         put("hd", hd)
                     }
                     conn.outputStream.use { it.write(body.toString().toByteArray(Charsets.UTF_8)) }
@@ -72,7 +75,8 @@ object AiImageProxy {
                                 f.writeBytes(bytes)
                                 return@withContext Result.Ok(
                                     android.net.Uri.fromFile(f).toString(),
-                                    json.optBoolean("cache")
+                                    json.optBoolean("cache"),
+                                    if (json.has("remaining")) json.optInt("remaining") else null
                                 )
                             }
                         }
