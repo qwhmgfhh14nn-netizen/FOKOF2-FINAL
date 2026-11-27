@@ -163,6 +163,15 @@ object SiteExporter {
             pgs.put(po)
         }
         ex.put("pages", pgs)
+        ex.put("logoImage", site.extras.logoImage)
+        ex.put("couponCode", site.extras.couponCode); ex.put("couponPercent", site.extras.couponPercent)
+        val cfs = JSONArray()
+        site.extras.customFields.forEach { f ->
+            val fo = JSONObject()
+            fo.put("label", f.label); fo.put("kind", f.kind)
+            cfs.put(fo)
+        }
+        ex.put("customFields", cfs)
         o.put("extras", ex)
         return o
     }
@@ -228,6 +237,15 @@ object SiteExporter {
                                 com.example.data.model.PageSection(so.optString("type", "text"), so.optString("text"))
                             }
                         )
+                    }
+                },
+                logoImage = exo.optString("logoImage"),
+                couponCode = exo.optString("couponCode"), couponPercent = exo.optInt("couponPercent", 0),
+                customFields = run {
+                    val cfArr = exo.optJSONArray("customFields") ?: JSONArray()
+                    (0 until cfArr.length()).map {
+                        val fo = cfArr.getJSONObject(it)
+                        com.example.data.model.SiteFormField(fo.optString("label"), fo.optString("kind", "text"))
                     }
                 }
             )

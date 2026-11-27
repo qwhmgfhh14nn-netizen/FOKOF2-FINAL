@@ -712,6 +712,16 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
             if (path != null) onChange(extras.copy(heroImage = path))
         }
     }
+    val logoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val path = saveSiteGalleryPhoto(context, uri, 400f)
+            if (path != null) onChange(extras.copy(logoImage = path))
+        }
+    }
+    var newFieldLabel by remember { mutableStateOf("") }
+    var newFieldKind by remember { mutableStateOf("text") }
     var tName by remember { mutableStateOf("") }
     var tText by remember { mutableStateOf("") }
     Card(
@@ -777,6 +787,55 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
             }
             OutlinedTextField(value = extras.announcement, onValueChange = { onChange(extras.copy(announcement = it.take(120))) }, label = { Text("شريط إعلان أعلى الموقع (اتركه فاضي لو مش عايزه)") }, modifier = Modifier.fillMaxWidth())
             androidx.compose.material3.FilterChip(selected = extras.hideFooter, onClick = { onChange(extras.copy(hideFooter = !extras.hideFooter)) }, label = { Text("إخفاء سطر 'تم إنشاؤه بواسطة FOKOF2' في الأسفل") })
+            Text("لوجو الموقع (اختياري)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            if (extras.logoImage.isNotBlank()) {
+                SitePhoto(extras.logoImage, Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    logoPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text(if (extras.logoImage.isBlank()) "إضافة لوجو" else "تغيير اللوجو", fontFamily = CairoFontFamily) }
+                if (extras.logoImage.isNotBlank()) {
+                    OutlinedButton(onClick = { onChange(extras.copy(logoImage = "")) }) { Text("حذف اللوجو", fontFamily = CairoFontFamily) }
+                }
+            }
+
+            Text("حقول إضافية لنموذج الحجز/التواصل (حتى 6)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            extras.customFields.forEachIndexed { i, f ->
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Text("• " + f.label + " (" + when (f.kind) { "phone" -> "موبايل"; "note" -> "ملاحظة"; else -> "نص" } + ")", modifier = Modifier.weight(1f), fontFamily = CairoFontFamily)
+                    IconButton(onClick = { onChange(extras.copy(customFields = extras.customFields.filterIndexed { j, _ -> j != i })) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "حذف")
+                    }
+                }
+            }
+            OutlinedTextField(value = newFieldLabel, onValueChange = { newFieldLabel = it.take(40) }, label = { Text("اسم الحقل (مثل: العنوان بالتفصيل)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                androidx.compose.material3.FilterChip(selected = newFieldKind == "text", onClick = { newFieldKind = "text" }, label = { Text("نص") })
+                androidx.compose.material3.FilterChip(selected = newFieldKind == "phone", onClick = { newFieldKind = "phone" }, label = { Text("موبايل") })
+                androidx.compose.material3.FilterChip(selected = newFieldKind == "note", onClick = { newFieldKind = "note" }, label = { Text("ملاحظة") })
+            }
+            Button(onClick = {
+                val l = newFieldLabel.trim()
+                if (l.isNotEmpty() && extras.customFields.size < 6) {
+                    onChange(extras.copy(customFields = extras.customFields + com.example.data.model.SiteFormField(l, newFieldKind)))
+                    newFieldLabel = ""
+                }
+            }) { Text("إضافة الحقل", fontFamily = CairoFontFamily) }
+
+            Text("كوبون خصم (اختياري)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            Text("العميل يكتب الكود في السلة فيتخصم من الإجمالي، والطلب يوصلك على واتساب بالسعر بعد الخصم.", fontFamily = CairoFontFamily, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            OutlinedTextField(value = extras.couponCode, onValueChange = { onChange(extras.copy(couponCode = it.trim().take(20))) }, label = { Text("كود الخصم (اتركه فاضي لإلغاء الكوبون)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
+            OutlinedTextField(
+                value = if (extras.couponPercent == 0) "" else extras.couponPercent.toString(),
+                onValueChange = { onChange(extras.copy(couponPercent = (it.filter { c -> c.isDigit() }.take(2).toIntOrNull() ?: 0).coerceIn(0, 90))) },
+                label = { Text("نسبة الخصم %", fontFamily = CairoFontFamily) },
+                singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
             Text("روابط السوشيال ميديا", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
             OutlinedTextField(value = extras.facebook, onValueChange = { onChange(extras.copy(facebook = it)) }, label = { Text("فيسبوك (رابط أو اسم الصفحة)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
             OutlinedTextField(value = extras.instagram, onValueChange = { onChange(extras.copy(instagram = it)) }, label = { Text("إنستجرام (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
@@ -2102,6 +2161,20 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
     val fontName = SITE_FONTS[site.extras.font.coerceIn(0, SITE_FONTS.size - 1)].second
     val fontUrl = fontName.replace(" ", "+")
     val annHtml = if (site.extras.announcement.isNotBlank()) "<div class=\"ann\">" + siteEsc(site.extras.announcement) + "</div>" else ""
+    val faviconLink = siteFaviconLink(site)
+    val logoImg = siteLogoImg(site)
+    val couponCode = site.extras.couponCode.trim()
+    val couponPct = if (couponCode.isNotEmpty()) site.extras.couponPercent.coerceIn(0, 90) else 0
+    val couponJs = couponCode.replace("\\", "\\\\").replace("'", "\\'")
+    val customFieldsHtml = site.extras.customFields.joinToString("\n") { f ->
+        val lab = siteEsc(f.label)
+        when (f.kind) {
+            "phone" -> "      <input class=\"cf\" data-l=\"$lab\" type=\"tel\" placeholder=\"$lab\">"
+            "note" -> "      <textarea class=\"cf\" data-l=\"$lab\" rows=\"2\" placeholder=\"$lab\"></textarea>"
+            else -> "      <input class=\"cf\" data-l=\"$lab\" placeholder=\"$lab\">"
+        }
+    }
+    val couponRow = if (couponPct > 0) "<div class=\"form\" style=\"margin-top:8px\"><input id=\"c-cpn\" placeholder=\"كود الخصم\" data-p=\"كود الخصم|Discount code\"><button id=\"c-cpn-btn\" type=\"button\" class=\"btn\" data-t=\"تطبيق|Apply\">تطبيق</button></div>" else ""
     val footerHtml = if (site.extras.hideFooter) "" else "<footer data-t=\"تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2\">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>"
     val hero = siteHeroDataUri(context, site.businessType)
     val storeHero = siteImageSrc(site.extras.heroImage, 900_000)
@@ -2148,6 +2221,7 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
       <select id="f-item"><option value="">اختر الخدمة أو المنتج</option>$options</select>
       <input id="f-when" placeholder="الموعد المناسب (اختياري)">
       <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+$customFieldsHtml
       <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
     </form>
   </section>""" else ""
@@ -2217,6 +2291,7 @@ $itemsHtml
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${siteEsc(site.siteTitle)} | ${siteEsc(site.headline)}</title>
+$faviconLink
 <meta name="description" content="$desc">
 <meta name="theme-color" content="$primary">
 <meta property="og:title" content="${siteEsc(site.siteTitle)}">
@@ -2320,7 +2395,7 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
 <body>
 $annHtml
 <nav>
-  <b>${siteEsc(site.siteTitle)}</b>
+  $logoImg<b>${siteEsc(site.siteTitle)}</b>
   <div class="links">
     <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
     <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">🌙</button>
@@ -2365,7 +2440,7 @@ $mapHtml
 </div>
 $footerHtml
 <button id="cartbtn" type="button"></button>
-<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div>$couponRow<div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
 <div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
 <a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
 <button id="top" title="لأعلى">↑</button>
@@ -2399,6 +2474,7 @@ $footerHtml
     });
   });
   var WA = 'https://wa.me/$waNum';
+  var CPN = '$couponJs', CPN_P = $couponPct, cpnOn = false;
   var en = false, cart = {};
   function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
   function applyLang() {
@@ -2429,10 +2505,14 @@ $footerHtml
         if (cart[k].q <= 0) delete cart[k]; renderCart();
       });
     });
-    document.getElementById('ctotal').textContent = T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var ctotalEl = document.getElementById('ctotal');
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    ctotalEl.textContent = disc > 0
+      ? T('الإجمالي|Total') + ': ' + total + ' - ' + T('خصم|Discount') + ' ' + disc + ' = ' + (total - disc) + ' ' + T('ج.م|EGP')
+      : T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
     var cb = document.getElementById('cartbtn');
     cb.style.display = count ? 'block' : 'none';
-    cb.textContent = '🛒 ' + T('السلة|Cart') + ' (' + count + ') - ' + total + ' ' + T('ج.م|EGP');
+    cb.textContent = '🛒 ' + T('السلة|Cart') + ' (' + count + ') - ' + (total - disc) + ' ' + T('ج.م|EGP');
     if (!count) document.getElementById('cartsheet').classList.remove('open');
   }
   document.querySelectorAll('.add-btn').forEach(function (b) {
@@ -2451,7 +2531,9 @@ $footerHtml
     var keys = Object.keys(cart); if (!keys.length) return;
     var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
     keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
-    lines.push(T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP'));
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    if (disc > 0) { lines.push(T('الإجمالي قبل الخصم|Subtotal') + ': ' + total + ' ' + T('ج.م|EGP')); lines.push(T('خصم|Discount') + ' (' + CPN + '): -' + disc + ' ' + T('ج.م|EGP')); }
+    lines.push(T('الإجمالي|Total') + ': ' + (total - disc) + ' ' + T('ج.م|EGP'));
     var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
     if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
     window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
@@ -2477,6 +2559,13 @@ $footerHtml
     if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
     else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
   });
+  var cpnBtn = document.getElementById('c-cpn-btn');
+  if (cpnBtn) cpnBtn.addEventListener('click', function () {
+    var v = document.getElementById('c-cpn').value.trim();
+    if (v && v === CPN) { cpnOn = true; cpnBtn.textContent = T('تم ✓|Applied ✓'); }
+    else { cpnOn = false; cpnBtn.textContent = T('كود غير صحيح|Invalid code'); }
+    renderCart();
+  });
   var bf = document.getElementById('bf');
   if (bf) bf.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -2487,6 +2576,7 @@ $footerHtml
     lines.push('الموبايل: ' + document.getElementById('f-phone').value);
     var w = document.getElementById('f-when').value; if (w) lines.push('الموعد: ' + w);
     var n = document.getElementById('f-note').value; if (n) lines.push('ملاحظات: ' + n);
+    document.querySelectorAll('#bf .cf').forEach(function (el) { var v = el.value; if (v) lines.push(el.getAttribute('data-l') + ': ' + v); });
     window.open('https://wa.me/$waNum?text=' + encodeURIComponent(lines.join('\n')), '_blank');
   });
 })();
@@ -2519,6 +2609,16 @@ internal fun relativePageLinks(site: UserWebsite): List<Pair<String, String>> {
 
 private val PAGE_SCRIPT_RE = Regex("<script>.*?</script>", RegexOption.DOT_MATCHES_ALL)
 
+private fun siteLogoImg(site: UserWebsite): String {
+    val src = siteImageSrc(site.extras.logoImage, 60_000)
+    return if (src.isNotEmpty()) "<img src=\"" + src + "\" alt=\"\" style=\"height:34px;width:34px;border-radius:8px;object-fit:cover;vertical-align:middle;margin-left:8px\">" else ""
+}
+
+private fun siteFaviconLink(site: UserWebsite): String {
+    val src = siteImageSrc(site.extras.logoImage, 60_000)
+    return if (src.isNotEmpty()) "<link rel=\"icon\" href=\"" + src + "\">" else ""
+}
+
 /** Builds one page of the site as a full standalone HTML document.
  *  Page 0 is the classic home page (with extra nav links injected when multi-page).
  *  Pages 1+ render their own sections using the shared design, nav, footer and script.
@@ -2541,6 +2641,9 @@ internal fun generateSitePageHtml(site: UserWebsite, context: Context?, pageInde
     val navLinks = links.mapIndexedNotNull { i, l ->
         if (i == pageIndex) null else "<a href=\"" + siteEsc(l.first) + "\">" + siteEsc(l.second) + "</a>"
     }.joinToString("")
+    val subCouponCode = site.extras.couponCode.trim()
+    val subCouponPct = if (subCouponCode.isNotEmpty()) site.extras.couponPercent.coerceIn(0, 90) else 0
+    val couponRow = if (subCouponPct > 0) "<div class=\"form\" style=\"margin-top:8px\"><input id=\"c-cpn\" placeholder=\"كود الخصم\" data-p=\"كود الخصم|Discount code\"><button id=\"c-cpn-btn\" type=\"button\" class=\"btn\" data-t=\"تطبيق|Apply\">تطبيق</button></div>" else ""
     val footerHtml = if (site.extras.hideFooter) "" else "<footer data-t=\"تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2\">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>"
     val bodyContent = StringBuilder()
     page.sections.forEach { s -> bodyContent.append(renderPageSection(site, s, page.title)).append("\n") }
@@ -2548,7 +2651,7 @@ internal fun generateSitePageHtml(site: UserWebsite, context: Context?, pageInde
 <body>
 $annHtml
 <nav>
-  <b>${siteEsc(site.siteTitle)}</b>
+  ${siteLogoImg(site)}<b>${siteEsc(site.siteTitle)}</b>
   <div class="links">
     $navLinks
     <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">🌙</button>
@@ -2564,7 +2667,7 @@ $bodyContent</div>
 </div>
 $footerHtml
 <button id="cartbtn" type="button"></button>
-<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div>$couponRow<div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
 <div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
 <a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
 <button id="top" title="لأعلى">↑</button>
@@ -2628,6 +2731,14 @@ private fun pageReviewsHtml(site: UserWebsite): String {
 
 private fun pageContactHtml(site: UserWebsite): String {
     val options = site.items.joinToString("") { "<option>" + siteEsc(it.nameAr) + "</option>" }
+    val customFieldsHtml = site.extras.customFields.joinToString("\n") { f ->
+        val lab = siteEsc(f.label)
+        when (f.kind) {
+            "phone" -> "      <input class=\"cf\" data-l=\"$lab\" type=\"tel\" placeholder=\"$lab\">"
+            "note" -> "      <textarea class=\"cf\" data-l=\"$lab\" rows=\"2\" placeholder=\"$lab\"></textarea>"
+            else -> "      <input class=\"cf\" data-l=\"$lab\" placeholder=\"$lab\">"
+        }
+    }
     return """<section id="book" class="panel reveal">
     <h2 class="t">احجز أو اطلب الآن</h2>
     <form id="bf" class="form">
@@ -2636,6 +2747,7 @@ private fun pageContactHtml(site: UserWebsite): String {
       <select id="f-item"><option value="">اختر الخدمة أو المنتج</option>$options</select>
       <input id="f-when" placeholder="الموعد المناسب (اختياري)">
       <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+$customFieldsHtml
       <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
     </form>
   </section>
