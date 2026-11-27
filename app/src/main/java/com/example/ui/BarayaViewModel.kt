@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.debounce
 import com.example.data.model.UserProfile
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -65,6 +66,11 @@ enum class AppNavDestination {
     WEBSITES,
     WEBSITE_EDITOR,
     MOCKUP_STUDIO,
+    CV_MAKER,
+    ENGINE_MAKER,
+    VIDEO_MAKER,
+    VIDEO_TRIM,
+    PHOTO_TOOLS,
     STORE_QR_STUDIO,
     FEATURE_OFF,
     MORE,
@@ -298,7 +304,139 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
+    // ---- Autosave of the studio canvas and project backup ----
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    private fun startAutosave() {
+        repository.loadDraft()?.let { d ->
+            if (_canvasElements.value.isEmpty()) {
+                _canvasElements.value = d.elements
+                _canvasBgStart.value = d.bgStart
+                _canvasBgEnd.value = d.bgEnd
+                _canvasAspectRatio.value = d.aspect
+                _activeTemplateTitle.value = d.title
+            }
+        }
+        viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(_canvasElements, _canvasBgStart, _canvasBgEnd, _canvasAspectRatio) { e, a, b, r -> listOf(e, a, b, r) }
+                .debounce(1500)
+                .collect {
+                    repository.saveDraft(_canvasElements.value, _canvasBgStart.value, _canvasBgEnd.value, _canvasAspectRatio.value, _activeTemplateTitle.value)
+                }
+        }
+    }
+
+    fun buildBackupJson(): String = repository.backupJson(savedProjects.value)
+
+    fun restoreBackupJson(json: String) {
+        viewModelScope.launch {
+            val n = repository.restoreBackup(json)
+            showToast(if (n >= 0) "تم استرجاع $n مشروع" else "الملف ده مش نسخة احتياطية من FOKOF2")
+        }
+    }
+
+    // ---- Undo / redo of the canvas elements (snapshots; quick edits within 600 ms merge into one step) ----
+    private val undoStack = ArrayDeque<List<CanvasElement>>()
+    private val redoStack = ArrayDeque<List<CanvasElement>>()
+    private var histLast: List<CanvasElement>? = null
+    private var histApplying = false
+    private var histPushedAt = 0L
+    private val _canUndo = MutableStateFlow(false)
+    val canUndo: StateFlow<Boolean> = _canUndo.asStateFlow()
+    private val _canRedo = MutableStateFlow(false)
+    val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
+
+    private fun startHistory() {
+        viewModelScope.launch {
+            _canvasElements.collect { cur ->
+                if (histApplying) { histApplying = false; histLast = cur; return@collect }
+                val prev = histLast
+                if (prev != null && prev != cur) {
+                    val now = System.currentTimeMillis()
+                    if (now - histPushedAt > 600L) {
+                        undoStack.addLast(prev)
+                        if (undoStack.size > 60) undoStack.removeFirst()
+                        histPushedAt = now
+                    }
+                    redoStack.clear()
+                }
+                histLast = cur
+                _canUndo.value = undoStack.isNotEmpty()
+                _canRedo.value = redoStack.isNotEmpty()
+            }
+        }
+    }
+
+    fun undo() {
+        val prev = undoStack.removeLastOrNull() ?: return
+        redoStack.addLast(_canvasElements.value)
+        histApplying = true
+        _canvasElements.value = prev
+        _selectedElementId.value = null
+        histPushedAt = 0L
+        _canUndo.value = undoStack.isNotEmpty(); _canRedo.value = redoStack.isNotEmpty()
+    }
+
+    fun redo() {
+        val next = redoStack.removeLastOrNull() ?: return
+        undoStack.addLast(_canvasElements.value)
+        histApplying = true
+        _canvasElements.value = next
+        _selectedElementId.value = null
+        histPushedAt = 0L
+        _canUndo.value = undoStack.isNotEmpty(); _canRedo.value = redoStack.isNotEmpty()
+    }
+
+    // ---- Multi-page documents: the live page is the canvas state; other pages are stored snapshots ----
+    private data class PageSnap(val elements: List<CanvasElement>, val bgStart: String, val bgEnd: String)
+    private val pageStore = mutableListOf(PageSnap(emptyList(), "#0C0C10", "#1D1912"))
+    private val _pageIndex = MutableStateFlow(0)
+    val pageIndex: StateFlow<Int> = _pageIndex.asStateFlow()
+    private val _pageCount = MutableStateFlow(1)
+    val pageCount: StateFlow<Int> = _pageCount.asStateFlow()
+
+    private fun storeCurrentPage() {
+        val i = _pageIndex.value.coerceIn(0, pageStore.lastIndex)
+        pageStore[i] = PageSnap(_canvasElements.value, _canvasBgStart.value, _canvasBgEnd.value)
+    }
+
+    private fun loadPage(i: Int) {
+        val pg = pageStore[i]
+        _pageIndex.value = i
+        histApplying = true
+        _canvasElements.value = pg.elements
+        _canvasBgStart.value = pg.bgStart
+        _canvasBgEnd.value = pg.bgEnd
+        _selectedElementId.value = null
+        undoStack.clear(); redoStack.clear(); histPushedAt = 0L
+        _canUndo.value = false; _canRedo.value = false
+    }
+
+    fun selectPage(i: Int) {
+        if (i == _pageIndex.value || i !in pageStore.indices) return
+        storeCurrentPage()
+        loadPage(i)
+    }
+
+    fun addPage(duplicateCurrent: Boolean = false) {
+        storeCurrentPage()
+        val cur = pageStore[_pageIndex.value]
+        val at = _pageIndex.value + 1
+        pageStore.add(at, if (duplicateCurrent) cur else PageSnap(emptyList(), cur.bgStart, cur.bgEnd))
+        _pageCount.value = pageStore.size
+        loadPage(at)
+    }
+
+    fun deleteCurrentPage() {
+        if (pageStore.size <= 1) { showToast("لازم يفضل صفحة واحدة على الأقل"); return }
+        val i = _pageIndex.value
+        pageStore.removeAt(i)
+        _pageCount.value = pageStore.size
+        loadPage(minOf(i, pageStore.lastIndex))
+    }
+
     init {
+        startHistory()
+        startAutosave()
         // Database seeding/sync (JSON, hashing, 64 inserts) must never run on the main thread.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             repository.ensureTemplatesInitialized()
@@ -466,7 +604,19 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _selectedElementId.value = id
     }
 
+    private fun ratioValue(r: String): Float = when (r) {
+        "16:9" -> 16f / 9f; "9:16" -> 9f / 16f; "4:5" -> 4f / 5f; "3:4" -> 3f / 4f; "4:3" -> 4f / 3f; else -> 1f
+    }
+
+    /** One-tap resize: the canvas is always 360 wide, so changing the ratio changes its height. Elements keep their x and follow the height. */
     fun setCanvasAspectRatio(ratio: String) {
+        val f = ratioValue(_canvasAspectRatio.value) / ratioValue(ratio)
+        if (kotlin.math.abs(f - 1f) > 0.001f) {
+            _canvasElements.value = _canvasElements.value.map { el ->
+                val box = el.type == CanvasElementType.SHAPE && (el.shapeType == ShapeType.RECTANGLE || el.shapeType == ShapeType.ROUNDED_RECT)
+                el.copy(y = el.y * f, height = if (box) el.height * f else el.height)
+            }
+        }
         _canvasAspectRatio.value = ratio
     }
 
@@ -531,6 +681,12 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم إدراج العنصر في اللوحة" else "Graphic added to canvas")
     }
 
+    fun addImageElement(uri: String) {
+        val e = CanvasElement(id = UUID.randomUUID().toString(), type = CanvasElementType.IMAGE, imageUri = uri, x = 180f, y = 160f, width = 160f, height = 160f, imgShape = 1)
+        _canvasElements.value = _canvasElements.value + e
+        _selectedElementId.value = e.id
+    }
+
     fun updateSelectedElement(update: (CanvasElement) -> CanvasElement) {
         val id = _selectedElementId.value ?: return
         _canvasElements.value = _canvasElements.value.map {
@@ -546,6 +702,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         val id = _selectedElementId.value ?: return
         _canvasElements.value = _canvasElements.value.filterNot { it.id == id }
         _selectedElementId.value = _canvasElements.value.lastOrNull()?.id
+    }
+
+    /** Layer order: 2 = to front, -2 = to back, 1 = one step forward, -1 = one step back. */
+    fun moveSelectedLayer(mode: Int) {
+        val id = _selectedElementId.value ?: return
+        val list = _canvasElements.value.toMutableList()
+        val i = list.indexOfFirst { it.id == id }
+        if (i < 0) return
+        val e = list.removeAt(i)
+        val to = when (mode) { 2 -> list.size; -2 -> 0; 1 -> minOf(i + 1, list.size); else -> maxOf(i - 1, 0) }
+        list.add(to, e)
+        _canvasElements.value = list
     }
 
     fun duplicateSelectedElement() {

@@ -68,7 +68,7 @@ import java.util.UUID
 
 private const val DEFAULT_TEMPLATES_VERSION = 4
 // Bump when assets/templates/catalog.json gains templates (append-only file).
-private const val CATALOG_TEMPLATES_VERSION = 6
+private const val CATALOG_TEMPLATES_VERSION = 7
 
 class BarayaRepository(context: Context) {
     private val appContext = context.applicationContext
@@ -1076,6 +1076,51 @@ class BarayaRepository(context: Context) {
         return newId
     }
 
+    // ---------------- STUDIO DRAFT (autosave) AND PROJECT BACKUP ----------------
+    class Draft(val elements: List<CanvasElement>, val bgStart: String, val bgEnd: String, val aspect: String, val title: String)
+
+    fun saveDraft(elements: List<CanvasElement>, bgStart: String, bgEnd: String, aspect: String, title: String) {
+        val o = JSONObject().put("els", serializeElementsJson(elements)).put("bgS", bgStart).put("bgE", bgEnd).put("asp", aspect).put("title", title)
+        prefs.edit().putString("studio_draft", o.toString()).apply()
+    }
+
+    fun loadDraft(): Draft? {
+        val raw = prefs.getString("studio_draft", null) ?: return null
+        return try {
+            val o = JSONObject(raw)
+            val els = parseElementsJson(o.optString("els"))
+            if (els.isEmpty()) null else Draft(els, o.optString("bgS", "#FFFFFF"), o.optString("bgE", "#FFFFFF"), o.optString("asp", "1:1"), o.optString("title", ""))
+        } catch (e: Exception) { null }
+    }
+
+    /** Portable backup of saved projects (photo backgrounds picked from the gallery are not included, only colours and layers). */
+    fun backupJson(projects: List<DesignTemplate>): String {
+        val arr = JSONArray()
+        projects.forEach { t ->
+            arr.put(JSONObject().put("title", t.titleAr).put("category", t.category).put("asp", t.aspectRatio)
+                .put("bgS", t.bgStartHex).put("bgE", t.bgEndHex).put("els", serializeElementsJson(t.elements)))
+        }
+        return JSONObject().put("app", "FOKOF2").put("v", 1).put("projects", arr).toString()
+    }
+
+    suspend fun restoreBackup(json: String): Int {
+        return try {
+            val o = JSONObject(json)
+            if (o.optString("app") != "FOKOF2") return -1
+            val arr = o.getJSONArray("projects")
+            var n = 0
+            for (i in 0 until arr.length()) {
+                val p = arr.getJSONObject(i)
+                val id = saveProject(
+                    title = p.optString("title", "مشروع مسترجع"), category = p.optString("category", "Custom"),
+                    elements = parseElementsJson(p.optString("els")), bgStart = p.optString("bgS", "#FFFFFF"), bgEnd = p.optString("bgE", "#FFFFFF")
+                )
+                if (id.isNotEmpty()) n++
+            }
+            n
+        } catch (e: Exception) { -1 }
+    }
+
     suspend fun renameProject(projectId: String, newTitle: String) {
         val current = _currentUser.value
         if (current.isGuest || newTitle.isBlank()) return
@@ -1471,6 +1516,11 @@ class BarayaRepository(context: Context) {
                 put("width", elem.width.toDouble())
                 put("height", elem.height.toDouble())
                 put("opacity", elem.opacity.toDouble())
+                put("align", elem.align)
+                put("font", elem.font)
+                put("imageUri", elem.imageUri)
+                put("imgShape", elem.imgShape)
+                put("filter", elem.filter)
             }
             jsonArray.put(obj)
         }
@@ -1501,7 +1551,12 @@ class BarayaRepository(context: Context) {
                         shapeType = shapeType,
                         width = obj.optDouble("width", 140.0).toFloat(),
                         height = obj.optDouble("height", 70.0).toFloat(),
-                        opacity = obj.optDouble("opacity", 1.0).toFloat()
+                        opacity = obj.optDouble("opacity", 1.0).toFloat(),
+                        align = obj.optInt("align", 0),
+                        font = obj.optString("font", ""),
+                        imageUri = obj.optString("imageUri", ""),
+                        imgShape = obj.optInt("imgShape", 0),
+                        filter = obj.optInt("filter", 0)
                     )
                 )
             }
@@ -1557,6 +1612,7 @@ class BarayaRepository(context: Context) {
                 put("category", item.category)
                 put("badgeAr", item.badgeAr ?: "")
                 put("isAvailable", item.isAvailable)
+                put("imagePath", item.imagePath)
             }
             arr.put(obj)
         }
@@ -1581,7 +1637,8 @@ class BarayaRepository(context: Context) {
                         descriptionAr = obj.optString("descriptionAr", ""),
                         category = obj.optString("category", "عام"),
                         badgeAr = if (badge.isNotBlank()) badge else null,
-                        isAvailable = obj.optBoolean("isAvailable", true)
+                        isAvailable = obj.optBoolean("isAvailable", true),
+                        imagePath = obj.optString("imagePath", "")
                     )
                 )
             }
@@ -1676,7 +1733,8 @@ class BarayaRepository(context: Context) {
         val g = JSONArray(); x.gallery.forEach { g.put(it) }
         o.put("gallery", g)
         o.put("facebook", x.facebook).put("instagram", x.instagram).put("tiktok", x.tiktok)
-        o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website)
+        o.put("youtube", x.youtube).put("telegram", x.telegram).put("website", x.website).put("heroImage", x.heroImage)
+        o.put("announcement", x.announcement).put("theme", x.theme).put("font", x.font).put("hideFooter", x.hideFooter)
         return o.toString()
     }
 
@@ -1690,7 +1748,9 @@ class BarayaRepository(context: Context) {
                 testimonials = (0 until ta.length()).map { i -> ta.getJSONObject(i).let { SiteTestimonial(it.optString("name"), it.optString("text"), it.optInt("stars", 5)) } },
                 gallery = (0 until ga.length()).map { ga.getString(it) },
                 facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
-                youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website")
+                youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website"),
+                heroImage = o.optString("heroImage"),
+                announcement = o.optString("announcement"), theme = o.optInt("theme", 0), font = o.optInt("font", 0), hideFooter = o.optBoolean("hideFooter", false)
             )
         } catch (e: Exception) { SiteExtras() }
     }

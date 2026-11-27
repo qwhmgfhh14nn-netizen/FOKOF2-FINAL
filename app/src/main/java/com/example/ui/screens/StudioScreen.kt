@@ -42,6 +42,8 @@ import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -57,6 +59,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.itemsIndexed
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -117,6 +124,17 @@ fun StudioScreen(
     onDeleteElement: () -> Unit,
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
+    onAddImage: (String) -> Unit = {},
+    pageCount: Int = 1,
+    onMoveLayer: (Int) -> Unit = {},
+    pageIndex: Int = 0,
+    onSelectPage: (Int) -> Unit = {},
+    onAddPage: (Boolean) -> Unit = {},
+    onDeletePage: () -> Unit = {},
+    canUndo: Boolean = false,
+    canRedo: Boolean = false,
+    onUndo: () -> Unit = {},
+    onRedo: () -> Unit = {},
     onSetCanvasAspectRatio: (String) -> Unit,
     onSetCanvasBg: (String, String) -> Unit,
     onLoadTemplate: (DesignTemplate) -> Unit,
@@ -152,7 +170,25 @@ fun StudioScreen(
             showReplacePhotoDialog = false
         }
     }
+    val addPhotoPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { picked ->
+        if (picked != null) {
+            val saved = runCatching {
+                val dir = java.io.File(galleryContext.filesDir, "design_img").apply { mkdirs() }
+                val out = java.io.File(dir, "img_" + System.currentTimeMillis() + ".jpg")
+                galleryContext.contentResolver.openInputStream(picked)?.use { input -> out.outputStream().use { input.copyTo(it) } }
+                if (out.length() > 0L) android.net.Uri.fromFile(out).toString() else null
+            }.getOrNull()
+            if (saved != null) onAddImage(saved) else onShowToast("ما قدرناش نفتح الصورة دي، جرب صورة تانية")
+        }
+    }
     var showResizeDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    val lockedIds = remember { androidx.compose.runtime.mutableStateListOf<String>() }
+    var capturing by remember { mutableStateOf(false) }
+    val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
+    val exportScope = androidx.compose.runtime.rememberCoroutineScope()
     var showBgColorDialog by remember { mutableStateOf(false) }
 
     val selectedElement = canvasElements.find { it.id == selectedElementId }
@@ -210,6 +246,12 @@ fun StudioScreen(
             }
 
             Row {
+                IconButton(onClick = onUndo, enabled = canUndo) {
+                    Text("↶", color = if (canUndo) GoldPrimary else GoldPrimary.copy(alpha = 0.3f), style = MaterialTheme.typography.titleLarge)
+                }
+                IconButton(onClick = onRedo, enabled = canRedo) {
+                    Text("↷", color = if (canRedo) GoldPrimary else GoldPrimary.copy(alpha = 0.3f), style = MaterialTheme.typography.titleLarge)
+                }
                 IconButton(onClick = { showResizeDialog = true }) {
                     Icon(imageVector = Icons.Default.AspectRatio, contentDescription = "Resize", tint = GoldPrimary)
                 }
@@ -224,11 +266,29 @@ fun StudioScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        Spacer(modifier = Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            items(pageCount) { i ->
+                FilterChip(selected = i == pageIndex, onClick = { onSelectPage(i) }, label = { Text("صفحة ${i + 1}") })
+            }
+            item { AssistChip(onClick = { onAddPage(false) }, label = { Text("+ صفحة جديدة") }) }
+            item { AssistChip(onClick = { onAddPage(true) }, label = { Text("نسخ الصفحة") }) }
+            if (pageCount > 1) item { AssistChip(onClick = onDeletePage, label = { Text("حذف الصفحة") }) }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
         // Quick Tools Toolbar
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
+            item {
+                StudioToolChip(
+                    icon = Icons.Default.AddPhotoAlternate,
+                    label = "أضف صورة",
+                    onClick = { addPhotoPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                )
+            }
             item {
                 StudioToolChip(
                     icon = Icons.Default.AddPhotoAlternate,
@@ -295,7 +355,12 @@ fun StudioScreen(
                     .testTag("interactive_design_canvas"),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }) {
+                Box(modifier = Modifier.fillMaxSize().clickable { onSelectElement(null) }.then(
+                    if (capturing) Modifier.drawWithContent {
+                        exportLayer.record { this@drawWithContent.drawContent() }
+                        drawLayer(exportLayer)
+                    } else Modifier
+                )) {
                     DesignBackground(
                         bgStartHex, bgEndHex, canvasBgImageUri, canvasBgImageRes,
                         Modifier.fillMaxSize()
@@ -307,7 +372,7 @@ fun StudioScreen(
                         selectedId = selectedElementId,
                         onSelect = onSelectElement,
                         onMove = { id, dx, dy ->
-                            onUpdateElementById(id) { cur ->
+                            if (id !in lockedIds) onUpdateElementById(id) { cur ->
                                 cur.copy(
                                     x = (cur.x + dx).coerceIn(0f, DESIGN_W),
                                     y = (cur.y + dy).coerceIn(0f, DESIGN_W / canvasRatio)
@@ -361,6 +426,11 @@ fun StudioScreen(
 
                         Row {
                             IconButton(
+                                onClick = { if (selectedElement.id in lockedIds) lockedIds.remove(selectedElement.id) else lockedIds.add(selectedElement.id) },
+                                modifier = Modifier.size(32.dp)
+                            ) { Text(if (selectedElement.id in lockedIds) "🔒" else "🔓") }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            IconButton(
                                 onClick = onDuplicateElement,
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -376,6 +446,13 @@ fun StudioScreen(
                         }
                     }
 
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        item { AssistChip(onClick = { onMoveLayer(2) }, label = { Text("لقدّام خالص") }) }
+                        item { AssistChip(onClick = { onMoveLayer(1) }, label = { Text("طبقة لقدّام") }) }
+                        item { AssistChip(onClick = { onMoveLayer(-1) }, label = { Text("طبقة لورا") }) }
+                        item { AssistChip(onClick = { onMoveLayer(-2) }, label = { Text("لورا خالص") }) }
+                    }
+
                     // Text Editing
                     if (selectedElement.type == CanvasElementType.TEXT || selectedElement.type == CanvasElementType.CALLIGRAPHY) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -385,7 +462,7 @@ fun StudioScreen(
                                 onUpdateElement { it.copy(text = newTxt) }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("محتوى النص (Cairo)") },
+                            label = { Text("محتوى النص") },
                             singleLine = true
                         )
 
@@ -425,6 +502,69 @@ fun StudioScreen(
                                     contentDescription = "Bold",
                                     tint = if (selectedElement.isBold) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            listOf(0 to "وسط", 1 to "يمين", 2 to "شمال").forEach { (a, label) ->
+                                val on = selectedElement.align == a
+                                Text(
+                                    text = label,
+                                    color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier
+                                        .padding(end = 6.dp)
+                                        .border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable {
+                                            onUpdateElement { it.copy(align = a, width = if (a != 0 && it.width < 200f) 280f else it.width) }
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(com.example.ui.theme.DesignFonts.all) { fnt ->
+                                val on = selectedElement.font == fnt.key
+                                Text(
+                                    text = fnt.label,
+                                    fontFamily = fnt.family,
+                                    color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier
+                                        .border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(font = fnt.key) } }
+                                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (selectedElement.type == CanvasElementType.IMAGE) {
+                        Text("شكل القص", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            itemsIndexed(com.example.ui.components.imageShapeNames) { i, nm ->
+                                val on = selectedElement.imgShape == i
+                                Text(nm, color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(imgShape = i) } }.padding(horizontal = 12.dp, vertical = 5.dp))
+                            }
+                        }
+                        Text("الفلتر", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            itemsIndexed(com.example.ui.components.imageFilterNames) { i, nm ->
+                                val on = selectedElement.filter == i
+                                Text(nm, color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(filter = i) } }.padding(horizontal = 12.dp, vertical = 5.dp))
+                            }
+                        }
+                        Text("الحجم", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(vertical = 4.dp)) {
+                            listOf("صغير" to 100f, "وسط" to 160f, "كبير" to 240f, "عريض" to -1f).forEach { (nm, w) ->
+                                Text(nm, color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(width = if (w < 0f) 320f else w, height = if (w < 0f) 180f else w) } }.padding(horizontal = 12.dp, vertical = 5.dp))
                             }
                         }
                     }
@@ -492,9 +632,7 @@ fun StudioScreen(
             }
 
             OutlinedButton(
-                onClick = {
-                    onShowToast("تم حفظ التصميم وتنزيله بجودة Ultra HD 4K!")
-                },
+                onClick = { onSelectElement(null); showExportDialog = true },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp)
@@ -507,6 +645,60 @@ fun StudioScreen(
                 Text(text = strings.exportDesign, color = GoldPrimary, fontWeight = FontWeight.Bold)
             }
         }
+    }
+
+    // Export: renders the canvas exactly as it looks on screen (at this phone's screen resolution) to a real file.
+    if (showExportDialog) {
+        val doExport: (String) -> Unit = { mode ->
+            showExportDialog = false
+            exportScope.launch {
+                capturing = true
+                kotlinx.coroutines.delay(350)
+                try {
+                    val bmp = exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false)
+                    val name = "FOKOF2_" + System.currentTimeMillis()
+                    if (mode == "pdfall") {
+                        val startPage = pageIndex
+                        val bmps = ArrayList<android.graphics.Bitmap>()
+                        for (pi in 0 until pageCount) {
+                            onSelectPage(pi)
+                            kotlinx.coroutines.delay(500)
+                            bmps.add(exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false))
+                        }
+                        onSelectPage(startPage)
+                        val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, bmps, name)
+                        onShowToast(if (u != null) "تم حفظ PDF بـ ${bmps.size} صفحة في Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                    } else if (mode == "pdf") {
+                        val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, listOf(bmp), name)
+                        onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                    } else {
+                        val u = com.example.ui.util.DesignExporter.savePng(galleryContext, bmp, name)
+                        if (u == null) onShowToast("تعذر حفظ الصورة (يحتاج أندرويد 10 أو أحدث)")
+                        else if (mode == "share") com.example.ui.util.DesignExporter.share(galleryContext, u, "image/png")
+                        else onShowToast("تم حفظ الصورة في معرض الصور (مجلد FOKOF2)")
+                    }
+                } catch (e: Exception) {
+                    onShowToast("حصلت مشكلة أثناء التصدير، جرب تاني")
+                } finally {
+                    capturing = false
+                }
+            }
+        }
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text(text = strings.exportDesign, color = GoldPrimary) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("الملف بيطلع بنفس دقة شاشة موبايلك.", style = MaterialTheme.typography.bodySmall)
+                    Button(onClick = { doExport("png") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ صورة PNG في المعرض") }
+                    Button(onClick = { doExport("pdf") }, modifier = Modifier.fillMaxWidth()) { Text(if (pageCount > 1) "حفظ PDF (الصفحة الحالية)" else "حفظ PDF") }
+                    if (pageCount > 1) Button(onClick = { doExport("pdfall") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ PDF لكل الصفحات ($pageCount)") }
+                    OutlinedButton(onClick = { doExport("share") }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة الصورة") }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { showExportDialog = false }) { Text("إلغاء", color = GoldPrimary) } }
+        )
     }
 
     // Dialog 1: Add Text
@@ -830,7 +1022,9 @@ fun StudioScreen(
             "1:1" to "مربع (انستغرام وبوستات)",
             "9:16" to "عمودي (ستوري وريلز وتيك توك)",
             "16:9" to "أفقي (يوتيوب وبانرات المواقع)",
-            "4:5" to "بورتريه احترافي (إعلانات فيسبوك)"
+            "4:5" to "بورتريه احترافي (إعلانات فيسبوك وبوست انستجرام عمودي)",
+            "3:4" to "ورقة A4 / سيرة ذاتية / كتاب",
+            "4:3" to "شهادة / عرض عادي / غلاف فيسبوك"
         )
         AlertDialog(
             onDismissRequest = { showResizeDialog = false },
@@ -1073,6 +1267,7 @@ fun RenderElement(element: CanvasElement) {
                 ShapeType.HEXAGON -> Box(modifier = shapeModifier.clip(RoundedCornerShape(8.dp)))
             }
         }
+        CanvasElementType.IMAGE -> {}
         CanvasElementType.IMAGE_BADGE -> {
             Box(
                 modifier = Modifier

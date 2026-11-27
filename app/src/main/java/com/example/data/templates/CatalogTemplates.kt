@@ -38,7 +38,7 @@ object CatalogTemplates {
     fun load(context: Context): List<DesignTemplate> =
         fileNames(context.assets.list("templates") ?: emptyArray()).flatMap { n ->
             context.assets.open("templates/$n").use { parse(it.readBytes().toString(Charsets.UTF_8)) }
-        }
+        } + DesignEngine.all()
 
     fun parse(json: String): List<DesignTemplate> {
         val arr = JSONArray(json)

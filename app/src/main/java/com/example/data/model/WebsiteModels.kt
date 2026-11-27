@@ -36,7 +36,8 @@ data class WebsiteItem(
     val descriptionAr: String = "",
     val category: String = "عام",
     val badgeAr: String? = null,
-    val isAvailable: Boolean = true
+    val isAvailable: Boolean = true,
+    val imagePath: String = ""
 )
 
 /**
@@ -82,7 +83,13 @@ data class SiteExtras(
     val tiktok: String = "",
     val youtube: String = "",
     val telegram: String = "",
-    val website: String = ""
+    val website: String = "",
+    val heroImage: String = "",
+    /** Announcement bar text (empty = none), colour theme (0 = owner colour, 1..12 presets), font (0..5) and footer credit toggle. */
+    val announcement: String = "",
+    val theme: Int = 0,
+    val font: Int = 0,
+    val hideFooter: Boolean = false
 )
 
 data class UserWebsite(

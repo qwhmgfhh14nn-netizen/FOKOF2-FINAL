@@ -69,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -558,7 +559,23 @@ private fun GeneralInfoTab(
     }
 }
 
-private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri): String? {
+@Composable
+private fun SitePhoto(path: String, modifier: Modifier = Modifier) {
+    val bmp = remember(path) { try { android.graphics.BitmapFactory.decodeFile(path)?.asImageBitmap() } catch (e: Exception) { null } }
+    if (bmp != null) androidx.compose.foundation.Image(bitmap = bmp, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = modifier)
+}
+
+/** A picked photo as a data URI for the exported site, or an http(s) link as is; empty when missing or too large. */
+private fun siteImageSrc(path: String, maxBytes: Int = 600_000): String {
+    if (path.isBlank()) return ""
+    if (path.startsWith("http://") || path.startsWith("https://")) return siteEsc(path)
+    return try {
+        val f = java.io.File(path)
+        if (f.exists() && f.length() < maxBytes) "data:image/jpeg;base64," + android.util.Base64.encodeToString(f.readBytes(), android.util.Base64.NO_WRAP) else ""
+    } catch (e: Exception) { "" }
+}
+
+private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri, maxDim: Float = 800f): String? {
     return try {
         val opts = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
@@ -567,7 +584,7 @@ private fun saveSiteGalleryPhoto(context: Context, uri: android.net.Uri): String
         val bmp = context.contentResolver.openInputStream(uri)?.use {
             android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
         } ?: return null
-        val scale = 800f / maxOf(bmp.width, bmp.height).toFloat()
+        val scale = maxDim / maxOf(bmp.width, bmp.height).toFloat()
         val out = if (scale < 1f) android.graphics.Bitmap.createScaledBitmap(bmp, (bmp.width * scale).toInt().coerceAtLeast(1), (bmp.height * scale).toInt().coerceAtLeast(1), true) else bmp
         val dir = java.io.File(context.filesDir, "site_gallery").apply { mkdirs() }
         val f = java.io.File(dir, java.util.UUID.randomUUID().toString() + ".jpg")
@@ -587,6 +604,14 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
             if (path != null) onChange(extras.copy(gallery = (extras.gallery + path).take(8)))
         }
     }
+    val heroPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            val path = saveSiteGalleryPhoto(context, uri, 1400f)
+            if (path != null) onChange(extras.copy(heroImage = path))
+        }
+    }
     var tName by remember { mutableStateOf("") }
     var tText by remember { mutableStateOf("") }
     Card(
@@ -594,6 +619,19 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("الصورة الرئيسية للمتجر (الغلاف)", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            if (extras.heroImage.isNotBlank()) {
+                SitePhoto(extras.heroImage, Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(12.dp)))
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    heroPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }) { Text(if (extras.heroImage.isBlank()) "إضافة صورة الغلاف" else "تغيير صورة الغلاف", fontFamily = CairoFontFamily) }
+                if (extras.heroImage.isNotBlank()) {
+                    OutlinedButton(onClick = { onChange(extras.copy(heroImage = "")) }) { Text("حذف الصورة", fontFamily = CairoFontFamily) }
+                }
+            }
+
             Text("آراء العملاء", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
             extras.testimonials.forEachIndexed { i, tm ->
                 Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -623,6 +661,22 @@ private fun SiteExtrasEditor(extras: SiteExtras, onChange: (SiteExtras) -> Unit)
                 }
             }
 
+            Text("شكل الموقع", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
+            Text("اللون (التاني: حسب لون موقعك)", fontFamily = CairoFontFamily)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                item { androidx.compose.material3.FilterChip(selected = extras.theme == 0, onClick = { onChange(extras.copy(theme = 0)) }, label = { Text("حسب لوني") }) }
+                items(SITE_THEMES.size) { i ->
+                    androidx.compose.material3.FilterChip(selected = extras.theme == i + 1, onClick = { onChange(extras.copy(theme = i + 1)) }, label = { Text(SITE_THEMES[i].first) })
+                }
+            }
+            Text("الخط", fontFamily = CairoFontFamily)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(SITE_FONTS.size) { i ->
+                    androidx.compose.material3.FilterChip(selected = extras.font == i, onClick = { onChange(extras.copy(font = i)) }, label = { Text(SITE_FONTS[i].first) })
+                }
+            }
+            OutlinedTextField(value = extras.announcement, onValueChange = { onChange(extras.copy(announcement = it.take(120))) }, label = { Text("شريط إعلان أعلى الموقع (اتركه فاضي لو مش عايزه)") }, modifier = Modifier.fillMaxWidth())
+            androidx.compose.material3.FilterChip(selected = extras.hideFooter, onClick = { onChange(extras.copy(hideFooter = !extras.hideFooter)) }, label = { Text("إخفاء سطر 'تم إنشاؤه بواسطة FOKOF2' في الأسفل") })
             Text("روابط السوشيال ميديا", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold)
             OutlinedTextField(value = extras.facebook, onValueChange = { onChange(extras.copy(facebook = it)) }, label = { Text("فيسبوك (رابط أو اسم الصفحة)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
             OutlinedTextField(value = extras.instagram, onValueChange = { onChange(extras.copy(instagram = it)) }, label = { Text("إنستجرام (رابط أو @اسم)", fontFamily = CairoFontFamily) }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
@@ -717,6 +771,10 @@ private fun CatalogItemsTab(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
+                            if (item.imagePath.isNotBlank()) {
+                                SitePhoto(item.imagePath, Modifier.size(60.dp).clip(RoundedCornerShape(10.dp)))
+                                Spacer(modifier = Modifier.width(10.dp))
+                            }
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
@@ -778,6 +836,11 @@ private fun CatalogItemsTab(
         var descriptionAr by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("عام") }
         var badgeAr by remember { mutableStateOf("") }
+        var imagePath by remember { mutableStateOf("") }
+        val dlgContext = LocalContext.current
+        val productPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia()
+        ) { uri -> if (uri != null) saveSiteGalleryPhoto(dlgContext, uri)?.let { imagePath = it } }
 
         androidx.compose.ui.window.Dialog(onDismissRequest = { showDialog = false }) {
             Surface(
@@ -799,6 +862,17 @@ private fun CatalogItemsTab(
                         fontSize = 16.sp,
                         color = GoldPrimary
                     )
+
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (imagePath.isNotBlank()) SitePhoto(imagePath, Modifier.size(72.dp).clip(RoundedCornerShape(10.dp)))
+                        OutlinedButton(
+                            onClick = { productPicker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                            shape = RoundedCornerShape(8.dp)
+                        ) { Text(if (imagePath.isBlank()) "إضافة صورة المنتج" else "تغيير الصورة", fontFamily = CairoFontFamily) }
+                        if (imagePath.isNotBlank()) {
+                            androidx.compose.material3.TextButton(onClick = { imagePath = "" }) { Text("حذف", fontFamily = CairoFontFamily) }
+                        }
+                    }
 
                     OutlinedTextField(
                         value = nameAr,
@@ -862,7 +936,8 @@ private fun CatalogItemsTab(
                                         descriptionAr = descriptionAr,
                                         category = category.ifBlank { "عام" },
                                         badgeAr = badgeAr.ifBlank { null },
-                                        isAvailable = true
+                                        isAvailable = true,
+                                        imagePath = imagePath
                                     )
                                     onAddItem(newItem)
                                     showDialog = false
@@ -989,6 +1064,10 @@ private fun LivePreviewTab(
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (website.extras.heroImage.isNotBlank()) {
+                                SitePhoto(website.extras.heroImage, Modifier.fillMaxWidth().height(170.dp).clip(RoundedCornerShape(14.dp)))
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                             // Brand Badge
                             Surface(
                                 color = brandColor.copy(alpha = 0.2f),
@@ -1193,6 +1272,10 @@ private fun LivePreviewTab(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
+                                if (item.imagePath.isNotBlank()) {
+                                    SitePhoto(item.imagePath, Modifier.size(64.dp).clip(RoundedCornerShape(10.dp)))
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                }
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
@@ -1853,10 +1936,27 @@ private val SITE_FEATURES: Map<String, List<Triple<String, String, String>>> = m
     "BAKERY" to listOf(Triple("🥐", "مخبوزات طازجة", "نخبز يومياً بأجود المكونات"), Triple("🎂", "تورت حسب الطلب", "نصمم لك تورتة مناسبتك"), Triple("🚚", "توصيل للمنزل", "طلبك يوصل طازج"))
 )
 
+internal val SITE_THEMES = listOf(
+    Triple("ذهبي ملكي", "#D4AF37", "#fffdf8"), Triple("زمردي", "#0F766E", "#f6fbf9"), Triple("ياقوتي", "#B91C1C", "#fff8f7"),
+    Triple("أزرق ملكي", "#1D4ED8", "#f7f9ff"), Triple("بنفسجي", "#6D28D9", "#faf7ff"), Triple("وردي", "#DB2777", "#fff7fb"),
+    Triple("برتقالي", "#EA580C", "#fffaf5"), Triple("أخضر زيتي", "#4D7C0F", "#fafcf5"), Triple("تركوازي", "#0891B2", "#f5fcfd"),
+    Triple("بني قهوة", "#78350F", "#fcf8f4"), Triple("رمادي أنيق", "#374151", "#f9fafb"), Triple("ليلي ذهبي", "#D4AF37", "#121110")
+)
+internal val SITE_FONTS = listOf("Cairo" to "Cairo", "Tajawal" to "Tajawal", "Almarai" to "Almarai", "Amiri (كلاسيك)" to "Amiri", "Changa" to "Changa", "El Messiri" to "El Messiri")
+
 internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null): String {
-    val primary = if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
+    val themeSel = site.extras.theme
+    val primary = if (themeSel in 1..SITE_THEMES.size) SITE_THEMES[themeSel - 1].second
+        else if (Regex("^#[0-9A-Fa-f]{6}$").matches(site.primaryColorHex)) site.primaryColorHex else "#D4AF37"
+    val paperCss = if (themeSel in 1..SITE_THEMES.size) ":root { --paper: " + SITE_THEMES[themeSel - 1].third + "; }" else ""
+    val darkAttr = if (themeSel == SITE_THEMES.size) " data-theme=\"dark\"" else ""
+    val fontName = SITE_FONTS[site.extras.font.coerceIn(0, SITE_FONTS.size - 1)].second
+    val fontUrl = fontName.replace(" ", "+")
+    val annHtml = if (site.extras.announcement.isNotBlank()) "<div class=\"ann\">" + siteEsc(site.extras.announcement) + "</div>" else ""
+    val footerHtml = if (site.extras.hideFooter) "" else "<footer data-t=\"تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2\">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>"
     val hero = siteHeroDataUri(context, site.businessType)
-    val heroCss = if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
+    val storeHero = siteImageSrc(site.extras.heroImage, 900_000)
+    val heroCss = if (storeHero.isNotEmpty()) "url('" + storeHero + "')" else if (hero.isNotEmpty()) "url('" + hero + "')" else "linear-gradient(135deg, " + primary + ", #1f2937)"
     val t = site.featureToggles
     val waNum = site.whatsappNumber.filter { it.isDigit() }
     val cats = site.items.map { it.category }.distinct()
@@ -1865,6 +1965,8 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
     } else ""
     val itemsHtml = site.items.joinToString("\n") { item ->
         val msg = java.net.URLEncoder.encode("مرحباً أود طلب: " + item.nameAr, "UTF-8")
+        val pimgSrc = siteImageSrc(item.imagePath)
+        val pimg = if (pimgSrc.isNotEmpty()) "<img class=\"pimg\" loading=\"lazy\" alt=\"" + siteEsc(item.nameAr) + "\" src=\"" + pimgSrc + "\">" else ""
         val badge = if (!item.badgeAr.isNullOrBlank()) "<span class=\"badge\">" + siteEsc(item.badgeAr) + "</span>" else ""
         val priceHtml = if (item.priceEgp <= 0) "<div class=\"price\">اتصل للسعر</div>" else {
             val old = if (item.originalPriceEgp > item.priceEgp) "<s class=\"old\">" + item.originalPriceEgp + "</s>" else ""
@@ -1872,13 +1974,15 @@ internal fun generateStandaloneHtml(site: UserWebsite, context: Context? = null)
             "<div class=\"price\">" + item.priceEgp + " ج.م " + old + off + "</div>"
         }
         """
-        <div class="card reveal" data-cat="${siteEsc(item.category)}">
+        <div class="card reveal" data-cat="${siteEsc(item.category)}" data-name="${siteEsc(item.nameAr)}" data-en="${siteEsc(item.nameEn)}" data-price="${item.priceEgp}">
+            $pimg
             <div class="card-body">
                 <h3>${siteEsc(item.nameAr)} $badge</h3>
                 <p>${siteEsc(item.descriptionAr)}</p>
                 $priceHtml
             </div>
-            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener">طلب الآن</a>
+            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+            ${if (item.priceEgp > 0 && t.featureWhatsappOrders) "<button type=\"button\" class=\"add-btn\" data-t=\"+ أضف للسلة|+ Add to cart\">+ أضف للسلة</button>" else ""}
         </div>
         """.trimIndent()
     }
@@ -1949,10 +2053,17 @@ $itemsHtml
   </section>""" else ""
     val callBtn = if (t.featureDirectCalling) "<a href=\"tel:" + siteEsc(site.phoneNumber) + "\" class=\"btn btn-call\">اتصل بنا: " + siteEsc(site.phoneNumber) + "</a>" else ""
     val desc = siteEsc(site.headline + " - " + site.subheadline)
+    val ldJson = org.json.JSONObject().apply {
+        put("@context", "https://schema.org"); put("@type", "LocalBusiness")
+        put("name", site.siteTitle); put("description", site.headline + " - " + site.subheadline)
+        if (site.phoneNumber.isNotBlank()) put("telephone", site.phoneNumber)
+        if (site.address.isNotBlank()) put("address", site.address)
+        if (site.workingHours.isNotBlank()) put("openingHours", site.workingHours)
+    }.toString().replace("</", "<\\/")
 
     return """
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl"$darkAttr>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1962,11 +2073,16 @@ $itemsHtml
 <meta property="og:title" content="${siteEsc(site.siteTitle)}">
 <meta property="og:description" content="$desc">
 <meta property="og:type" content="website">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta property="og:locale" content="ar_EG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">$ldJson</script>
+<link href="https://fonts.googleapis.com/css2?family=$fontUrl:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root { --primary: $primary; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
 [data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: '$fontName', 'Cairo', sans-serif; }
+$paperCss
+.ann { background: var(--primary); color: #fff; text-align: center; padding: 8px 14px; font-weight: 700; font-size: .92rem; }
 html { scroll-behavior: smooth; }
 body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
 nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
@@ -2003,6 +2119,7 @@ h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px;
 .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
 .chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.pimg { width: calc(100% + 44px); max-width: none; margin: -22px -22px 14px; height: 180px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
 .card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
 .card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
 .card h3 { font-size: 1.15rem; margin-bottom: 6px; }
@@ -2031,16 +2148,33 @@ footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85r
 @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.add-btn { margin-top: 8px; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn:hover { background: var(--primary); color: #fff; }
+.card { cursor: pointer; }
+#lang { background: none; border: 1px solid var(--line); color: var(--ink); height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.share { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin: 0 0 30px; }
+.share a, .share button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: .9rem; }
+#cartbtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 12; background: var(--primary); color: #fff; border: 0; padding: 13px 24px; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(0,0,0,.3); cursor: pointer; display: none; }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet-in { background: var(--card); color: var(--ink); width: min(560px, 100%); max-height: 86vh; overflow: auto; border-radius: 22px 22px 0 0; padding: 22px; }
+.sheet-in h3 { margin-bottom: 12px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.crow .q button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; font-weight: 800; }
+.ctotal { font-weight: 800; font-size: 1.15rem; margin: 14px 0; }
+.sheet-in .x { float: left; background: none; border: 0; color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+.sheet-in .pimg { width: 100%; margin: 0 0 12px; border-radius: 14px; }
 @media (max-width: 560px) { nav .links a { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
 </style>
 </head>
 <body>
+$annHtml
 <nav>
   <b>${siteEsc(site.siteTitle)}</b>
   <div class="links">
     <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
-    <button id="theme" title="الوضع الليلي">🌙</button>
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">🌙</button>
   </div>
 </nav>
 <section class="hero">
@@ -2074,7 +2208,16 @@ $faqHtml
   </section>
 $mapHtml
 </div>
-<footer>تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+$footerHtml
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
 <a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
 <button id="top" title="لأعلى">↑</button>
 <script>
@@ -2088,6 +2231,7 @@ $mapHtml
     els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
   }
   var root = document.documentElement, tb = document.getElementById('theme');
+  if (root.getAttribute('data-theme') === 'dark') tb.textContent = '☀️';
   tb.addEventListener('click', function () {
     var dark = root.getAttribute('data-theme') === 'dark';
     if (dark) { root.removeAttribute('data-theme'); tb.textContent = '🌙'; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }
@@ -2104,6 +2248,85 @@ $mapHtml
         card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
       });
     });
+  });
+  var WA = 'https://wa.me/$waNum';
+  var en = false, cart = {};
+  function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
+  function applyLang() {
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+    document.querySelectorAll('[data-p]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-p')); });
+    document.getElementById('lang').textContent = en ? 'عربي' : 'EN';
+    document.querySelectorAll('.card').forEach(function (c) {
+      var h = c.querySelector('h3'); var tn = h && h.firstChild;
+      if (tn && tn.nodeType === 3) { var n = c.getAttribute('data-en'); tn.textContent = (en && n ? n : c.getAttribute('data-name')) + ' '; }
+    });
+    renderCart();
+  }
+  document.getElementById('lang').addEventListener('click', function () { en = !en; applyLang(); });
+  function nm(k) { var c = document.querySelector('.card[data-name="' + k.replace(/"/g, '\\"') + '"]'); var e = c && c.getAttribute('data-en'); return en && e ? e : k; }
+  function renderCart() {
+    var keys = Object.keys(cart), total = 0, count = 0, html = '';
+    keys.forEach(function (k) {
+      var it = cart[k]; total += it.p * it.q; count += it.q;
+      html += '<div class="crow"><span></span><span class="q"><button data-d="-1" data-k="' + encodeURIComponent(k) + '">-</button> ' + it.q + ' <button data-d="1" data-k="' + encodeURIComponent(k) + '">+</button></span><b>' + (it.p * it.q) + '</b></div>';
+    });
+    var box = document.getElementById('clines'); box.innerHTML = html;
+    box.querySelectorAll('.crow').forEach(function (row, i) { row.firstChild.textContent = nm(keys[i]); });
+    box.querySelectorAll('button[data-d]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = decodeURIComponent(b.getAttribute('data-k')); cart[k].q += parseInt(b.getAttribute('data-d'), 10);
+        if (cart[k].q <= 0) delete cart[k]; renderCart();
+      });
+    });
+    document.getElementById('ctotal').textContent = T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var cb = document.getElementById('cartbtn');
+    cb.style.display = count ? 'block' : 'none';
+    cb.textContent = '🛒 ' + T('السلة|Cart') + ' (' + count + ') - ' + total + ' ' + T('ج.م|EGP');
+    if (!count) document.getElementById('cartsheet').classList.remove('open');
+  }
+  document.querySelectorAll('.add-btn').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var c = b.closest('.card'), k = c.getAttribute('data-name');
+      if (!cart[k]) cart[k] = { p: parseInt(c.getAttribute('data-price'), 10) || 0, q: 0 };
+      cart[k].q += 1; renderCart();
+    });
+  });
+  document.getElementById('cartbtn').addEventListener('click', function () { document.getElementById('cartsheet').classList.add('open'); });
+  document.querySelectorAll('.sheet').forEach(function (sh) {
+    sh.addEventListener('click', function (ev) { if (ev.target === sh || ev.target.getAttribute('data-close')) sh.classList.remove('open'); });
+  });
+  document.getElementById('c-send').addEventListener('click', function () {
+    var keys = Object.keys(cart); if (!keys.length) return;
+    var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
+    keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
+    lines.push(T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP'));
+    var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
+    if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
+    window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      if (ev.target.closest('a,button')) return;
+      var copy = c.cloneNode(true);
+      copy.querySelectorAll('a,button').forEach(function (x) { x.remove(); });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'btn btn-wa'; add.textContent = T('+ أضف للسلة|+ Add to cart');
+      add.addEventListener('click', function () { var b = c.querySelector('.add-btn'); if (b) b.click(); document.getElementById('detsheet').classList.remove('open'); });
+      var body = document.getElementById('detbody'); body.innerHTML = '';
+      var inner = copy.querySelector('.card-body'); var im = copy.querySelector('.pimg');
+      if (im) body.appendChild(im); if (inner) body.appendChild(inner);
+      if (c.querySelector('.add-btn')) body.appendChild(add);
+      document.getElementById('detsheet').classList.add('open');
+    });
+  });
+  var pageUrl = location.href;
+  document.getElementById('sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + pageUrl);
+  document.getElementById('sh-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl);
+  document.getElementById('sh-cp').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
   });
   var bf = document.getElementById('bf');
   if (bf) bf.addEventListener('submit', function (e) {

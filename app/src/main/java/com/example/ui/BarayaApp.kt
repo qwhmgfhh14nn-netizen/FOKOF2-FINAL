@@ -92,6 +92,10 @@ fun BarayaApp(
     val canvasBgImageRes by viewModel.canvasBgImageRes.collectAsState()
     val canvasBgImageUri by viewModel.canvasBgImageUri.collectAsState()
     val canvasAspectRatio by viewModel.canvasAspectRatio.collectAsState()
+    val canUndo by viewModel.canUndo.collectAsState()
+    val pageCount by viewModel.pageCount.collectAsState()
+    val pageIndex by viewModel.pageIndex.collectAsState()
+    val canRedo by viewModel.canRedo.collectAsState()
     val savedProjects by viewModel.savedProjects.collectAsState()
     val userProjects by viewModel.userProjects.collectAsState()
     val currentUser by viewModel.currentUser.collectAsState()
@@ -283,6 +287,17 @@ fun BarayaApp(
                                         onDeleteElement = { viewModel.deleteSelectedElement() },
                                         onDuplicateElement = { viewModel.duplicateSelectedElement() },
                                         onClearCanvas = { viewModel.clearCanvas() },
+                                        onAddImage = { viewModel.addImageElement(it) },
+                                        canUndo = canUndo,
+                                        pageCount = pageCount,
+                                        onMoveLayer = { viewModel.moveSelectedLayer(it) },
+                                        pageIndex = pageIndex,
+                                        onSelectPage = { viewModel.selectPage(it) },
+                                        onAddPage = { viewModel.addPage(it) },
+                                        onDeletePage = { viewModel.deleteCurrentPage() },
+                                        canRedo = canRedo,
+                                        onUndo = { viewModel.undo() },
+                                        onRedo = { viewModel.redo() },
                                         onSetCanvasAspectRatio = { viewModel.setCanvasAspectRatio(it) },
                                         onSetCanvasBg = { start, end -> viewModel.setCanvasBg(start, end) },
                                         onLoadTemplate = { viewModel.loadTemplate(it) },
@@ -389,7 +404,9 @@ fun BarayaApp(
                                         onStartNewDesign = { viewModel.createNewProject() },
                                         onSubmitManualPayment = { email, plan, amount, method, ref ->
                                             viewModel.submitManualPayment(email, plan, amount, method, ref)
-                                        }
+                                        },
+                                        onBuildBackup = { viewModel.buildBackupJson() },
+                                        onRestoreBackup = { viewModel.restoreBackupJson(it) }
                                     )
                                 }
 
@@ -557,6 +574,38 @@ fun BarayaApp(
                                     } ?: run {
                                         viewModel.setDestination(AppNavDestination.WEBSITES)
                                     }
+                                }
+
+                                AppNavDestination.CV_MAKER -> {
+                                    com.example.ui.screens.CvMakerScreen(
+                                        onOpenInStudio = {
+                                            viewModel.loadTemplate(it)
+                                            viewModel.setDestination(AppNavDestination.STUDIO)
+                                        },
+                                        onBack = { viewModel.setDestination(AppNavDestination.HOME) }
+                                    )
+                                }
+
+                                AppNavDestination.PHOTO_TOOLS -> {
+                                    com.example.ui.screens.PhotoToolsScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
+                                }
+
+                                AppNavDestination.VIDEO_TRIM -> {
+                                    com.example.ui.screens.VideoTrimScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
+                                }
+
+                                AppNavDestination.VIDEO_MAKER -> {
+                                    com.example.ui.screens.VideoMakerScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
+                                }
+
+                                AppNavDestination.ENGINE_MAKER -> {
+                                    com.example.ui.screens.EngineMakerScreen(
+                                        onOpenInStudio = {
+                                            viewModel.loadTemplate(it)
+                                            viewModel.setDestination(AppNavDestination.STUDIO)
+                                        },
+                                        onBack = { viewModel.setDestination(AppNavDestination.HOME) }
+                                    )
                                 }
 
                                 // 3D Mockup Studio
@@ -749,5 +798,5 @@ fun BarayaFixedNavRail(
 private val moreGroup = setOf(
     AppNavDestination.ACCOUNT, AppNavDestination.SETTINGS, AppNavDestination.PURCHASES, AppNavDestination.ADMIN,
     AppNavDestination.BRAND_KIT, AppNavDestination.WEBSITES, AppNavDestination.AI_IMAGE, AppNavDestination.AI_MARKETING,
-    AppNavDestination.MOCKUP_STUDIO
+    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER, AppNavDestination.VIDEO_MAKER, AppNavDestination.VIDEO_TRIM, AppNavDestination.PHOTO_TOOLS
 )

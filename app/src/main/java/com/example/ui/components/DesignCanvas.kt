@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -86,11 +87,11 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                 fontSize = fs,
                 lineHeight = fs * 1.3f,
                 fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
-                fontFamily = CairoFontFamily,
+                fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
                 color = color.copy(alpha = el.opacity),
-                textAlign = TextAlign.Center,
+                textAlign = when (el.align) { 1 -> TextAlign.Right; 2 -> TextAlign.Left; else -> TextAlign.Center },
                 style = if (light) TextStyle(shadow = Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, 2f), 4f)) else TextStyle.Default,
-                modifier = Modifier.widthIn(max = (330f * k).dp)
+                modifier = if (el.align == 0) Modifier.widthIn(max = (330f * k).dp) else Modifier.width((el.width * k).dp)
             )
         }
         CanvasElementType.SHAPE -> {
@@ -128,6 +129,36 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                     }, c)
                 }
             }
+        }
+        CanvasElementType.IMAGE -> {
+            val shape: androidx.compose.ui.graphics.Shape = when (el.imgShape) {
+                1 -> RoundedCornerShape(14.dp)
+                2 -> androidx.compose.foundation.shape.CircleShape
+                3 -> androidx.compose.foundation.shape.GenericShape { sz, _ ->
+                    moveTo(sz.width * 0.25f, 0f); lineTo(sz.width * 0.75f, 0f); lineTo(sz.width, sz.height / 2f)
+                    lineTo(sz.width * 0.75f, sz.height); lineTo(sz.width * 0.25f, sz.height); lineTo(0f, sz.height / 2f); close()
+                }
+                4 -> androidx.compose.foundation.shape.GenericShape { sz, _ ->
+                    val cx = sz.width / 2f; val cy = sz.height / 2f
+                    val ro = min(sz.width, sz.height) / 2f; val ri = ro * 0.5f
+                    for (i in 0 until 10) {
+                        val r = if (i % 2 == 0) ro else ri
+                        val a = Math.PI / 5.0 * i - Math.PI / 2.0
+                        val px = cx + (r * cos(a)).toFloat(); val py = cy + (r * sin(a)).toFloat()
+                        if (i == 0) moveTo(px, py) else lineTo(px, py)
+                    }
+                    close()
+                }
+                else -> androidx.compose.ui.graphics.RectangleShape
+            }
+            AsyncImage(
+                model = el.imageUri,
+                contentDescription = null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                alpha = el.opacity,
+                colorFilter = imageFilter(el.filter),
+                modifier = Modifier.size((el.width * k).dp, (el.height * k).dp).clip(shape)
+            )
         }
         CanvasElementType.IMAGE_BADGE -> {
             Box(
@@ -288,3 +319,21 @@ fun TemplateThumb(
         }
     }
 }
+
+/** Colour filters for IMAGE elements. */
+fun imageFilter(f: Int): androidx.compose.ui.graphics.ColorFilter? = when (f) {
+    1 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(0f) })
+    2 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix(floatArrayOf(
+        0.393f, 0.769f, 0.189f, 0f, 0f, 0.349f, 0.686f, 0.168f, 0f, 0f, 0.272f, 0.534f, 0.131f, 0f, 0f, 0f, 0f, 0f, 1f, 0f)))
+    3 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(1.6f) })
+    4 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix(floatArrayOf(
+        1.1f, 0f, 0f, 0f, 8f, 0f, 1.0f, 0f, 0f, 0f, 0f, 0f, 0.88f, 0f, -6f, 0f, 0f, 0f, 1f, 0f)))
+    5 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix(floatArrayOf(
+        0.9f, 0f, 0f, 0f, -4f, 0f, 1.0f, 0f, 0f, 0f, 0f, 0f, 1.15f, 0f, 10f, 0f, 0f, 0f, 1f, 0f)))
+    6 -> androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix(floatArrayOf(
+        0.8f, 0f, 0f, 0f, 40f, 0f, 0.8f, 0f, 0f, 40f, 0f, 0f, 0.8f, 0f, 40f, 0f, 0f, 0f, 1f, 0f)))
+    else -> null
+}
+
+val imageFilterNames = listOf("بدون", "أبيض وأسود", "سيبيا", "ألوان زاهية", "دافئ", "بارد", "باهت")
+val imageShapeNames = listOf("مستطيل", "حواف ناعمة", "دائرة", "سداسي", "نجمة")
