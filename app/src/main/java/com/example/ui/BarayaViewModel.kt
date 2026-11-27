@@ -91,7 +91,7 @@ data class GeneratedImageItem(
 
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
-    private val aiService = GeminiAiService()
+    private val aiService = GeminiAiService(application)
     private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
@@ -937,7 +937,7 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
             if (current.isBlank()) return@launch
             val enhanced = aiService.enhancePrompt(current, _currentLanguage.value == AppLanguage.ARABIC)
             _imagePrompt.value = enhanced
-            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تحسين صياغة الفكرة محليًا." else "Prompt wording improved locally.")
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم تحسين صياغة الفكرة." else "Prompt improved.")
         }
     }
 

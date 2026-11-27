@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (String) -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val service = remember { GeminiAiService() }
+    val service = remember { GeminiAiService(context) }
     var names by remember { mutableStateOf<List<String>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var logoUrl by remember { mutableStateOf<String?>(null) }

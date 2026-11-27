@@ -51,6 +51,7 @@ object AiImageProxy {
                     conn.readTimeout = 120000
                     conn.doOutput = true
                     conn.setRequestProperty("Content-Type", "application/json")
+                    conn.setRequestProperty("User-Agent", "FOKOF2-Android/1.2")
                     val body = JSONObject().apply {
                         put("secret", BuildConfig.AI_IMAGE_APP_SECRET)
                         put("device_id", deviceId(context))
