@@ -62,6 +62,7 @@ enum class AppNavDestination {
     ADMIN,
     AI_IMAGE,
     AI_MARKETING,
+    SMART_REPLY,
     BRAND_KIT,
     WEBSITES,
     WEBSITE_EDITOR,
@@ -92,6 +93,7 @@ data class GeneratedImageItem(
 class BarayaViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = BarayaRepository(application)
     private val aiService = GeminiAiService(application)
+
     private val authApi = Fokof2AuthApi(application)
 
     // Navigation & Global UI States
@@ -265,6 +267,18 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     val generatedImages: StateFlow<List<GeneratedImageItem>> = _generatedImages.asStateFlow()
 
     // AI Marketing State
+    private val _smartBizInfo = MutableStateFlow(
+        application.getSharedPreferences("fokof2_smartreply", android.content.Context.MODE_PRIVATE)
+            .getString("biz_info", "") ?: ""
+    )
+    val smartBizInfo: StateFlow<String> = _smartBizInfo.asStateFlow()
+    private val _smartCustomerMsg = MutableStateFlow("")
+    val smartCustomerMsg: StateFlow<String> = _smartCustomerMsg.asStateFlow()
+    private val _smartReplyDraft = MutableStateFlow("")
+    val smartReplyDraft: StateFlow<String> = _smartReplyDraft.asStateFlow()
+    private val _isDraftingReply = MutableStateFlow(false)
+    val isDraftingReply: StateFlow<Boolean> = _isDraftingReply.asStateFlow()
+
     private val _marketingTopic = MutableStateFlow("")
     val marketingTopic: StateFlow<String> = _marketingTopic.asStateFlow()
 
@@ -1025,6 +1039,30 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setMarketingToolType(type: String) {
         _marketingToolType.value = type
+    }
+
+    fun setSmartBizInfo(info: String) {
+        _smartBizInfo.value = info
+        getApplication<Application>().getSharedPreferences("fokof2_smartreply", android.content.Context.MODE_PRIVATE)
+            .edit().putString("biz_info", info).apply()
+    }
+
+    fun setSmartCustomerMsg(msg: String) {
+        _smartCustomerMsg.value = msg
+    }
+
+    fun draftSmartReply() {
+        val msg = _smartCustomerMsg.value
+        if (msg.isBlank()) return
+        viewModelScope.launch {
+            _isDraftingReply.value = true
+            _smartReplyDraft.value = aiService.draftSmartReply(
+                businessInfo = _smartBizInfo.value,
+                customerMessage = msg,
+                isArabic = _currentLanguage.value == AppLanguage.ARABIC
+            )
+            _isDraftingReply.value = false
+        }
     }
 
     fun generateMarketingCopy() {

@@ -152,6 +152,24 @@ class GeminiAiService(private val appContext: Context? = null) {
         listOf("$base بلس", "لمسة $base", "$base هاوس", "دار $base", "$base ستوديو", "نجمة $base", "$base برو", "ركن $base")
     }
 
+    /** Smart reply: drafts a business reply to a customer message. Remote free AI first, local template as fallback. */
+    suspend fun draftSmartReply(businessInfo: String, customerMessage: String, isArabic: Boolean): String = withContext(Dispatchers.IO) {
+        val systemPrompt = if (isArabic) {
+            "أنت مساعد خدمة عملاء محترف لنشاط تجاري مصري. اكتب ردًا مهذبًا ومختصرًا ومقنعًا بالعامية المصرية المحترمة على رسالة العميل، مناسبًا للإرسال مباشرة في واتساب أو ماسنجر. التزم بمعلومات النشاط المعطاة ولا تخترع التزامات غير موجودة فيها."
+        } else {
+            "You are a professional customer-service assistant for a small business. Write a polite, concise reply to the customer's message, ready to send as-is. Stick to the provided business info; never invent commitments."
+        }
+        val userPrompt = (if (isArabic) "معلومات النشاط: " else "Business info: ") + businessInfo.ifBlank { "-" } +
+            (if (isArabic) "\nرسالة العميل: " else "\nCustomer message: ") + customerMessage
+        val remote = callGeminiApi(systemPrompt, userPrompt)
+        if (!remote.isNullOrBlank()) return@withContext remote
+        if (isArabic) {
+            "أهلًا بحضرتك، شكرًا لتواصلك معنا.\nاستلمنا رسالتك وهنراجعها ونرد عليك بكل التفاصيل في أقرب وقت.\nلو عايز تضيف أي تفاصيل تانية ابعتها هنا واحنا في الخدمة."
+        } else {
+            "Hello, thank you for reaching out.\nWe received your message and will get back to you with all the details shortly. Feel free to add anything else here."
+        }
+    }
+
     /** Free text AI through the FOKOF2 Cloudflare worker (Workers AI, no key on device). Null on any failure so callers use local fallbacks. */
     private fun callGeminiApi(systemPrompt: String, userPrompt: String): String? {
         return try {
