@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -267,6 +268,7 @@ fun HomeScreen(
         SectionHeader(if (ar) "أدوات سريعة" else "Quick tools")
         LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             val tools = listOf(
+                Triple(if (ar) "سيرة ذاتية" else "CV maker", Icons.Default.Description, AppNavDestination.CV_MAKER),
                 Triple(if (ar) "توليد صور" else "AI images", Icons.Default.AutoAwesome, AppNavDestination.AI_IMAGE),
                 Triple(if (ar) "كتابة إعلانات" else "Ad copy", Icons.Default.Campaign, AppNavDestination.AI_MARKETING),
                 Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, null),
