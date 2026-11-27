@@ -956,6 +956,24 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
             )
             _generatedImages.value = listOf(newItem) + _generatedImages.value
             showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "جاري توليد الصورة... الخدمة المجانية بتاخد من 5 لـ 60 ثانية" else "Generating image... the free service can take up to a minute")
+            // Preferred path: the FOKOF2 proxy worker (provider key stays server-side, per-device
+            // daily limits, prompt caching). Falls back to the keyless service on any failure.
+            var proxyFailed = false
+            if (com.example.data.ai.AiImageProxy.isConfigured()) {
+                when (val p = com.example.data.ai.AiImageProxy.generate(getApplication(), fullPrompt)) {
+                    is com.example.data.ai.AiImageProxy.Result.Ok -> {
+                        _generatedImages.value = _generatedImages.value.map { if (it.id == newItem.id) it.copy(imageUrl = p.fileUri) else it }
+                        showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "الصورة جاهزة" else "Image ready")
+                        _isGeneratingImage.value = false
+                        _imageWaitSeconds.value = 0
+                        return@launch
+                    }
+                    is com.example.data.ai.AiImageProxy.Result.Fail -> proxyFailed = true
+                }
+            }
+            if (proxyFailed) {
+                showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "الخدمة الأساسية مش متاحة دلوقتي، بنجرّب الخدمة البديلة" else "Primary service unavailable, trying the fallback")
+            }
             val res = com.example.data.ai.FreeImageFetcher.fetch(getApplication(), url) { sec ->
                 if (sec > 0) _imageWaitSeconds.value = sec else _imageWaitSeconds.value = 0
             }

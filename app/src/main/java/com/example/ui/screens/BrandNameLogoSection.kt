@@ -104,6 +104,18 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                         "?width=768&height=768&nologo=true&seed=" + (System.currentTimeMillis() % 100000)
                     logoLoading = true; logoError = null; logoWait = 0
                     scope.launch {
+                        // Preferred path: the FOKOF2 proxy worker (key server-side, per-device
+                        // limits, caching). Falls back to the keyless service on any failure.
+                        if (com.example.data.ai.AiImageProxy.isConfigured()) {
+                            when (val p = com.example.data.ai.AiImageProxy.generate(context, prompt)) {
+                                is com.example.data.ai.AiImageProxy.Result.Ok -> {
+                                    logoUrl = p.fileUri
+                                    logoLoading = false; logoWait = 0
+                                    return@launch
+                                }
+                                is com.example.data.ai.AiImageProxy.Result.Fail -> { /* fall back below */ }
+                            }
+                        }
                         when (val r = com.example.data.ai.FreeImageFetcher.fetch(context, u) { logoWait = it }) {
                             is com.example.data.ai.FreeImageFetcher.Result.Ok -> { logoUrl = r.fileUri }
                             is com.example.data.ai.FreeImageFetcher.Result.Fail -> { logoError = r.reason }
