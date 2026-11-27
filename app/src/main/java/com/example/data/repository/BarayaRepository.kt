@@ -1744,6 +1744,11 @@ class BarayaRepository(context: Context) {
             ps.put(po)
         }
         o.put("pages", ps)
+        o.put("logoImage", x.logoImage)
+        o.put("couponCode", x.couponCode).put("couponPercent", x.couponPercent)
+        val cf = JSONArray()
+        x.customFields.forEach { f -> cf.put(JSONObject().put("label", f.label).put("kind", f.kind)) }
+        o.put("customFields", cf)
         return o.toString()
     }
 
@@ -1759,6 +1764,8 @@ class BarayaRepository(context: Context) {
                 facebook = o.optString("facebook"), instagram = o.optString("instagram"), tiktok = o.optString("tiktok"),
                 youtube = o.optString("youtube"), telegram = o.optString("telegram"), website = o.optString("website"),
                 heroImage = o.optString("heroImage"),
+                logoImage = o.optString("logoImage"),
+                couponCode = o.optString("couponCode"), couponPercent = o.optInt("couponPercent", 0),
                 announcement = o.optString("announcement"), theme = o.optInt("theme", 0), font = o.optInt("font", 0), hideFooter = o.optBoolean("hideFooter", false),
                 pages = (o.optJSONArray("pages") ?: JSONArray()).let { pa ->
                     (0 until pa.length()).map { i ->
@@ -1772,6 +1779,12 @@ class BarayaRepository(context: Context) {
                                 com.example.data.model.PageSection(so.optString("type", "text"), so.optString("text"))
                             }
                         )
+                    }
+                },
+                customFields = (o.optJSONArray("customFields") ?: JSONArray()).let { ca ->
+                    (0 until ca.length()).map { i ->
+                        val co = ca.getJSONObject(i)
+                        com.example.data.model.SiteFormField(co.optString("label"), co.optString("kind", "text"))
                     }
                 }
             )

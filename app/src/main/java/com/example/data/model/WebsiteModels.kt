@@ -77,6 +77,9 @@ data class SiteTestimonial(val name: String = "", val text: String = "", val sta
 /** One section inside an extra site page. Types: hero, text, items, gallery, reviews, faq, map, contact. */
 data class PageSection(val type: String = "text", val text: String = "")
 
+/** One custom field the owner adds to the booking/contact form. kind: text | phone | note. */
+data class SiteFormField(val label: String = "", val kind: String = "text")
+
 /** An extra page of a multi-page site. Page 0 is always the home page (its content comes from the main site fields). */
 data class SitePage(
     val id: String = UUID.randomUUID().toString(),
@@ -101,7 +104,14 @@ data class SiteExtras(
     val font: Int = 0,
     val hideFooter: Boolean = false,
     /** Extra pages of a multi-page site; empty = classic single-page site. When used, page 0 is the home page. */
-    val pages: List<SitePage> = emptyList()
+    val pages: List<SitePage> = emptyList(),
+    /** Optional site logo (local file path or url), shown in the nav and used as favicon. */
+    val logoImage: String = "",
+    /** Custom fields appended to the booking/contact form; submissions arrive on WhatsApp. */
+    val customFields: List<SiteFormField> = emptyList(),
+    /** Optional discount coupon: code the customer types in the cart and the percent taken off. */
+    val couponCode: String = "",
+    val couponPercent: Int = 0
 )
 
 data class UserWebsite(
