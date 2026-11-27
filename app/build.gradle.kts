@@ -16,6 +16,13 @@ android {
     versionName = "1.2.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    // Optional FOKOF2 image proxy (Cloudflare Worker in front of Workers AI). Injected from
+    // CI secrets or gradle properties; blank means the app uses the keyless fallback only.
+    val aiWorkerUrl = System.getenv("AI_IMAGE_WORKER_URL") ?: (project.findProperty("AI_IMAGE_WORKER_URL") as String?) ?: ""
+    val aiAppSecret = System.getenv("AI_IMAGE_APP_SECRET") ?: (project.findProperty("AI_IMAGE_APP_SECRET") as String?) ?: ""
+    buildConfigField("String", "AI_IMAGE_WORKER_URL", "\"$aiWorkerUrl\"")
+    buildConfigField("String", "AI_IMAGE_APP_SECRET", "\"$aiAppSecret\"")
   }
 
   // Do not remove or modify these signingConfigs. They are necessary for building, installing,
