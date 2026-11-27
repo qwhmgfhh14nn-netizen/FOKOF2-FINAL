@@ -544,6 +544,7 @@ fun BarayaApp(
                                         onEditWebsite = { site -> viewModel.editExistingWebsite(site) },
                                         onDeleteWebsite = { id -> viewModel.deleteWebsite(id) },
                                         onOpenQrStudio = { site -> viewModel.openQrStudioForWebsite(site) },
+                                        onImportSite = { site -> viewModel.importWebsiteProject(site) },
                                         onBack = { viewModel.setDestination(AppNavDestination.HOME) }
                                     )
                                 }
@@ -555,6 +556,7 @@ fun BarayaApp(
                                             strings = strings,
                                             website = site,
                                             onSave = { updated -> viewModel.saveCurrentWebsite(updated) },
+                                            onAutoSave = { updated -> viewModel.saveCurrentWebsiteQuietly(updated) },
                                             onBack = { viewModel.setDestination(AppNavDestination.WEBSITES) },
                                             onOpenQrStudio = { s -> viewModel.openQrStudioForWebsite(s) },
                                             onSubmitBooking = { b -> viewModel.submitBooking(b) }

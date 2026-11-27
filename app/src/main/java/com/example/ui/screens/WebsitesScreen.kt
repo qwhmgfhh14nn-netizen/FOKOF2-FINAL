@@ -64,6 +64,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -91,10 +92,26 @@ fun WebsitesScreen(
     onEditWebsite: (UserWebsite) -> Unit,
     onDeleteWebsite: (String) -> Unit,
     onOpenQrStudio: (UserWebsite) -> Unit = {},
+    onImportSite: (UserWebsite) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var importError by remember { mutableStateOf<String?>(null) }
+    var importDone by remember { mutableStateOf(false) }
+    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val parsed = try {
+                context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                    ?.let { com.example.data.SiteExporter.parseSiteJson(it) }
+            } catch (e: Exception) { null }
+            if (parsed != null) { importError = null; importDone = true; onImportSite(parsed) }
+            else { importDone = false; importError = "الملف ده مش مشروع FOKOF2 صالح. اختار ملف site.json من تصدير سابق." }
+        }
+    }
     var selectedCategory by remember { mutableStateOf("ALL") }
     var websiteToDelete by remember { mutableStateOf<UserWebsite?>(null) }
 
@@ -143,6 +160,30 @@ fun WebsitesScreen(
                     )
                 }
             }
+        }
+
+        }
+        item {
+        // Import a previously exported project (website builder spec section 12)
+        OutlinedButton(
+            onClick = {
+                if (isLimitReached) {
+                    importDone = false
+                    importError = "وصلت لحد المواقع المجانية (${settings.freeWebsitesLimit}). امسح موقع قديم الأول عشان تستورد مشروع جديد."
+                } else importLauncher.launch("*/*")
+            },
+            modifier = Modifier.fillMaxWidth().testTag("websites_import_btn"),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+            Text("استورد مشروع موقع (ملف site.json)", fontFamily = CairoFontFamily, color = GoldPrimary)
+        }
+        if (importDone) {
+            Text("اتستورد المشروع، هتلاقيه تحت في مواقعك.", style = MaterialTheme.typography.bodySmall.copy(color = SuccessEmerald))
+        }
+        importError?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall.copy(color = ErrorRuby))
         }
 
         }

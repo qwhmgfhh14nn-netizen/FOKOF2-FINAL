@@ -1557,6 +1557,27 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    /** Autosave / undo / redo path: same persistence as saveCurrentWebsite but without the toast, so continuous saving stays quiet. */
+    fun saveCurrentWebsiteQuietly(updated: UserWebsite) {
+        viewModelScope.launch {
+            repository.saveUserWebsite(updated)
+            _activeWebsiteEditing.value = updated
+        }
+    }
+
+    /** Imports a site.json project (website builder spec section 12): stores it as a new site owned by the current user. */
+    fun importWebsiteProject(site: UserWebsite) {
+        viewModelScope.launch {
+            val fresh = site.copy(
+                id = "site_" + UUID.randomUUID().toString().take(8),
+                userId = currentUser.value.id,
+                updatedAt = System.currentTimeMillis()
+            )
+            repository.saveUserWebsite(fresh)
+            showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "اتستورد المشروع وبقى ضمن مواقعك!" else "Project imported into your websites!")
+        }
+    }
+
     fun deleteWebsite(websiteId: String) {
         viewModelScope.launch {
             repository.deleteUserWebsite(websiteId)
