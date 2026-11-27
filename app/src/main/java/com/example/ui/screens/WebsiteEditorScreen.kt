@@ -26,6 +26,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Call
@@ -61,7 +63,9 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,6 +103,7 @@ fun WebsiteEditorScreen(
     strings: TranslationStrings,
     website: UserWebsite,
     onSave: (UserWebsite) -> Unit,
+    onAutoSave: (UserWebsite) -> Unit = onSave,
     onBack: () -> Unit,
     onOpenQrStudio: (UserWebsite) -> Unit = {},
     onSubmitBooking: (WebsiteBooking) -> Unit = {},
@@ -141,6 +146,34 @@ fun WebsiteEditorScreen(
             extras = extras,
             updatedAt = System.currentTimeMillis()
         )
+    }
+
+    // Undo/redo history + continuous autosave (website builder spec sections 1.6-1.7).
+    // Snapshots of the whole site are taken after a short pause in editing.
+    val editHistory = remember(website.id) { mutableStateListOf(website) }
+    var historyIndex by remember(website.id) { mutableIntStateOf(0) }
+    var applyingHistory by remember(website.id) { mutableStateOf(false) }
+    var lastAutoSavedAt by remember(website.id) { mutableStateOf<Long?>(null) }
+
+    LaunchedEffect(siteTitle, siteSlug, headline, subheadline, aboutText, whatsappNumber, phoneNumber, address, workingHours, primaryColorHex, items, extras) {
+        if (applyingHistory) { applyingHistory = false; return@LaunchedEffect }
+        val snap = buildUpdatedWebsite()
+        val top = editHistory.getOrNull(historyIndex)
+        if (top != null && snap.copy(updatedAt = 0L) == top.copy(updatedAt = 0L)) return@LaunchedEffect
+        kotlinx.coroutines.delay(1200)
+        while (editHistory.size > historyIndex + 1) editHistory.removeAt(editHistory.lastIndex)
+        editHistory.add(snap)
+        historyIndex = editHistory.lastIndex
+        onAutoSave(snap)
+        lastAutoSavedAt = snap.updatedAt
+    }
+
+    val applySnapshot: (UserWebsite) -> Unit = { s ->
+        applyingHistory = true
+        siteTitle = s.siteTitle; siteSlug = s.siteSlug; headline = s.headline; subheadline = s.subheadline
+        aboutText = s.aboutText; whatsappNumber = s.whatsappNumber; phoneNumber = s.phoneNumber
+        address = s.address; workingHours = s.workingHours; primaryColorHex = s.primaryColorHex
+        items = s.items; extras = s.extras
     }
 
     Column(
@@ -189,6 +222,14 @@ fun WebsiteEditorScreen(
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             color = GoldPrimary
                         )
+                        if (lastAutoSavedAt != null) {
+                            Text(
+                                text = "بيتحفظ تلقائياً ✓",
+                                fontFamily = CairoFontFamily,
+                                fontSize = 10.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
@@ -196,6 +237,42 @@ fun WebsiteEditorScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    androidx.compose.material3.OutlinedIconButton(
+                        onClick = {
+                            if (historyIndex > 0) {
+                                historyIndex--
+                                val s = editHistory[historyIndex]
+                                applySnapshot(s)
+                                onAutoSave(s)
+                                lastAutoSavedAt = s.updatedAt
+                            }
+                        },
+                        enabled = historyIndex > 0,
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary),
+                        modifier = Modifier.testTag("website_editor_undo_btn")
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "تراجع", tint = GoldPrimary, modifier = Modifier.size(20.dp))
+                    }
+
+                    androidx.compose.material3.OutlinedIconButton(
+                        onClick = {
+                            if (historyIndex < editHistory.lastIndex) {
+                                historyIndex++
+                                val s = editHistory[historyIndex]
+                                applySnapshot(s)
+                                onAutoSave(s)
+                                lastAutoSavedAt = s.updatedAt
+                            }
+                        },
+                        enabled = historyIndex < editHistory.lastIndex,
+                        shape = RoundedCornerShape(10.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary),
+                        modifier = Modifier.testTag("website_editor_redo_btn")
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.Redo, contentDescription = "إعادة", tint = GoldPrimary, modifier = Modifier.size(20.dp))
+                    }
+
                     androidx.compose.material3.OutlinedIconButton(
                         onClick = { onOpenQrStudio(buildUpdatedWebsite()) },
                         shape = RoundedCornerShape(10.dp),
@@ -1849,6 +1926,53 @@ private fun ExportHtmlTab(
                             color = Color.White
                         )
                     }
+                }
+
+                // Real ZIP export (website builder spec section 12): full standalone site as files.
+                var zipBusy by remember { mutableStateOf(false) }
+                var zipInfo by remember { mutableStateOf<String?>(null) }
+                Button(
+                    onClick = {
+                        if (!zipBusy) {
+                            zipBusy = true; zipInfo = null
+                            publishScope.launch {
+                                val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                    com.example.data.SiteExporter.buildZip(context, website)
+                                }
+                                zipBusy = false
+                                if (result != null) {
+                                    zipInfo = "اتعمل ملف ZIP (${result.file.length() / 1024} ك.ب) فيه: " + result.entryNames.joinToString("، ")
+                                    try {
+                                        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".fileprovider", result.file)
+                                        val send = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                            type = "application/zip"
+                                            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(android.content.Intent.createChooser(send, "شارك أو احفظ ملف الموقع ZIP").addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK))
+                                    } catch (e: Exception) { /* الملف متاح في التخزين الداخلي حتى بدون مشاركة */ }
+                                } else {
+                                    zipInfo = "ما قدرناش نعمل ملف ZIP دلوقتي، حاول تاني"
+                                }
+                            }
+                        }
+                    },
+                    enabled = !zipBusy,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF374151)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().testTag("website_export_zip_btn")
+                ) {
+                    Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (zipBusy) "جاري تصدير الموقع..." else "صدّر الموقع ZIP (HTML + CSS + JS + الصور)",
+                        fontFamily = CairoFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+                zipInfo?.let {
+                    Text(text = it, fontFamily = CairoFontFamily, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 publishError?.let {
