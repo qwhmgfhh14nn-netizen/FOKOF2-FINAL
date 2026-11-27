@@ -8,6 +8,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,8 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Palette
@@ -84,6 +88,8 @@ import androidx.compose.ui.unit.sp
 import com.example.data.model.CartItem
 import com.example.data.model.UserWebsite
 import com.example.data.model.SiteExtras
+import com.example.data.model.SitePage
+import com.example.data.model.PageSection
 import com.example.data.model.SiteTestimonial
 import com.example.data.model.WebsiteBooking
 import com.example.data.model.WebsiteItem
@@ -371,6 +377,19 @@ fun WebsiteEditorScreen(
                 },
                 icon = { Icon(Icons.Default.Code, contentDescription = null, modifier = Modifier.size(18.dp)) }
             )
+            Tab(
+                selected = selectedTab == 4,
+                onClick = { selectedTab = 4 },
+                text = {
+                    Text(
+                        if (extras.pages.size > 1) "الصفحات (${extras.pages.size})" else "الصفحات",
+                        fontFamily = CairoFontFamily,
+                        fontSize = 12.sp,
+                        fontWeight = if (selectedTab == 4) FontWeight.Bold else FontWeight.Normal
+                    )
+                },
+                icon = { Icon(Icons.Default.Language, contentDescription = null, modifier = Modifier.size(18.dp)) }
+            )
         }
 
         // Tab Content
@@ -418,6 +437,10 @@ fun WebsiteEditorScreen(
                 3 -> ExportHtmlTab(
                     website = buildUpdatedWebsite(),
                     context = context
+                )
+                4 -> PagesTab(
+                    extras = extras,
+                    onExtrasChange = { extras = it }
                 )
             }
         }
@@ -1848,7 +1871,8 @@ private fun ExportHtmlTab(
     val publishScope = androidx.compose.runtime.rememberCoroutineScope()
 
     val generatedHtml = remember(website) {
-        generateStandaloneHtml(website, context)
+        if (website.extras.pages.size > 1) generateSitePageHtml(website, context, 0, relativePageLinks(website))
+        else generateStandaloneHtml(website, context)
     }
 
     Column(
@@ -1908,7 +1932,8 @@ private fun ExportHtmlTab(
                                 val htmlNow = generatedHtml
                                 publishScope.launch {
                                     val r = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                        com.example.data.SitePublisher.publish(context, website.id, website.siteSlug, website.siteTitle, htmlNow)
+                                        if (website.extras.pages.size > 1) publishAllPages(context, website)
+                                        else com.example.data.SitePublisher.publish(context, website.id, website.siteSlug, website.siteTitle, htmlNow)
                                     }
                                     publishing = false
                                     if (r.ok) publishedUrl = r.url else publishError = "ما قدرناش ننشر دلوقتي، تأكد من النت وحاول تاني"
@@ -1920,7 +1945,7 @@ private fun ExportHtmlTab(
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = if (publishing) "جاري النشر..." else "انشر واحصل على رابط",
+                            text = if (publishing) "جاري النشر..." else if (website.extras.pages.size > 1) "انشر كل الصفحات (${website.extras.pages.size}) واحصل على رابط" else "انشر واحصل على رابط",
                             fontFamily = CairoFontFamily,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -2469,4 +2494,341 @@ $footerHtml
 </body>
 </html>
     """.trimIndent()
+}
+
+// ---------------- Multi-page sites (spec section 4) ----------------
+
+internal val PAGE_SECTION_TYPES: List<Pair<String, String>> = listOf(
+    "hero" to "هيدر الصفحة",
+    "text" to "نص حر",
+    "items" to "المنتجات والخدمات",
+    "gallery" to "معرض الصور",
+    "reviews" to "آراء العملاء",
+    "faq" to "أسئلة شائعة",
+    "map" to "الخريطة",
+    "contact" to "التواصل والحجز"
+)
+
+internal fun pageFileName(index: Int): String = if (index <= 0) "index.html" else "page-$index.html"
+
+internal fun relativePageLinks(site: UserWebsite): List<Pair<String, String>> {
+    val pages = site.extras.pages
+    if (pages.isEmpty()) return listOf("index.html" to "الرئيسية")
+    return pages.mapIndexed { i, p -> pageFileName(i) to p.title }
+}
+
+private val PAGE_SCRIPT_RE = Regex("<script>.*?</script>", RegexOption.DOT_MATCHES_ALL)
+
+/** Builds one page of the site as a full standalone HTML document.
+ *  Page 0 is the classic home page (with extra nav links injected when multi-page).
+ *  Pages 1+ render their own sections using the shared design, nav, footer and script.
+ *  links holds (href, title) for every page: relative file names for export, absolute urls after publishing. */
+internal fun generateSitePageHtml(site: UserWebsite, context: Context?, pageIndex: Int, links: List<Pair<String, String>>): String {
+    val home = generateStandaloneHtml(site, context)
+    val pages = site.extras.pages
+    if (pages.size <= 1 || pageIndex <= 0 || pageIndex >= pages.size) {
+        if (links.size <= 1) return home
+        val extra = links.drop(1).joinToString("") { "<a href=\"" + siteEsc(it.first) + "\">" + siteEsc(it.second) + "</a>" }
+        return home.replace("<div class=\"links\">", "<div class=\"links\">\n    " + extra)
+    }
+    val page = pages[pageIndex]
+    val headEnd = home.indexOf("</head>")
+    var head = if (headEnd > 0) home.substring(0, headEnd + 7) else home.substring(0, 0)
+    head = head.replace(Regex("<title>.*?</title>"), "<title>" + siteEsc(site.siteTitle) + " | " + siteEsc(page.title) + "</title>")
+    val script = PAGE_SCRIPT_RE.findAll(home).lastOrNull()?.value ?: ""
+    val waNum = site.whatsappNumber.filter { it.isDigit() }
+    val annHtml = if (site.extras.announcement.isNotBlank()) "<div class=\"ann\">" + siteEsc(site.extras.announcement) + "</div>" else ""
+    val navLinks = links.mapIndexedNotNull { i, l ->
+        if (i == pageIndex) null else "<a href=\"" + siteEsc(l.first) + "\">" + siteEsc(l.second) + "</a>"
+    }.joinToString("")
+    val footerHtml = if (site.extras.hideFooter) "" else "<footer data-t=\"تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2\">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>"
+    val bodyContent = StringBuilder()
+    page.sections.forEach { s -> bodyContent.append(renderPageSection(site, s, page.title)).append("\n") }
+    return """$head
+<body>
+$annHtml
+<nav>
+  <b>${siteEsc(site.siteTitle)}</b>
+  <div class="links">
+    $navLinks
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">🌙</button>
+  </div>
+</nav>
+<div class="wrap">
+$bodyContent</div>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+$footerHtml
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
+<a class="fab" href="https://wa.me/$waNum" target="_blank" rel="noopener">واتساب</a>
+<button id="top" title="لأعلى">↑</button>
+$script
+</body>
+</html>
+    """.trimIndent()
+}
+
+private fun renderPageSection(site: UserWebsite, s: PageSection, pageTitle: String): String {
+    val waNum = site.whatsappNumber.filter { it.isDigit() }
+    return when (s.type) {
+        "hero" -> "<section class=\"hero reveal\" style=\"min-height:42vh\"><div class=\"hero-bg\"></div><div class=\"hero-inner\"><h1>" + siteEsc(pageTitle) + "</h1>" + (if (s.text.isNotBlank()) "<p class=\"sub\">" + siteEsc(s.text) + "</p>" else "") + "</div></section>"
+        "text" -> if (s.text.isBlank()) "" else "<section class=\"panel reveal\">" + s.text.split("\n").filter { it.isNotBlank() }.joinToString("") { "<p>" + siteEsc(it) + "</p>" } + "</section>"
+        "items" -> pageItemsHtml(site, waNum)
+        "gallery" -> pageGalleryHtml(site)
+        "reviews" -> pageReviewsHtml(site)
+        "faq" -> "<section id=\"faq\" class=\"panel reveal\"><h2 class=\"t\">أسئلة شائعة</h2><details><summary>إزاي أطلب أو أحجز؟</summary><p>املأ نموذج التواصل أو راسلنا مباشرة على واتساب وهنرد عليك في أسرع وقت.</p></details><details><summary>إيه مواعيد العمل؟</summary><p>" + siteEsc(site.workingHours) + "</p></details><details><summary>فين مكانكم؟</summary><p>" + siteEsc(site.address) + "</p></details></section>"
+        "map" -> if (site.address.isBlank()) "" else {
+            val q = java.net.URLEncoder.encode(site.address, "UTF-8")
+            "<div class=\"map\"><iframe title=\"map\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\" src=\"https://maps.google.com/maps?q=" + q + "&output=embed\"></iframe></div>"
+        }
+        "contact" -> pageContactHtml(site)
+        else -> ""
+    }
+}
+
+private fun pageItemsHtml(site: UserWebsite, waNum: String): String {
+    if (site.items.isEmpty()) return ""
+    val cards = site.items.joinToString("\n") { item ->
+        val msg = java.net.URLEncoder.encode("مرحباً أود طلب: " + item.nameAr, "UTF-8")
+        val pimgSrc = siteImageSrc(item.imagePath)
+        val pimg = if (pimgSrc.isNotEmpty()) "<img class=\"pimg\" loading=\"lazy\" alt=\"" + siteEsc(item.nameAr) + "\" src=\"" + pimgSrc + "\">" else ""
+        val priceHtml = if (item.priceEgp <= 0) "<div class=\"price\">اتصل للسعر</div>" else "<div class=\"price\">" + item.priceEgp + " ج.م</div>"
+        val addBtn = if (item.priceEgp > 0 && site.featureToggles.featureWhatsappOrders) "<button type=\"button\" class=\"add-btn\" data-t=\"+ أضف للسلة|+ Add to cart\">+ أضف للسلة</button>" else ""
+        """<div class="card reveal" data-cat="${siteEsc(item.category)}" data-name="${siteEsc(item.nameAr)}" data-en="${siteEsc(item.nameEn)}" data-price="${item.priceEgp}">
+            $pimg
+            <div class="card-body">
+                <h3>${siteEsc(item.nameAr)}</h3>
+                <p>${siteEsc(item.descriptionAr)}</p>
+                $priceHtml
+            </div>
+            <a href="https://wa.me/$waNum?text=$msg" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+            $addBtn
+        </div>"""
+    }
+    return "<section id=\"menu\"><h2 class=\"t reveal\">المنتجات والخدمات</h2><div class=\"grid\">\n" + cards + "\n</div></section>"
+}
+
+private fun pageGalleryHtml(site: UserWebsite): String {
+    val imgs = site.extras.gallery.take(8).map { siteImageSrc(it) }.filter { it.isNotEmpty() }
+    if (imgs.isEmpty()) return ""
+    return "<section id=\"gallery\" class=\"panel reveal\"><h2 class=\"t\">معرض الصور</h2><div class=\"gal\">" + imgs.joinToString("") { "<img loading=\"lazy\" alt=\"\" src=\"" + it + "\">" } + "</div></section>"
+}
+
+private fun pageReviewsHtml(site: UserWebsite): String {
+    if (site.extras.testimonials.isEmpty()) return ""
+    return "<section id=\"reviews\" class=\"panel reveal\"><h2 class=\"t\">آراء عملائنا</h2><div class=\"revs\">" +
+        site.extras.testimonials.joinToString("") { "<div class=\"rev\"><div class=\"stars\">" + "★".repeat(it.stars.coerceIn(1, 5)) + "</div><p>" + siteEsc(it.text) + "</p><b>" + siteEsc(it.name) + "</b></div>" } + "</div></section>"
+}
+
+private fun pageContactHtml(site: UserWebsite): String {
+    val options = site.items.joinToString("") { "<option>" + siteEsc(it.nameAr) + "</option>" }
+    return """<section id="book" class="panel reveal">
+    <h2 class="t">احجز أو اطلب الآن</h2>
+    <form id="bf" class="form">
+      <input id="f-name" placeholder="الاسم" required>
+      <input id="f-phone" type="tel" placeholder="رقم الموبايل" required>
+      <select id="f-item"><option value="">اختر الخدمة أو المنتج</option>$options</select>
+      <input id="f-when" placeholder="الموعد المناسب (اختياري)">
+      <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+      <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
+    </form>
+  </section>
+  <section id="contact" class="panel contact reveal">
+    <h2 class="t">العنوان ومواعيد العمل</h2>
+    <p>📍 ${siteEsc(site.address)}</p>
+    <p>⏰ ${siteEsc(site.workingHours)}</p>
+  </section>"""
+}
+
+private fun pubKey(site: UserWebsite, i: Int): String = if (i == 0) site.id else site.id + "::p" + i
+private fun pubSlug(site: UserWebsite, i: Int): String = if (i == 0) site.siteSlug else site.siteSlug + "-p" + i
+
+/** Publishes every page of a multi-page site, then republishes with the nav rewritten to the real public urls.
+ *  The returned url is the home page (page 0). */
+private fun publishAllPages(context: Context, site: UserWebsite): com.example.data.SitePublisher.Result {
+    val pages = site.extras.pages
+    val rel = relativePageLinks(site)
+    val urls = arrayOfNulls<String>(pages.size)
+    for (i in pages.indices) {
+        val r = com.example.data.SitePublisher.publish(context, pubKey(site, i), pubSlug(site, i), site.siteTitle + " - " + pages[i].title, generateSitePageHtml(site, context, i, rel))
+        if (!r.ok) return r
+        urls[i] = r.url
+    }
+    val abs = pages.mapIndexed { i, p -> (urls[i] ?: "") to p.title }
+    var last: com.example.data.SitePublisher.Result = com.example.data.SitePublisher.Result(true, urls[0], null)
+    for (i in pages.indices) {
+        last = com.example.data.SitePublisher.publish(context, pubKey(site, i), pubSlug(site, i), site.siteTitle + " - " + pages[i].title, generateSitePageHtml(site, context, i, abs))
+        if (!last.ok) return last
+    }
+    return com.example.data.SitePublisher.Result(true, urls[0], null)
+}
+
+// ---------------- TAB 4: PAGES ----------------
+
+@Composable
+private fun PagesTab(extras: SiteExtras, onExtrasChange: (SiteExtras) -> Unit) {
+    val pages = extras.pages
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("صفحات الموقع", fontWeight = FontWeight.Bold, fontFamily = CairoFontFamily, fontSize = 16.sp, color = GoldPrimary)
+        if (pages.isEmpty()) {
+            Text(
+                "موقعك دلوقتي صفحة واحدة. فعّل الصفحات المتعددة عشان تضيف صفحات زي: من نحن، خدماتنا، اتصل بنا. كل صفحة بتتصدّر في ملف HTML لوحدها وبتظهر في قائمة الموقع.",
+                fontFamily = CairoFontFamily,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Button(
+                onClick = { onExtrasChange(extras.copy(pages = listOf(SitePage(title = "الرئيسية")))) },
+                colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                shape = RoundedCornerShape(10.dp)
+            ) { Text("فعّل الصفحات المتعددة", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = Color.Black) }
+        } else {
+            var newPageTitle by remember { mutableStateOf("") }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = newPageTitle,
+                    onValueChange = { newPageTitle = it },
+                    label = { Text("اسم صفحة جديدة (مثل: من نحن)", fontFamily = CairoFontFamily) },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(10.dp),
+                    singleLine = true
+                )
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        val t = newPageTitle.trim()
+                        if (t.isNotEmpty()) {
+                            onExtrasChange(extras.copy(pages = pages + SitePage(title = t, sections = listOf(PageSection("hero", ""), PageSection("text", "")))))
+                            newPageTitle = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
+                    shape = RoundedCornerShape(10.dp)
+                ) { Text("أضف", fontFamily = CairoFontFamily, color = Color.Black, fontWeight = FontWeight.Bold) }
+            }
+            pages.forEachIndexed { i, page ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, GoldBorder.copy(alpha = 0.4f))
+                ) {
+                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (i == 0) {
+                            Text("١. الرئيسية", fontFamily = CairoFontFamily, fontWeight = FontWeight.Bold, color = GoldPrimary)
+                            Text(
+                                "محتوى الصفحة الرئيسية بيتحرر من تبويبات البيانات الأساسية والمنتجات والإضافات.",
+                                fontFamily = CairoFontFamily,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                OutlinedTextField(
+                                    value = page.title,
+                                    onValueChange = { v -> onExtrasChange(extras.copy(pages = pages.mapIndexed { j, p -> if (j == i) p.copy(title = v) else p })) },
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    singleLine = true
+                                )
+                                IconButton(onClick = { if (i > 1) onExtrasChange(extras.copy(pages = pages.toMutableList().apply { add(i - 1, removeAt(i)) })) }, enabled = i > 1) {
+                                    Icon(Icons.Default.KeyboardArrowUp, contentDescription = "فوق", tint = GoldPrimary)
+                                }
+                                IconButton(onClick = { if (i < pages.lastIndex) onExtrasChange(extras.copy(pages = pages.toMutableList().apply { add(i + 1, removeAt(i)) })) }, enabled = i < pages.lastIndex) {
+                                    Icon(Icons.Default.KeyboardArrowDown, contentDescription = "تحت", tint = GoldPrimary)
+                                }
+                                IconButton(onClick = { onExtrasChange(extras.copy(pages = pages.filterIndexed { j, _ -> j != i })) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "حذف", tint = ErrorRuby)
+                                }
+                            }
+                            page.sections.forEachIndexed { j, s ->
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text(
+                                            PAGE_SECTION_TYPES.firstOrNull { it.first == s.type }?.second ?: s.type,
+                                            fontFamily = CairoFontFamily,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = GoldPrimary
+                                        )
+                                        if (s.type == "hero" || s.type == "text") {
+                                            OutlinedTextField(
+                                                value = s.text,
+                                                onValueChange = { v ->
+                                                    onExtrasChange(extras.copy(pages = pages.mapIndexed { k, p ->
+                                                        if (k == i) p.copy(sections = p.sections.mapIndexed { l, x -> if (l == j) x.copy(text = v) else x }) else p
+                                                    }))
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                minLines = if (s.type == "text") 2 else 1,
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                        } else {
+                                            Text(
+                                                "بيترسم تلقائياً من بيانات موقعك",
+                                                fontFamily = CairoFontFamily,
+                                                fontSize = 11.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                    IconButton(onClick = {
+                                        if (j > 0) onExtrasChange(extras.copy(pages = pages.mapIndexed { k, p ->
+                                            if (k == i) p.copy(sections = p.sections.toMutableList().apply { add(j - 1, removeAt(j)) }) else p
+                                        }))
+                                    }, enabled = j > 0) {
+                                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "فوق", tint = GoldPrimary, modifier = Modifier.size(18.dp))
+                                    }
+                                    IconButton(onClick = {
+                                        if (j < page.sections.lastIndex) onExtrasChange(extras.copy(pages = pages.mapIndexed { k, p ->
+                                            if (k == i) p.copy(sections = p.sections.toMutableList().apply { add(j + 1, removeAt(j)) }) else p
+                                        }))
+                                    }, enabled = j < page.sections.lastIndex) {
+                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "تحت", tint = GoldPrimary, modifier = Modifier.size(18.dp))
+                                    }
+                                    IconButton(onClick = {
+                                        onExtrasChange(extras.copy(pages = pages.mapIndexed { k, p ->
+                                            if (k == i) p.copy(sections = p.sections.filterIndexed { l, _ -> l != j }) else p
+                                        }))
+                                    }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "حذف", tint = ErrorRuby, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                            }
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                items(PAGE_SECTION_TYPES.size) { t ->
+                                    val type = PAGE_SECTION_TYPES[t].first
+                                    val label = PAGE_SECTION_TYPES[t].second
+                                    Surface(
+                                        shape = RoundedCornerShape(14.dp),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, GoldPrimary),
+                                        modifier = Modifier.clickable {
+                                            onExtrasChange(extras.copy(pages = pages.mapIndexed { k, p ->
+                                                if (k == i) p.copy(sections = p.sections + PageSection(type, "")) else p
+                                            }))
+                                        }
+                                    ) {
+                                        Text("+ $label", fontFamily = CairoFontFamily, fontSize = 12.sp, color = GoldPrimary, modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Text(
+                "التصدير بيطلع كل صفحة في ملف HTML لوحدها، والنشر بينشر كل الصفحات وبيظهر روابطها في قائمة الموقع.",
+                fontFamily = CairoFontFamily,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
