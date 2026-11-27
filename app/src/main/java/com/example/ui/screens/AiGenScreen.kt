@@ -65,10 +65,13 @@ fun AiGenScreen(
     selectedStyle: String,
     selectedAspectRatio: String,
     isGenerating: Boolean,
+    hdMode: Boolean,
+    remainingToday: Int?,
     generatedImages: List<GeneratedImageItem>,
     onPromptChange: (String) -> Unit,
     onStyleChange: (String) -> Unit,
     onAspectRatioChange: (String) -> Unit,
+    onHdChange: (Boolean) -> Unit,
     onEnhancePrompt: () -> Unit,
     onGenerate: () -> Unit,
     onSendToStudio: (GeneratedImageItem) -> Unit,
@@ -249,6 +252,44 @@ fun AiGenScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // HD toggle + free daily remaining
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Surface(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(
+                        width = if (hdMode) 1.5.dp else 1.dp,
+                        color = if (hdMode) GoldPrimary else GoldBorder.copy(alpha = 0.3f),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .clickable { onHdChange(!hdMode) },
+                color = if (hdMode) GoldPrimary.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Text(
+                    text = "جودة أعلى HD (أبطأ)",
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = if (hdMode) GoldPrimary else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (hdMode) FontWeight.Bold else FontWeight.Normal
+                    )
+                )
+            }
+            remainingToday?.let {
+                Text(
+                    text = "باقيلك $it النهاردة",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         // Generate Action Button
         Button(

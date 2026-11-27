@@ -107,7 +107,7 @@ fun BrandNameLogoSection(industry: String, brandName: String, onPickName: (Strin
                         // Preferred path: the FOKOF2 proxy worker (key server-side, per-device
                         // limits, caching). Falls back to the keyless service on any failure.
                         if (com.example.data.ai.AiImageProxy.isConfigured()) {
-                            when (val p = com.example.data.ai.AiImageProxy.generate(context, prompt)) {
+                            when (val p = com.example.data.ai.AiImageProxy.generate(context, prompt + com.example.data.ai.StylePrompts.LOGO_CLEANUP)) {
                                 is com.example.data.ai.AiImageProxy.Result.Ok -> {
                                     logoUrl = p.fileUri
                                     logoLoading = false; logoWait = 0

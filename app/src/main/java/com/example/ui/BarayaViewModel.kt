@@ -245,6 +245,13 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
     private val _selectedStyle = MutableStateFlow("Luxury 3D Gold")
     val selectedStyle: StateFlow<String> = _selectedStyle.asStateFlow()
 
+    private val _hdMode = MutableStateFlow(false)
+    val hdMode: StateFlow<Boolean> = _hdMode.asStateFlow()
+
+    // Remaining free images today as reported by the proxy worker (null when unknown/fallback).
+    private val _imageGenRemaining = MutableStateFlow<Int?>(null)
+    val imageGenRemaining: StateFlow<Int?> = _imageGenRemaining.asStateFlow()
+
     private val _selectedAspectRatio = MutableStateFlow("1:1")
     val selectedAspectRatio: StateFlow<String> = _selectedAspectRatio.asStateFlow()
 
@@ -920,6 +927,10 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         _selectedAspectRatio.value = ratio
     }
 
+    fun setHdMode(enabled: Boolean) {
+        _hdMode.value = enabled
+    }
+
     fun enhanceImagePrompt() {
         viewModelScope.launch {
             val current = _imagePrompt.value
@@ -937,13 +948,8 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             _isGeneratingImage.value = true
             val ratio = _selectedAspectRatio.value
-            val (w, h) = when (ratio) {
-                "16:9" -> 1024 to 576
-                "9:16" -> 576 to 1024
-                "4:5" -> 816 to 1020
-                else -> 1024 to 1024
-            }
-            val fullPrompt = prompt + ", " + _selectedStyle.value + ", high quality"
+            val (w, h) = com.example.data.ai.StylePrompts.sizeFor(ratio)
+            val fullPrompt = com.example.data.ai.StylePrompts.buildPrompt(prompt, _selectedStyle.value)
             val url = "https://image.pollinations.ai/prompt/" +
                 URLEncoder.encode(fullPrompt, "UTF-8").replace("+", "%20") +
                 "?width=" + w + "&height=" + h + "&nologo=true&seed=" + (System.currentTimeMillis() % 1000000)
@@ -960,9 +966,10 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
             // daily limits, prompt caching). Falls back to the keyless service on any failure.
             var proxyFailed = false
             if (com.example.data.ai.AiImageProxy.isConfigured()) {
-                when (val p = com.example.data.ai.AiImageProxy.generate(getApplication(), fullPrompt)) {
+                when (val p = com.example.data.ai.AiImageProxy.generate(getApplication(), fullPrompt, w, h, _hdMode.value)) {
                     is com.example.data.ai.AiImageProxy.Result.Ok -> {
                         _generatedImages.value = _generatedImages.value.map { if (it.id == newItem.id) it.copy(imageUrl = p.fileUri) else it }
+                        _imageGenRemaining.value = p.remaining
                         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "الصورة جاهزة" else "Image ready")
                         _isGeneratingImage.value = false
                         _imageWaitSeconds.value = 0

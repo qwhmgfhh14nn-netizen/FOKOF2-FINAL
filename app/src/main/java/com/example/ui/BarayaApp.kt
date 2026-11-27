@@ -122,6 +122,8 @@ fun BarayaApp(
     val selectedAspectRatio by viewModel.selectedAspectRatio.collectAsState()
     val isGeneratingImage by viewModel.isGeneratingImage.collectAsState()
     val generatedImages by viewModel.generatedImages.collectAsState()
+    val hdMode by viewModel.hdMode.collectAsState()
+    val imageGenRemaining by viewModel.imageGenRemaining.collectAsState()
 
     // Marketing states
     val marketingTopic by viewModel.marketingTopic.collectAsState()
@@ -487,10 +489,13 @@ fun BarayaApp(
                                         selectedStyle = selectedStyle,
                                         selectedAspectRatio = selectedAspectRatio,
                                         isGenerating = isGeneratingImage,
+                                        hdMode = hdMode,
+                                        remainingToday = imageGenRemaining,
                                         generatedImages = generatedImages,
                                         onPromptChange = { viewModel.setImagePrompt(it) },
                                         onStyleChange = { viewModel.setSelectedStyle(it) },
                                         onAspectRatioChange = { viewModel.setSelectedAspectRatio(it) },
+                                        onHdChange = { viewModel.setHdMode(it) },
                                         onEnhancePrompt = { viewModel.enhanceImagePrompt() },
                                         onGenerate = { viewModel.generateImage() },
                                         onSendToStudio = { viewModel.sendGeneratedImageToStudio(it) }
