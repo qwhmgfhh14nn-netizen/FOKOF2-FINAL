@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -82,17 +83,53 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
         CanvasElementType.TEXT, CanvasElementType.CALLIGRAPHY -> {
             val fs = with(density) { (el.fontSize * k).dp.toSp() }
             val light = (color.red * 0.299f + color.green * 0.587f + color.blue * 0.114f) > 0.75f
-            Text(
-                text = el.text,
-                fontSize = fs,
-                lineHeight = fs * 1.3f,
-                fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
-                fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
-                color = color.copy(alpha = el.opacity),
-                textAlign = when (el.align) { 1 -> TextAlign.Right; 2 -> TextAlign.Left; else -> TextAlign.Center },
-                style = if (light) TextStyle(shadow = Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, 2f), 4f)) else TextStyle.Default,
-                modifier = if (el.align == 0) Modifier.widthIn(max = (330f * k).dp) else Modifier.width((el.width * k).dp)
-            )
+            val shadow = when {
+                el.textFx and 1 != 0 -> Shadow(Color.Black.copy(alpha = 0.55f), Offset(3f, 4f), 8f)
+                light -> Shadow(Color.Black.copy(alpha = 0.35f), Offset(0f, 2f), 4f)
+                else -> null
+            }
+            val style = TextStyle(shadow = shadow)
+            val ta = when (el.align) { 1 -> TextAlign.Right; 2 -> TextAlign.Left; else -> TextAlign.Center }
+            val mod = if (el.align == 0) Modifier.widthIn(max = (330f * k).dp) else Modifier.width((el.width * k).dp)
+            if (el.textFx and 2 != 0) {
+                val outlineW = (el.fontSize * k * 0.07f).coerceAtLeast(1.2f)
+                Box {
+                    Text(
+                        text = el.text,
+                        fontSize = fs,
+                        lineHeight = fs * 1.3f,
+                        fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
+                        fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
+                        color = Color.Black.copy(alpha = el.opacity),
+                        textAlign = ta,
+                        style = style.copy(drawStyle = Stroke(width = outlineW)),
+                        modifier = mod
+                    )
+                    Text(
+                        text = el.text,
+                        fontSize = fs,
+                        lineHeight = fs * 1.3f,
+                        fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
+                        fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
+                        color = color.copy(alpha = el.opacity),
+                        textAlign = ta,
+                        style = style,
+                        modifier = mod
+                    )
+                }
+            } else {
+                Text(
+                    text = el.text,
+                    fontSize = fs,
+                    lineHeight = fs * 1.3f,
+                    fontWeight = if (el.isBold) FontWeight.Bold else FontWeight.Normal,
+                    fontFamily = com.example.ui.theme.DesignFonts.family(el.font),
+                    color = color.copy(alpha = el.opacity),
+                    textAlign = ta,
+                    style = style,
+                    modifier = mod
+                )
+            }
         }
         CanvasElementType.SHAPE -> {
             Canvas(modifier = Modifier.size((el.width * k).dp, (el.height * k).dp)) {
