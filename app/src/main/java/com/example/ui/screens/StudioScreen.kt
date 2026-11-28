@@ -65,10 +65,12 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -77,6 +79,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -125,6 +128,7 @@ fun StudioScreen(
     onDuplicateElement: () -> Unit,
     onClearCanvas: () -> Unit,
     onAddImage: (String) -> Unit = {},
+    onAddDraw: (CanvasElement) -> Unit = {},
     pageCount: Int = 1,
     onMoveLayer: (Int) -> Unit = {},
     pageIndex: Int = 0,
@@ -187,6 +191,10 @@ fun StudioScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     val lockedIds = remember { androidx.compose.runtime.mutableStateListOf<String>() }
     var capturing by remember { mutableStateOf(false) }
+    var drawMode by remember { mutableStateOf(false) }
+    var drawColor by remember { mutableStateOf("#D4AF37") }
+    var drawStroke by remember { mutableStateOf(6f) }
+    val drawPts = remember { mutableStateListOf<Offset>() }
     val exportLayer = androidx.compose.ui.graphics.rememberGraphicsLayer()
     val exportScope = androidx.compose.runtime.rememberCoroutineScope()
     var showBgColorDialog by remember { mutableStateOf(false) }
