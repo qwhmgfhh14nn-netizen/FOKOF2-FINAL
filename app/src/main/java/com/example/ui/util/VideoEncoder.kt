@@ -79,7 +79,11 @@ object VideoEncoder {
 
     /** Copies the finished MP4 into Movies/FOKOF2 (Android 10+). */
     fun saveToMovies(ctx: Context, file: File, name: String): Uri? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return try {
+            val f = LegacyExport.newFile(ctx, "Movies", "$name.mp4")
+            file.inputStream().use { i -> f.outputStream().use { i.copyTo(it) } }
+            LegacyExport.uriFor(ctx, f)
+        } catch (e: Exception) { null }
         return try {
             val v = ContentValues().apply {
                 put(MediaStore.Video.Media.DISPLAY_NAME, "$name.mp4")

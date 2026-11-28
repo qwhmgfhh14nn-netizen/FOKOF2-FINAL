@@ -12,7 +12,11 @@ import android.provider.MediaStore
 /** Real export of a rendered design: PNG to Pictures/FOKOF2, PDF to Downloads/FOKOF2 (Android 10+), and the share sheet. */
 object DesignExporter {
     fun savePng(ctx: Context, bmp: Bitmap, name: String): Uri? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return try {
+            val f = LegacyExport.newFile(ctx, "Pictures", "$name.png")
+            f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            LegacyExport.uriFor(ctx, f)
+        } catch (e: Exception) { null }
         return try {
             val v = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
@@ -27,13 +31,19 @@ object DesignExporter {
 
     /** One page per bitmap; the page has the bitmap's own pixel size so nothing is cropped. */
     fun savePdf(ctx: Context, pages: List<Bitmap>, name: String): Uri? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || pages.isEmpty()) return null
+        if (pages.isEmpty()) return null
         return try {
             val doc = PdfDocument()
             pages.forEachIndexed { i, b ->
                 val page = doc.startPage(PdfDocument.PageInfo.Builder(b.width, b.height, i + 1).create())
                 page.canvas.drawBitmap(b, 0f, 0f, null)
                 doc.finishPage(page)
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                val f = LegacyExport.newFile(ctx, "Download", "$name.pdf")
+                f.outputStream().use { doc.writeTo(it) }
+                doc.close()
+                return LegacyExport.uriFor(ctx, f)
             }
             val v = ContentValues().apply {
                 put(MediaStore.Downloads.DISPLAY_NAME, "$name.pdf")

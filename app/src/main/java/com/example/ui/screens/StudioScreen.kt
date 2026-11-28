@@ -773,15 +773,15 @@ fun StudioScreen(
                         }
                         onSelectPage(startPage)
                         val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, bmps, name)
-                        onShowToast(if (u != null) "تم حفظ PDF بـ ${bmps.size} صفحة في Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                        onShowToast(if (u != null) "تم حفظ PDF بـ ${bmps.size} صفحة في Download/FOKOF2" + (if (android.os.Build.VERSION.SDK_INT < 29) " (داخل مجلد التطبيق، استخدم المشاركة)" else "") else "تعذر حفظ الملف")
                     } else if (mode == "pdf") {
                         val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, listOf(bmp), name)
-                        onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                        onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" + (if (android.os.Build.VERSION.SDK_INT < 29) " (داخل مجلد التطبيق، استخدم المشاركة)" else "") else "تعذر حفظ الملف")
                     } else {
                         val u = com.example.ui.util.DesignExporter.savePng(galleryContext, bmp, name)
-                        if (u == null) onShowToast("تعذر حفظ الصورة (يحتاج أندرويد 10 أو أحدث)")
+                        if (u == null) onShowToast("تعذر حفظ الصورة")
                         else if (mode == "share") com.example.ui.util.DesignExporter.share(galleryContext, u, "image/png")
-                        else onShowToast("تم حفظ الصورة في معرض الصور (مجلد FOKOF2)")
+                        else onShowToast("تم حفظ الصورة في معرض الصور (مجلد FOKOF2)" + (if (android.os.Build.VERSION.SDK_INT < 29) " (داخل مجلد التطبيق، استخدم المشاركة)" else ""))
                     }
                 } catch (e: Exception) {
                     onShowToast("حصلت مشكلة أثناء التصدير، جرب تاني")

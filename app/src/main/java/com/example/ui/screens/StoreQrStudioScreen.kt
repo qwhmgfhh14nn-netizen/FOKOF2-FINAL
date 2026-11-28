@@ -359,7 +359,7 @@ fun StoreQrStudioScreen(
                 onClick = {
                     val bmp = com.example.ui.util.QrCodeMaker.make(qrLink, parseColor(qrColorHex).toArgb(), 1024)
                     val ok = com.example.ui.util.QrCodeMaker.saveToGallery(ctx, bmp, "QR-${website.siteSlug}")
-                    android.widget.Toast.makeText(ctx, if (ok) "اتحفظ الباركود في معرض الصور" else "الحفظ في المعرض مش متاح على الأندرويد ده، استخدم زر المشاركة", android.widget.Toast.LENGTH_LONG).show()
+                    android.widget.Toast.makeText(ctx, if (ok) "اتحفظ الباركود" + (if (android.os.Build.VERSION.SDK_INT < 29) " (داخل مجلد التطبيق، استخدم المشاركة)" else " في معرض الصور") else "تعذر حفظ الباركود، استخدم زر المشاركة", android.widget.Toast.LENGTH_LONG).show()
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp).testTag("qr_save_btn"),
                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = GoldPrimary)

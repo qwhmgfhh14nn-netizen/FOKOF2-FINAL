@@ -21,9 +21,12 @@ object QrCodeMaker {
         return Bitmap.createBitmap(px, size, size, Bitmap.Config.ARGB_8888)
     }
 
-    /** Saves to Pictures/FOKOF2. Returns false where it needs a legacy storage permission (API < 29). */
+    /** Saves to Pictures/FOKOF2. On API < 29 it saves into the app's own folder instead (no permission needed). */
     fun saveToGallery(ctx: Context, bmp: Bitmap, name: String): Boolean {
-        if (Build.VERSION.SDK_INT < 29) return false
+        if (Build.VERSION.SDK_INT < 29) return try {
+            val f = LegacyExport.newFile(ctx, "Pictures", "$name.png")
+            f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        } catch (e: Exception) { false }
         return try {
             val v = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
