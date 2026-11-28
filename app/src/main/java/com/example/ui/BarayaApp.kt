@@ -286,6 +286,7 @@ fun BarayaApp(
                                         canvasAspectRatio = canvasAspectRatio,
                                         onSelectElement = { viewModel.selectElement(it) },
                                         onAddText = { viewModel.addTextElement(it) },
+                                        onAddDraw = { viewModel.addDrawElement(it) },
                                         onAddShape = { viewModel.addShapeElement(it) },
                                         onAddCalligraphy = { viewModel.addCalligraphyPreset(it) },
                                         onAddGraphicSticker = { viewModel.addGraphicSticker(it) },

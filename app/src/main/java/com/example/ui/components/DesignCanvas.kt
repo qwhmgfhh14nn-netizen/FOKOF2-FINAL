@@ -197,6 +197,32 @@ fun DesignElementContent(el: CanvasElement, k: Float) {
                 modifier = Modifier.size((el.width * k).dp, (el.height * k).dp).clip(shape)
             )
         }
+        CanvasElementType.DRAW -> {
+            Canvas(modifier = Modifier.size((el.width * k).dp, (el.height * k).dp)) {
+                val pts = el.points.split(";").mapNotNull { p ->
+                    val ab = p.split(",")
+                    if (ab.size == 2) {
+                        val a = ab[0].toFloatOrNull(); val b = ab[1].toFloatOrNull()
+                        if (a != null && b != null) Offset(a * k, b * k) else null
+                    } else null
+                }
+                if (pts.size > 1) {
+                    val path = Path().apply {
+                        moveTo(pts[0].x, pts[0].y)
+                        for (i in 1 until pts.size) lineTo(pts[i].x, pts[i].y)
+                    }
+                    drawPath(
+                        path,
+                        color.copy(alpha = el.opacity),
+                        style = Stroke(
+                            width = (el.strokeW * k).coerceAtLeast(1f),
+                            cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                            join = androidx.compose.ui.graphics.StrokeJoin.Round
+                        )
+                    )
+                }
+            }
+        }
         CanvasElementType.IMAGE_BADGE -> {
             Box(
                 modifier = Modifier

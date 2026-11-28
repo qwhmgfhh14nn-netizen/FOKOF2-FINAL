@@ -7,7 +7,8 @@ enum class CanvasElementType {
     SHAPE,
     CALLIGRAPHY,
     IMAGE_BADGE,
-    IMAGE
+    IMAGE,
+    DRAW
 }
 
 enum class ShapeType {
@@ -43,7 +44,10 @@ data class CanvasElement(
     val imgShape: Int = 0,
     val filter: Int = 0,
     /** TEXT effects bitmask: 1 = shadow, 2 = outline. */
-    val textFx: Int = 0
+    val textFx: Int = 0,
+    /** DRAW elements: freehand stroke as "x,y;x,y;..." relative to the element box, and brush width in design units. */
+    val points: String = "",
+    val strokeW: Float = 5f
 )
 
 enum class ProTier(val titleAr: String, val titleEn: String, val defaultPriceEgp: Int) {
