@@ -18,13 +18,15 @@ import java.util.Locale
 
 /** Reads slide captions aloud with the phone's own text-to-speech and mixes the voice into the video. Needs a real device. */
 object VoiceOver {
-    /** One WAV per text (null when that text is blank or failed). Returns null when the phone has no Arabic voice. */
-    suspend fun synth(ctx: Context, texts: List<String>, dir: File): List<File?>? {
+    /** One WAV per text (null when that text is blank or failed). Returns null when the phone has no voice for langCode (BCP-47, e.g. "ar", "en", "fr"). */
+    suspend fun synth(ctx: Context, texts: List<String>, dir: File, langCode: String = "ar"): List<File?>? {
         val ready = CompletableDeferred<Int>()
         val engine = TextToSpeech(ctx.applicationContext) { ready.complete(it) }
         try {
             if (withTimeoutOrNull(8000) { ready.await() } != TextToSpeech.SUCCESS) return null
-            val loc = listOf(Locale("ar", "EG"), Locale("ar")).firstOrNull { engine.isLanguageAvailable(it) >= TextToSpeech.LANG_AVAILABLE } ?: return null
+            val candidates = if (langCode == "ar") listOf(Locale("ar", "EG"), Locale("ar"))
+                else listOf(Locale.forLanguageTag(langCode), Locale(langCode))
+            val loc = candidates.firstOrNull { engine.isLanguageAvailable(it) >= TextToSpeech.LANG_AVAILABLE } ?: return null
             engine.language = loc
             val pending = HashMap<String, CompletableDeferred<Boolean>>()
             engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {

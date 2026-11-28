@@ -26,6 +26,12 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Reply
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PersonOutline
@@ -188,17 +194,17 @@ fun MoreScreen(
             color = MaterialTheme.colorScheme.surface
         ) {
             Column {
-                MenuRow(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.BRAND_KIT) }, "more_brand")
+                MenuRow(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.WorkspacePremium, GoldPrimary, { onNavigate(AppNavDestination.BRAND_KIT) }, "more_brand")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
-                MenuRow(if (ar) "اعمل سيرتك الذاتية" else "CV maker", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.CV_MAKER) }, "more_cv")
+                MenuRow(if (ar) "اعمل سيرتك الذاتية" else "CV maker", Icons.Default.Description, GoldPrimary, { onNavigate(AppNavDestination.CV_MAKER) }, "more_cv")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
-                MenuRow(if (ar) "صمم بالنموذج (شهادة، كارت، منيو...)" else "Design by form", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.ENGINE_MAKER) }, "more_engine")
+                MenuRow(if (ar) "صمم بالنموذج (شهادة، كارت، منيو...)" else "Design by form", Icons.Default.DashboardCustomize, GoldPrimary, { onNavigate(AppNavDestination.ENGINE_MAKER) }, "more_engine")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
-                MenuRow(if (ar) "صانع الفيديو (صور وانتقالات)" else "Video maker", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_MAKER) }, "more_video")
+                MenuRow(if (ar) "صانع الفيديو (صور وانتقالات)" else "Video maker", Icons.Default.Videocam, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_MAKER) }, "more_video")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
-                MenuRow(if (ar) "قص ودمج فيديو" else "Trim and join video", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_TRIM) }, "more_trim")
+                MenuRow(if (ar) "قص ودمج فيديو" else "Trim and join video", Icons.Default.ContentCut, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_TRIM) }, "more_trim")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
-                MenuRow(if (ar) "أدوات الصور (تعديل، ميم، كولاج، ملصقات)" else "Photo tools", Icons.Default.ColorLens, GoldPrimary, { onNavigate(AppNavDestination.PHOTO_TOOLS) }, "more_photo")
+                MenuRow(if (ar) "أدوات الصور (تعديل، ميم، كولاج، ملصقات)" else "Photo tools", Icons.Default.PhotoLibrary, GoldPrimary, { onNavigate(AppNavDestination.PHOTO_TOOLS) }, "more_photo")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "منشئ المواقع" else "Website builder", Icons.Default.Language, GoldPrimary, { onNavigate(AppNavDestination.WEBSITES) }, "more_websites")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
@@ -206,7 +212,7 @@ fun MoreScreen(
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "كتابة الإعلانات" else "Ad copywriter", Icons.Default.Campaign, GoldPrimary, { onNavigate(AppNavDestination.AI_MARKETING) }, "more_ai_copy")
 
-MenuRow(if (ar) "الرد الذكي على العملاء" else "Smart customer replies", Icons.Default.AutoAwesome, GoldPrimary, { onNavigate(AppNavDestination.SMART_REPLY) }, "more_smart_reply")
+MenuRow(if (ar) "الرد الذكي على العملاء" else "Smart customer replies", Icons.Default.Reply, GoldPrimary, { onNavigate(AppNavDestination.SMART_REPLY) }, "more_smart_reply")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "استوديو الموك آب" else "Mockup studio", Icons.Default.ViewInAr, GoldPrimary, { onNavigate(AppNavDestination.MOCKUP_STUDIO) }, "more_mockup")
             }
