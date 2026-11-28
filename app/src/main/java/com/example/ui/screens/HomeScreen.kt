@@ -258,8 +258,7 @@ fun HomeScreen(
             items(starts.size) { i ->
                 val (label, icon, ratio) = starts[i]
                 CircleShortcut(label, icon, tints[i], tag = "quick_start_$i", onClick = {
-                    if (i == 4) onNavigate(AppNavDestination.STUDIO)
-                    onStartDesign(ratio, "تصميم جديد", "New Design")
+                    if (i == 4) onNavigate(AppNavDestination.STUDIO) else onStartDesign(ratio, "تصميم جديد", "New Design")
                 })
             }
         }
@@ -271,9 +270,9 @@ fun HomeScreen(
                 Triple(if (ar) "سيرة ذاتية" else "CV maker", Icons.Default.Description, AppNavDestination.CV_MAKER),
                 Triple(if (ar) "توليد صور" else "AI images", Icons.Default.AutoAwesome, AppNavDestination.AI_IMAGE),
                 Triple(if (ar) "كتابة إعلانات" else "Ad copy", Icons.Default.Campaign, AppNavDestination.AI_MARKETING),
-                Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.ColorLens, null),
+                Triple(if (ar) "الهوية البصرية" else "Brand kit", Icons.Default.WorkspacePremium, null),
                 Triple(if (ar) "منشئ المواقع" else "Websites", Icons.Default.Language, AppNavDestination.WEBSITES),
-                Triple(if (ar) "موك آب" else "Mockups", Icons.Default.ShoppingBag, AppNavDestination.MOCKUP_STUDIO)
+                Triple(if (ar) "موك آب" else "Mockups", Icons.Default.ViewInAr, AppNavDestination.MOCKUP_STUDIO)
             )
             items(tools.size) { i ->
                 val (label, icon, dest) = tools[i]
