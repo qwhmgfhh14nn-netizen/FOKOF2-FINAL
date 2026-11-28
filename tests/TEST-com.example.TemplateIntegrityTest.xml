@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.TemplateIntegrityTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:55:20.772Z" hostname="runnervm3lb7s" time="0.013">
+  <properties/>
+  <testcase name="every_template_has_local_art_file" classname="com.example.TemplateIntegrityTest" time="0.003"/>
+  <testcase name="designed_layouts_fit_their_own_aspect_ratio" classname="com.example.TemplateIntegrityTest" time="0.005"/>
+  <testcase name="layouts_vary_between_templates" classname="com.example.TemplateIntegrityTest" time="0.003"/>
+  <testcase name="counts_and_unique_ids" classname="com.example.TemplateIntegrityTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

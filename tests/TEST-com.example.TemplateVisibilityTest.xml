@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.TemplateVisibilityTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:56:12.513Z" hostname="runnervm3lb7s" time="0.12">
+  <properties/>
+  <testcase name="procedural_catalog_is_hidden_and_photo_catalog_is_shown" classname="com.example.TemplateVisibilityTest" time="0.059"/>
+  <testcase name="only_designed_default_categories_stay_visible" classname="com.example.TemplateVisibilityTest" time="0.059"/>
+  <system-out><![CDATA[VISIBILITY_OK defaults_total=64 defaults_shown=21 by_category={الشعارات والهويات=9, كروت العمل الشخصية=6, سير ذاتية احترافية=6} photo=132
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

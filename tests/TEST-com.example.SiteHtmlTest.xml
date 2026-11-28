@@ -1,0 +1,1123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.SiteHtmlTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:55:20.407Z" hostname="runnervm3lb7s" time="0.166">
+  <properties/>
+  <testcase name="every_template_embeds_photo_sections_and_effects" classname="com.example.SiteHtmlTest" time="0.162"/>
+  <system-out><![CDATA[SITE_HTML_OK RESTAURANT bytes=64866
+SITE_HTML_BEGIN RESTAURANT
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;b&gt;اسم&lt;/b&gt; | طعم المشويات الأصيل على الفحم يجمعنا</title>
+
+<meta name="description" content="طعم المشويات الأصيل على الفحم يجمعنا - توصيل سريع ساخن لجميع المناطق على مدار 24 ساعة">
+<meta name="theme-color" content="#D4AF37">
+<meta property="og:title" content="&lt;b&gt;اسم&lt;/b&gt;">
+<meta property="og:description" content="طعم المشويات الأصيل على الفحم يجمعنا - توصيل سريع ساخن لجميع المناطق على مدار 24 ساعة">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_EG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"LocalBusiness","name":"<b>اسم<\/b>","description":"طعم المشويات الأصيل على الفحم يجمعنا - توصيل سريع ساخن لجميع المناطق على مدار 24 ساعة","telephone":"01023456789","address":"شارع النصر، المعادي الجديدة، القاهرة","openingHours":"يومياً من 11:00 صباحاً حتى 2:00 بعد منتصف الليل"}</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --primary: #D4AF37; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
+[data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Cairo', sans-serif; }
+
+.ann { background: var(--primary); color: #fff; text-align: center; padding: 8px 14px; font-weight: 700; font-size: .92rem; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
+nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
+nav b { font-weight: 800; font-size: 1.05rem; }
+nav .links { display: flex; gap: 14px; align-items: center; font-size: .9rem; }
+nav a { color: var(--ink); text-decoration: none; opacity: .8; }
+nav a:hover { color: var(--primary); opacity: 1; }
+#theme { background: none; border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+.hero { position: relative; min-height: 78vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background-image: url('HERO.jpg'); background-size: cover; background-position: center; animation: kenburns 18s ease-in-out infinite alternate; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.68)); }
+.hero-inner { position: relative; z-index: 2; padding: 32px 20px; max-width: 760px; }
+.hero h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 800; animation: rise .9s ease both; }
+.tagline { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 8px 0; animation: rise .9s .15s ease both; filter: brightness(1.35); }
+.sub { opacity: .92; margin: 0 auto 26px; animation: rise .9s .3s ease both; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: rise .9s .45s ease both; }
+.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font-size: 1rem; transition: transform .25s, box-shadow .25s; }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-call { background: rgba(255,255,255,.15); border: 2px solid #fff; color: #fff; backdrop-filter: blur(4px); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 20px; }
+h2.t { font-size: 1.7rem; font-weight: 800; margin-bottom: 22px; position: relative; padding-bottom: 10px; }
+h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px; height: 4px; border-radius: 4px; background: var(--primary); }
+.feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; text-align: center; }
+.feat .ico { font-size: 2rem; margin-bottom: 6px; }
+.feat h4 { font-size: 1.05rem; } .feat p { color: var(--muted); font-size: .88rem; }
+.revs { display: grid; gap: 14px; } .rev { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.rev .stars { color: #f5b301; letter-spacing: 2px; } .rev p { margin: 8px 0; }
+.gal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; } .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+.social { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; } .social a { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none; font-weight: 700; }
+.panel { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; border: 1px solid var(--line); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+.chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.pimg { width: calc(100% + 44px); max-width: none; margin: -22px -22px 14px; height: 180px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
+.card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
+.card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.card p { color: var(--muted); font-size: .92rem; margin-bottom: 12px; }
+.badge { background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
+.price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.old { color: var(--muted); font-size: .9rem; font-weight: 400; margin-right: 6px; }
+.off { background: #dc2626; color: #fff; font-size: .72rem; padding: 2px 8px; border-radius: 6px; margin-right: 6px; font-weight: 700; }
+.order-btn { background: var(--primary); color: #fff; text-align: center; padding: 11px; border-radius: 12px; font-weight: 700; text-decoration: none; transition: filter .2s; }
+.order-btn:hover { filter: brightness(1.12); }
+.form { display: grid; gap: 12px; }
+.form input, .form select, .form textarea { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 1rem; }
+.form button { justify-self: start; }
+details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+summary { cursor: pointer; font-weight: 700; }
+details p { color: var(--muted); margin-top: 8px; }
+.map { border-radius: 18px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--line); }
+.map iframe { width: 100%; height: 300px; border: 0; display: block; }
+.contact { text-align: center; }
+.contact h2.t::after { right: 50%; transform: translateX(50%); }
+footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85rem; }
+.fab { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.3); animation: pulse 2.2s infinite; }
+#top { position: fixed; bottom: 20px; right: 20px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--primary); color: #fff; font-size: 1.2rem; cursor: pointer; display: none; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.add-btn { margin-top: 8px; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn:hover { background: var(--primary); color: #fff; }
+.card { cursor: pointer; }
+#lang { background: none; border: 1px solid var(--line); color: var(--ink); height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.share { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin: 0 0 30px; }
+.share a, .share button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: .9rem; }
+#cartbtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 12; background: var(--primary); color: #fff; border: 0; padding: 13px 24px; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(0,0,0,.3); cursor: pointer; display: none; }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet-in { background: var(--card); color: var(--ink); width: min(560px, 100%); max-height: 86vh; overflow: auto; border-radius: 22px 22px 0 0; padding: 22px; }
+.sheet-in h3 { margin-bottom: 12px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.crow .q button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; font-weight: 800; }
+.ctotal { font-weight: 800; font-size: 1.15rem; margin: 14px 0; }
+.sheet-in .x { float: left; background: none; border: 0; color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+.sheet-in .pimg { width: 100%; margin: 0 0 12px; border-radius: 14px; }
+@media (max-width: 560px) { nav .links a { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <b>&lt;b&gt;اسم&lt;/b&gt;</b>
+  <div class="links">
+    <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">]]>&#x1f319;<![CDATA[</button>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <h1>&lt;b&gt;اسم&lt;/b&gt;</h1>
+    <div class="tagline">طعم المشويات الأصيل على الفحم يجمعنا</div>
+    <p class="sub">توصيل سريع ساخن لجميع المناطق على مدار 24 ساعة</p>
+    <div class="cta">
+      <a href="https://wa.me/201023456789" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+      <a href="tel:01023456789" class="btn btn-call">اتصل بنا: 01023456789</a>
+    </div>
+  </div>
+</section>
+<div class="wrap">
+  <div class="feats">
+<div class="feat reveal"><div class="ico">]]>&#x1f525;<![CDATA[</div><h4>مكونات طازجة</h4><p>نختار الخامات يومياً ونحضّر كل طلب على الفور</p></div>
+<div class="feat reveal"><div class="ico">]]>&#x1f69a;<![CDATA[</div><h4>توصيل سريع</h4><p>طلبك يوصلك ساخن في أسرع وقت</p></div>
+<div class="feat reveal"><div class="ico">⭐</div><h4>طعم ثابت</h4><p>نفس الجودة في كل مرة تطلب فيها</p></div>
+  </div>
+  <section class="panel reveal">
+    <h2 class="t">نبذة عنا</h2>
+    <p>مطعم وكافيه يقدم ألذ الساندوتشات والوجبات العائلية والمشويات الطازجة يومياً مع صلصاتنا السرية الخاصة منذ عام 2018.</p>
+  </section>
+
+  <section id="menu">
+    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
+    <div class="chips"><button class="chip on" data-cat="__all">الكل</button><button class="chip" data-cat="البرجر">البرجر</button><button class="chip" data-cat="المشويات">المشويات</button><button class="chip" data-cat="البيتزا">البيتزا</button><button class="chip" data-cat="الحلويات والمشروبات">الحلويات والمشروبات</button></div>
+    <div class="grid">
+<div class="card reveal" data-cat="البرجر" data-name="برجر دبل بيف بلاك أنجوس عالفحم" data-en="Double Angus Burger" data-price="145">
+    
+    <div class="card-body">
+        <h3>برجر دبل بيف بلاك أنجوس عالفحم <span class="badge">الأكثر طلباً</span></h3>
+        <p>قطعتين لحم أنجوس 220 جم مع جبن شيدر ذائب وصوص سموكي وخيار مخلل</p>
+        <div class="price">145 ج.م <s class="old">175</s><span class="off">خصم 17%</span></div>
+    </div>
+    <a href="https://wa.me/201023456789?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%A8%D8%B1%D8%AC%D8%B1+%D8%AF%D8%A8%D9%84+%D8%A8%D9%8A%D9%81+%D8%A8%D9%84%D8%A7%D9%83+%D8%A3%D9%86%D8%AC%D9%88%D8%B3+%D8%B9%D8%A7%D9%84%D9%81%D8%AD%D9%85" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="المشويات" data-name="وجبة ميكس جريل مشويات مشكلة" data-en="Mix Grill Platter" data-price="260">
+    
+    <div class="card-body">
+        <h3>وجبة ميكس جريل مشويات مشكلة <span class="badge">عائلي</span></h3>
+        <p>شيش طاووق، كفتة لحم بلدي، وكباب مع أرز بسمتي بالمكسرات وسلطات</p>
+        <div class="price">260 ج.م <s class="old">295</s><span class="off">خصم 11%</span></div>
+    </div>
+    <a href="https://wa.me/201023456789?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D9%88%D8%AC%D8%A8%D8%A9+%D9%85%D9%8A%D9%83%D8%B3+%D8%AC%D8%B1%D9%8A%D9%84+%D9%85%D8%B4%D9%88%D9%8A%D8%A7%D8%AA+%D9%85%D8%B4%D9%83%D9%84%D8%A9" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="البيتزا" data-name="بيتزا رانش الدجاج المقرمش" data-en="Crispy Chicken Ranch Pizza" data-price="160">
+    
+    <div class="card-body">
+        <h3>بيتزا رانش الدجاج المقرمش </h3>
+        <p>عجينة إيطالية هشة، قطع كرسبي، صوص رانش غني وجبنة موتزاريلا طبيعية</p>
+        <div class="price">160 ج.م </div>
+    </div>
+    <a href="https://wa.me/201023456789?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%A8%D9%8A%D8%AA%D8%B2%D8%A7+%D8%B1%D8%A7%D9%86%D8%B4+%D8%A7%D9%84%D8%AF%D8%AC%D8%A7%D8%AC+%D8%A7%D9%84%D9%85%D9%82%D8%B1%D9%85%D8%B4" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="الحلويات والمشروبات" data-name="تشيز كيك كراميل لوتس فاخر" data-en="Lotus Caramel Cheesecake" data-price="75">
+    
+    <div class="card-body">
+        <h3>تشيز كيك كراميل لوتس فاخر </h3>
+        <p>حلوى التشيز كيك الغنية بطبقة بسكويت اللوتس المقرمش وصوص الكراميل</p>
+        <div class="price">75 ج.م </div>
+    </div>
+    <a href="https://wa.me/201023456789?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%AA%D8%B4%D9%8A%D8%B2+%D9%83%D9%8A%D9%83+%D9%83%D8%B1%D8%A7%D9%85%D9%8A%D9%84+%D9%84%D9%88%D8%AA%D8%B3+%D9%81%D8%A7%D8%AE%D8%B1" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+    </div>
+  </section>
+
+  <section id="book" class="panel reveal">
+    <h2 class="t">احجز أو اطلب الآن</h2>
+    <form id="bf" class="form">
+      <input id="f-name" placeholder="الاسم" required>
+      <input id="f-phone" type="tel" placeholder="رقم الموبايل" required>
+      <select id="f-item"><option value="">اختر الخدمة أو المنتج</option><option>برجر دبل بيف بلاك أنجوس عالفحم</option><option>وجبة ميكس جريل مشويات مشكلة</option><option>بيتزا رانش الدجاج المقرمش</option><option>تشيز كيك كراميل لوتس فاخر</option></select>
+      <input id="f-when" placeholder="الموعد المناسب (اختياري)">
+      <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+
+      <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
+    </form>
+  </section>
+<section id="reviews" class="panel reveal"><h2 class="t">آراء عملائنا</h2><div class="revs"><div class="rev"><div class="stars">★★★★★</div><p>خدمة ممتازة</p><b>سارة</b></div></div></section><section id="gallery" class="panel reveal"><h2 class="t">معرض الصور</h2><div class="gal"><img loading="lazy" alt="" src="https://example.com/a.jpg"></div></section><div class="social reveal"><a href="https://instagram.com/fokof2" target="_blank" rel="noopener">إنستجرام</a></div>
+
+  <section id="faq" class="panel reveal">
+    <h2 class="t">أسئلة شائعة</h2>
+    <details><summary>إزاي أطلب أو أحجز؟</summary><p>املأ النموذج أعلاه أو راسلنا مباشرة على واتساب وهنرد عليك في أسرع وقت.</p></details>
+    <details><summary>إيه مواعيد العمل؟</summary><p>يومياً من 11:00 صباحاً حتى 2:00 بعد منتصف الليل</p></details>
+    <details><summary>فين مكانكم؟</summary><p>شارع النصر، المعادي الجديدة، القاهرة</p></details>
+  </section>
+  <section id="contact" class="panel contact reveal">
+    <h2 class="t">العنوان ومواعيد العمل</h2>
+    <p>]]>&#x1f4cd;<![CDATA[ شارع النصر، المعادي الجديدة، القاهرة</p>
+    <p>⏰ يومياً من 11:00 صباحاً حتى 2:00 بعد منتصف الليل</p>
+  </section>
+<div class="map"><iframe title="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=%D8%B4%D8%A7%D8%B1%D8%B9+%D8%A7%D9%84%D9%86%D8%B5%D8%B1%D8%8C+%D8%A7%D9%84%D9%85%D8%B9%D8%A7%D8%AF%D9%8A+%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%D8%A9%D8%8C+%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9&output=embed"></iframe></div>
+</div>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+<footer data-t="تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
+<a class="fab" href="https://wa.me/201023456789" target="_blank" rel="noopener">واتساب</a>
+<button id="top" title="لأعلى">↑</button>
+<script>
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+  }
+  var root = document.documentElement, tb = document.getElementById('theme');
+  if (root.getAttribute('data-theme') === 'dark') tb.textContent = '☀️';
+  tb.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); tb.textContent = ']]>&#x1f319;<![CDATA['; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }
+  });
+  var top = document.getElementById('top');
+  window.addEventListener('scroll', function () { top.style.display = window.scrollY > 500 ? 'block' : 'none'; });
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      var cat = c.getAttribute('data-cat');
+      document.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
+      });
+    });
+  });
+  var WA = 'https://wa.me/201023456789';
+  var CPN = '', CPN_P = 0, cpnOn = false;
+  var en = false, cart = {};
+  function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
+  function applyLang() {
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+    document.querySelectorAll('[data-p]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-p')); });
+    document.getElementById('lang').textContent = en ? 'عربي' : 'EN';
+    document.querySelectorAll('.card').forEach(function (c) {
+      var h = c.querySelector('h3'); var tn = h && h.firstChild;
+      if (tn && tn.nodeType === 3) { var n = c.getAttribute('data-en'); tn.textContent = (en && n ? n : c.getAttribute('data-name')) + ' '; }
+    });
+    renderCart();
+  }
+  document.getElementById('lang').addEventListener('click', function () { en = !en; applyLang(); });
+  function nm(k) { var c = document.querySelector('.card[data-name="' + k.replace(/"/g, '\\"') + '"]'); var e = c && c.getAttribute('data-en'); return en && e ? e : k; }
+  function renderCart() {
+    var keys = Object.keys(cart), total = 0, count = 0, html = '';
+    keys.forEach(function (k) {
+      var it = cart[k]; total += it.p * it.q; count += it.q;
+      html += '<div class="crow"><span></span><span class="q"><button data-d="-1" data-k="' + encodeURIComponent(k) + '">-</button> ' + it.q + ' <button data-d="1" data-k="' + encodeURIComponent(k) + '">+</button></span><b>' + (it.p * it.q) + '</b></div>';
+    });
+    var box = document.getElementById('clines'); box.innerHTML = html;
+    box.querySelectorAll('.crow').forEach(function (row, i) { row.firstChild.textContent = nm(keys[i]); });
+    box.querySelectorAll('button[data-d]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = decodeURIComponent(b.getAttribute('data-k')); cart[k].q += parseInt(b.getAttribute('data-d'), 10);
+        if (cart[k].q <= 0) delete cart[k]; renderCart();
+      });
+    });
+    var ctotalEl = document.getElementById('ctotal');
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    ctotalEl.textContent = disc > 0
+      ? T('الإجمالي|Total') + ': ' + total + ' - ' + T('خصم|Discount') + ' ' + disc + ' = ' + (total - disc) + ' ' + T('ج.م|EGP')
+      : T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var cb = document.getElementById('cartbtn');
+    cb.style.display = count ? 'block' : 'none';
+    cb.textContent = ']]>&#x1f6d2;<![CDATA[ ' + T('السلة|Cart') + ' (' + count + ') - ' + (total - disc) + ' ' + T('ج.م|EGP');
+    if (!count) document.getElementById('cartsheet').classList.remove('open');
+  }
+  document.querySelectorAll('.add-btn').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var c = b.closest('.card'), k = c.getAttribute('data-name');
+      if (!cart[k]) cart[k] = { p: parseInt(c.getAttribute('data-price'), 10) || 0, q: 0 };
+      cart[k].q += 1; renderCart();
+    });
+  });
+  document.getElementById('cartbtn').addEventListener('click', function () { document.getElementById('cartsheet').classList.add('open'); });
+  document.querySelectorAll('.sheet').forEach(function (sh) {
+    sh.addEventListener('click', function (ev) { if (ev.target === sh || ev.target.getAttribute('data-close')) sh.classList.remove('open'); });
+  });
+  document.getElementById('c-send').addEventListener('click', function () {
+    var keys = Object.keys(cart); if (!keys.length) return;
+    var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
+    keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    if (disc > 0) { lines.push(T('الإجمالي قبل الخصم|Subtotal') + ': ' + total + ' ' + T('ج.م|EGP')); lines.push(T('خصم|Discount') + ' (' + CPN + '): -' + disc + ' ' + T('ج.م|EGP')); }
+    lines.push(T('الإجمالي|Total') + ': ' + (total - disc) + ' ' + T('ج.م|EGP'));
+    var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
+    if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
+    window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      if (ev.target.closest('a,button')) return;
+      var copy = c.cloneNode(true);
+      copy.querySelectorAll('a,button').forEach(function (x) { x.remove(); });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'btn btn-wa'; add.textContent = T('+ أضف للسلة|+ Add to cart');
+      add.addEventListener('click', function () { var b = c.querySelector('.add-btn'); if (b) b.click(); document.getElementById('detsheet').classList.remove('open'); });
+      var body = document.getElementById('detbody'); body.innerHTML = '';
+      var inner = copy.querySelector('.card-body'); var im = copy.querySelector('.pimg');
+      if (im) body.appendChild(im); if (inner) body.appendChild(inner);
+      if (c.querySelector('.add-btn')) body.appendChild(add);
+      document.getElementById('detsheet').classList.add('open');
+    });
+  });
+  var pageUrl = location.href;
+  document.getElementById('sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + pageUrl);
+  document.getElementById('sh-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl);
+  document.getElementById('sh-cp').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
+  });
+  var cpnBtn = document.getElementById('c-cpn-btn');
+  if (cpnBtn) cpnBtn.addEventListener('click', function () {
+    var v = document.getElementById('c-cpn').value.trim();
+    if (v && v === CPN) { cpnOn = true; cpnBtn.textContent = T('تم ✓|Applied ✓'); }
+    else { cpnOn = false; cpnBtn.textContent = T('كود غير صحيح|Invalid code'); }
+    renderCart();
+  });
+  var bf = document.getElementById('bf');
+  if (bf) bf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var lines = ['مرحباً، أود التواصل بخصوص:'];
+    var item = document.getElementById('f-item').value;
+    if (item) lines.push('الخدمة: ' + item);
+    lines.push('الاسم: ' + document.getElementById('f-name').value);
+    lines.push('الموبايل: ' + document.getElementById('f-phone').value);
+    var w = document.getElementById('f-when').value; if (w) lines.push('الموعد: ' + w);
+    var n = document.getElementById('f-note').value; if (n) lines.push('ملاحظات: ' + n);
+    document.querySelectorAll('#bf .cf').forEach(function (el) { var v = el.value; if (v) lines.push(el.getAttribute('data-l') + ': ' + v); });
+    window.open('https://wa.me/201023456789?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+})();
+</script>
+</body>
+</html>
+SITE_HTML_END
+SITE_HTML_OK PHARMACY bytes=76911
+SITE_HTML_OK FASHION bytes=102359
+SITE_HTML_OK CLINIC bytes=69384
+SITE_HTML_OK REAL_ESTATE bytes=89743
+SITE_HTML_OK SALON bytes=101013
+SITE_HTML_OK MOTORS bytes=80738
+SITE_HTML_OK GROCERY bytes=141676
+SITE_HTML_OK AGENCY bytes=83662
+SITE_HTML_OK ACADEMY bytes=79825
+SITE_HTML_OK GYM bytes=77143
+SITE_HTML_OK ELECTRONICS bytes=103401
+SITE_HTML_OK PHOTO bytes=58653
+SITE_HTML_OK TRAVEL bytes=114786
+SITE_HTML_OK LAWYER bytes=91154
+SITE_HTML_BEGIN LAWYER
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;b&gt;اسم&lt;/b&gt; | حقك محفوظ بإذن الله</title>
+
+<meta name="description" content="حقك محفوظ بإذن الله - استشارات قانونية وقضايا مدنية وتجارية وأسرة">
+<meta name="theme-color" content="#D4AF37">
+<meta property="og:title" content="&lt;b&gt;اسم&lt;/b&gt;">
+<meta property="og:description" content="حقك محفوظ بإذن الله - استشارات قانونية وقضايا مدنية وتجارية وأسرة">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_EG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"LocalBusiness","name":"<b>اسم<\/b>","description":"حقك محفوظ بإذن الله - استشارات قانونية وقضايا مدنية وتجارية وأسرة","telephone":"01012345678","address":"شارع قصر العيني، القاهرة","openingHours":"من السبت للخميس 10 صباحاً حتى 6 مساءً"}</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --primary: #D4AF37; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
+[data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Cairo', sans-serif; }
+
+.ann { background: var(--primary); color: #fff; text-align: center; padding: 8px 14px; font-weight: 700; font-size: .92rem; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
+nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
+nav b { font-weight: 800; font-size: 1.05rem; }
+nav .links { display: flex; gap: 14px; align-items: center; font-size: .9rem; }
+nav a { color: var(--ink); text-decoration: none; opacity: .8; }
+nav a:hover { color: var(--primary); opacity: 1; }
+#theme { background: none; border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+.hero { position: relative; min-height: 78vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background-image: url('HERO.jpg'); background-size: cover; background-position: center; animation: kenburns 18s ease-in-out infinite alternate; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.68)); }
+.hero-inner { position: relative; z-index: 2; padding: 32px 20px; max-width: 760px; }
+.hero h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 800; animation: rise .9s ease both; }
+.tagline { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 8px 0; animation: rise .9s .15s ease both; filter: brightness(1.35); }
+.sub { opacity: .92; margin: 0 auto 26px; animation: rise .9s .3s ease both; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: rise .9s .45s ease both; }
+.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font-size: 1rem; transition: transform .25s, box-shadow .25s; }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-call { background: rgba(255,255,255,.15); border: 2px solid #fff; color: #fff; backdrop-filter: blur(4px); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 20px; }
+h2.t { font-size: 1.7rem; font-weight: 800; margin-bottom: 22px; position: relative; padding-bottom: 10px; }
+h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px; height: 4px; border-radius: 4px; background: var(--primary); }
+.feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; text-align: center; }
+.feat .ico { font-size: 2rem; margin-bottom: 6px; }
+.feat h4 { font-size: 1.05rem; } .feat p { color: var(--muted); font-size: .88rem; }
+.revs { display: grid; gap: 14px; } .rev { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.rev .stars { color: #f5b301; letter-spacing: 2px; } .rev p { margin: 8px 0; }
+.gal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; } .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+.social { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; } .social a { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none; font-weight: 700; }
+.panel { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; border: 1px solid var(--line); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+.chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.pimg { width: calc(100% + 44px); max-width: none; margin: -22px -22px 14px; height: 180px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
+.card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
+.card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.card p { color: var(--muted); font-size: .92rem; margin-bottom: 12px; }
+.badge { background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
+.price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.old { color: var(--muted); font-size: .9rem; font-weight: 400; margin-right: 6px; }
+.off { background: #dc2626; color: #fff; font-size: .72rem; padding: 2px 8px; border-radius: 6px; margin-right: 6px; font-weight: 700; }
+.order-btn { background: var(--primary); color: #fff; text-align: center; padding: 11px; border-radius: 12px; font-weight: 700; text-decoration: none; transition: filter .2s; }
+.order-btn:hover { filter: brightness(1.12); }
+.form { display: grid; gap: 12px; }
+.form input, .form select, .form textarea { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 1rem; }
+.form button { justify-self: start; }
+details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+summary { cursor: pointer; font-weight: 700; }
+details p { color: var(--muted); margin-top: 8px; }
+.map { border-radius: 18px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--line); }
+.map iframe { width: 100%; height: 300px; border: 0; display: block; }
+.contact { text-align: center; }
+.contact h2.t::after { right: 50%; transform: translateX(50%); }
+footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85rem; }
+.fab { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.3); animation: pulse 2.2s infinite; }
+#top { position: fixed; bottom: 20px; right: 20px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--primary); color: #fff; font-size: 1.2rem; cursor: pointer; display: none; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.add-btn { margin-top: 8px; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn:hover { background: var(--primary); color: #fff; }
+.card { cursor: pointer; }
+#lang { background: none; border: 1px solid var(--line); color: var(--ink); height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.share { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin: 0 0 30px; }
+.share a, .share button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: .9rem; }
+#cartbtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 12; background: var(--primary); color: #fff; border: 0; padding: 13px 24px; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(0,0,0,.3); cursor: pointer; display: none; }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet-in { background: var(--card); color: var(--ink); width: min(560px, 100%); max-height: 86vh; overflow: auto; border-radius: 22px 22px 0 0; padding: 22px; }
+.sheet-in h3 { margin-bottom: 12px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.crow .q button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; font-weight: 800; }
+.ctotal { font-weight: 800; font-size: 1.15rem; margin: 14px 0; }
+.sheet-in .x { float: left; background: none; border: 0; color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+.sheet-in .pimg { width: 100%; margin: 0 0 12px; border-radius: 14px; }
+@media (max-width: 560px) { nav .links a { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <b>&lt;b&gt;اسم&lt;/b&gt;</b>
+  <div class="links">
+    <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">]]>&#x1f319;<![CDATA[</button>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <h1>&lt;b&gt;اسم&lt;/b&gt;</h1>
+    <div class="tagline">حقك محفوظ بإذن الله</div>
+    <p class="sub">استشارات قانونية وقضايا مدنية وتجارية وأسرة</p>
+    <div class="cta">
+      <a href="https://wa.me/201012345678" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+      <a href="tel:01012345678" class="btn btn-call">اتصل بنا: 01012345678</a>
+    </div>
+  </div>
+</section>
+<div class="wrap">
+  <div class="feats">
+<div class="feat reveal"><div class="ico">⚖️</div><h4>خبرة قانونية</h4><p>استشارات وقضايا بمعرفة عميقة</p></div>
+<div class="feat reveal"><div class="ico">]]>&#x1f512;<![CDATA[</div><h4>سرية تامة</h4><p>نحافظ على خصوصية موكلينا</p></div>
+<div class="feat reveal"><div class="ico">]]>&#x1f4de;<![CDATA[</div><h4>متابعة مستمرة</h4><p>نبقيك على اطلاع بكل خطوة</p></div>
+  </div>
+  <section class="panel reveal">
+    <h2 class="t">نبذة عنا</h2>
+    <p>مكتب محاماة يقدم استشارات وتمثيل قانوني في القضايا المدنية والتجارية والأحوال الشخصية.</p>
+  </section>
+
+  <section id="menu">
+    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
+    <div class="chips"><button class="chip on" data-cat="__all">الكل</button><button class="chip" data-cat="استشارات">استشارات</button><button class="chip" data-cat="شركات">شركات</button><button class="chip" data-cat="قضايا">قضايا</button><button class="chip" data-cat="عقود">عقود</button></div>
+    <div class="grid">
+<div class="card reveal" data-cat="استشارات" data-name="استشارة قانونية (30 دقيقة)" data-en="Consultation" data-price="500">
+    
+    <div class="card-body">
+        <h3>استشارة قانونية (30 دقيقة) </h3>
+        <p>جلسة استشارة مع محامٍ متخصص</p>
+        <div class="price">500 ج.م </div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A9+%D9%82%D8%A7%D9%86%D9%88%D9%86%D9%8A%D8%A9+%2830+%D8%AF%D9%82%D9%8A%D9%82%D8%A9%29" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="شركات" data-name="تأسيس شركة وعقود" data-en="Company Setup" data-price="3500">
+    
+    <div class="card-body">
+        <h3>تأسيس شركة وعقود <span class="badge">مطلوب</span></h3>
+        <p>إجراءات التأسيس وصياغة العقود</p>
+        <div class="price">3500 ج.م </div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%AA%D8%A3%D8%B3%D9%8A%D8%B3+%D8%B4%D8%B1%D9%83%D8%A9+%D9%88%D8%B9%D9%82%D9%88%D8%AF" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="قضايا" data-name="قضايا الأحوال الشخصية" data-en="Family Law" data-price="0">
+    
+    <div class="card-body">
+        <h3>قضايا الأحوال الشخصية </h3>
+        <p>تمثيل وإجراءات - اتصل للتسعير</p>
+        <div class="price">اتصل للسعر</div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D9%82%D8%B6%D8%A7%D9%8A%D8%A7+%D8%A7%D9%84%D8%A3%D8%AD%D9%88%D8%A7%D9%84+%D8%A7%D9%84%D8%B4%D8%AE%D8%B5%D9%8A%D8%A9" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    
+</div>
+<div class="card reveal" data-cat="عقود" data-name="صياغة ومراجعة العقود" data-en="Contract Review" data-price="800">
+    
+    <div class="card-body">
+        <h3>صياغة ومراجعة العقود </h3>
+        <p>مراجعة قانونية دقيقة قبل التوقيع</p>
+        <div class="price">800 ج.م </div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%B5%D9%8A%D8%A7%D8%BA%D8%A9+%D9%88%D9%85%D8%B1%D8%A7%D8%AC%D8%B9%D8%A9+%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%AF" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+    </div>
+  </section>
+
+  <section id="book" class="panel reveal">
+    <h2 class="t">احجز أو اطلب الآن</h2>
+    <form id="bf" class="form">
+      <input id="f-name" placeholder="الاسم" required>
+      <input id="f-phone" type="tel" placeholder="رقم الموبايل" required>
+      <select id="f-item"><option value="">اختر الخدمة أو المنتج</option><option>استشارة قانونية (30 دقيقة)</option><option>تأسيس شركة وعقود</option><option>قضايا الأحوال الشخصية</option><option>صياغة ومراجعة العقود</option></select>
+      <input id="f-when" placeholder="الموعد المناسب (اختياري)">
+      <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+
+      <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
+    </form>
+  </section>
+<section id="reviews" class="panel reveal"><h2 class="t">آراء عملائنا</h2><div class="revs"><div class="rev"><div class="stars">★★★★★</div><p>خدمة ممتازة</p><b>سارة</b></div></div></section><section id="gallery" class="panel reveal"><h2 class="t">معرض الصور</h2><div class="gal"><img loading="lazy" alt="" src="https://example.com/a.jpg"></div></section><div class="social reveal"><a href="https://instagram.com/fokof2" target="_blank" rel="noopener">إنستجرام</a></div>
+
+  <section id="faq" class="panel reveal">
+    <h2 class="t">أسئلة شائعة</h2>
+    <details><summary>إزاي أطلب أو أحجز؟</summary><p>املأ النموذج أعلاه أو راسلنا مباشرة على واتساب وهنرد عليك في أسرع وقت.</p></details>
+    <details><summary>إيه مواعيد العمل؟</summary><p>من السبت للخميس 10 صباحاً حتى 6 مساءً</p></details>
+    <details><summary>فين مكانكم؟</summary><p>شارع قصر العيني، القاهرة</p></details>
+  </section>
+  <section id="contact" class="panel contact reveal">
+    <h2 class="t">العنوان ومواعيد العمل</h2>
+    <p>]]>&#x1f4cd;<![CDATA[ شارع قصر العيني، القاهرة</p>
+    <p>⏰ من السبت للخميس 10 صباحاً حتى 6 مساءً</p>
+  </section>
+<div class="map"><iframe title="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=%D8%B4%D8%A7%D8%B1%D8%B9+%D9%82%D8%B5%D8%B1+%D8%A7%D9%84%D8%B9%D9%8A%D9%86%D9%8A%D8%8C+%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9&output=embed"></iframe></div>
+</div>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+<footer data-t="تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
+<a class="fab" href="https://wa.me/201012345678" target="_blank" rel="noopener">واتساب</a>
+<button id="top" title="لأعلى">↑</button>
+<script>
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+  }
+  var root = document.documentElement, tb = document.getElementById('theme');
+  if (root.getAttribute('data-theme') === 'dark') tb.textContent = '☀️';
+  tb.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); tb.textContent = ']]>&#x1f319;<![CDATA['; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }
+  });
+  var top = document.getElementById('top');
+  window.addEventListener('scroll', function () { top.style.display = window.scrollY > 500 ? 'block' : 'none'; });
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      var cat = c.getAttribute('data-cat');
+      document.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
+      });
+    });
+  });
+  var WA = 'https://wa.me/201012345678';
+  var CPN = '', CPN_P = 0, cpnOn = false;
+  var en = false, cart = {};
+  function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
+  function applyLang() {
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+    document.querySelectorAll('[data-p]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-p')); });
+    document.getElementById('lang').textContent = en ? 'عربي' : 'EN';
+    document.querySelectorAll('.card').forEach(function (c) {
+      var h = c.querySelector('h3'); var tn = h && h.firstChild;
+      if (tn && tn.nodeType === 3) { var n = c.getAttribute('data-en'); tn.textContent = (en && n ? n : c.getAttribute('data-name')) + ' '; }
+    });
+    renderCart();
+  }
+  document.getElementById('lang').addEventListener('click', function () { en = !en; applyLang(); });
+  function nm(k) { var c = document.querySelector('.card[data-name="' + k.replace(/"/g, '\\"') + '"]'); var e = c && c.getAttribute('data-en'); return en && e ? e : k; }
+  function renderCart() {
+    var keys = Object.keys(cart), total = 0, count = 0, html = '';
+    keys.forEach(function (k) {
+      var it = cart[k]; total += it.p * it.q; count += it.q;
+      html += '<div class="crow"><span></span><span class="q"><button data-d="-1" data-k="' + encodeURIComponent(k) + '">-</button> ' + it.q + ' <button data-d="1" data-k="' + encodeURIComponent(k) + '">+</button></span><b>' + (it.p * it.q) + '</b></div>';
+    });
+    var box = document.getElementById('clines'); box.innerHTML = html;
+    box.querySelectorAll('.crow').forEach(function (row, i) { row.firstChild.textContent = nm(keys[i]); });
+    box.querySelectorAll('button[data-d]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = decodeURIComponent(b.getAttribute('data-k')); cart[k].q += parseInt(b.getAttribute('data-d'), 10);
+        if (cart[k].q <= 0) delete cart[k]; renderCart();
+      });
+    });
+    var ctotalEl = document.getElementById('ctotal');
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    ctotalEl.textContent = disc > 0
+      ? T('الإجمالي|Total') + ': ' + total + ' - ' + T('خصم|Discount') + ' ' + disc + ' = ' + (total - disc) + ' ' + T('ج.م|EGP')
+      : T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var cb = document.getElementById('cartbtn');
+    cb.style.display = count ? 'block' : 'none';
+    cb.textContent = ']]>&#x1f6d2;<![CDATA[ ' + T('السلة|Cart') + ' (' + count + ') - ' + (total - disc) + ' ' + T('ج.م|EGP');
+    if (!count) document.getElementById('cartsheet').classList.remove('open');
+  }
+  document.querySelectorAll('.add-btn').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var c = b.closest('.card'), k = c.getAttribute('data-name');
+      if (!cart[k]) cart[k] = { p: parseInt(c.getAttribute('data-price'), 10) || 0, q: 0 };
+      cart[k].q += 1; renderCart();
+    });
+  });
+  document.getElementById('cartbtn').addEventListener('click', function () { document.getElementById('cartsheet').classList.add('open'); });
+  document.querySelectorAll('.sheet').forEach(function (sh) {
+    sh.addEventListener('click', function (ev) { if (ev.target === sh || ev.target.getAttribute('data-close')) sh.classList.remove('open'); });
+  });
+  document.getElementById('c-send').addEventListener('click', function () {
+    var keys = Object.keys(cart); if (!keys.length) return;
+    var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
+    keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    if (disc > 0) { lines.push(T('الإجمالي قبل الخصم|Subtotal') + ': ' + total + ' ' + T('ج.م|EGP')); lines.push(T('خصم|Discount') + ' (' + CPN + '): -' + disc + ' ' + T('ج.م|EGP')); }
+    lines.push(T('الإجمالي|Total') + ': ' + (total - disc) + ' ' + T('ج.م|EGP'));
+    var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
+    if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
+    window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      if (ev.target.closest('a,button')) return;
+      var copy = c.cloneNode(true);
+      copy.querySelectorAll('a,button').forEach(function (x) { x.remove(); });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'btn btn-wa'; add.textContent = T('+ أضف للسلة|+ Add to cart');
+      add.addEventListener('click', function () { var b = c.querySelector('.add-btn'); if (b) b.click(); document.getElementById('detsheet').classList.remove('open'); });
+      var body = document.getElementById('detbody'); body.innerHTML = '';
+      var inner = copy.querySelector('.card-body'); var im = copy.querySelector('.pimg');
+      if (im) body.appendChild(im); if (inner) body.appendChild(inner);
+      if (c.querySelector('.add-btn')) body.appendChild(add);
+      document.getElementById('detsheet').classList.add('open');
+    });
+  });
+  var pageUrl = location.href;
+  document.getElementById('sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + pageUrl);
+  document.getElementById('sh-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl);
+  document.getElementById('sh-cp').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
+  });
+  var cpnBtn = document.getElementById('c-cpn-btn');
+  if (cpnBtn) cpnBtn.addEventListener('click', function () {
+    var v = document.getElementById('c-cpn').value.trim();
+    if (v && v === CPN) { cpnOn = true; cpnBtn.textContent = T('تم ✓|Applied ✓'); }
+    else { cpnOn = false; cpnBtn.textContent = T('كود غير صحيح|Invalid code'); }
+    renderCart();
+  });
+  var bf = document.getElementById('bf');
+  if (bf) bf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var lines = ['مرحباً، أود التواصل بخصوص:'];
+    var item = document.getElementById('f-item').value;
+    if (item) lines.push('الخدمة: ' + item);
+    lines.push('الاسم: ' + document.getElementById('f-name').value);
+    lines.push('الموبايل: ' + document.getElementById('f-phone').value);
+    var w = document.getElementById('f-when').value; if (w) lines.push('الموعد: ' + w);
+    var n = document.getElementById('f-note').value; if (n) lines.push('ملاحظات: ' + n);
+    document.querySelectorAll('#bf .cf').forEach(function (el) { var v = el.value; if (v) lines.push(el.getAttribute('data-l') + ': ' + v); });
+    window.open('https://wa.me/201012345678?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+})();
+</script>
+</body>
+</html>
+SITE_HTML_END
+SITE_HTML_OK BAKERY bytes=117079
+SITE_HTML_OK CAFE bytes=109802
+SITE_HTML_OK HOTEL bytes=104369
+SITE_HTML_BEGIN HOTEL
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>&lt;b&gt;اسم&lt;/b&gt; | إقامتك عندنا راحة كاملة</title>
+
+<meta name="description" content="إقامتك عندنا راحة كاملة - غرف وشاليهات مع إفطار وخدمات متكاملة">
+<meta name="theme-color" content="#D4AF37">
+<meta property="og:title" content="&lt;b&gt;اسم&lt;/b&gt;">
+<meta property="og:description" content="إقامتك عندنا راحة كاملة - غرف وشاليهات مع إفطار وخدمات متكاملة">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_EG">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"LocalBusiness","name":"<b>اسم<\/b>","description":"إقامتك عندنا راحة كاملة - غرف وشاليهات مع إفطار وخدمات متكاملة","telephone":"01012345678","address":"طريق الساحل الشمالي، مرسى مطروح","openingHours":"استقبال على مدار 24 ساعة"}</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root { --primary: #D4AF37; --ink: #1c1917; --muted: #6b7280; --paper: #fffdf8; --card: #ffffff; --line: rgba(0,0,0,.08); }
+[data-theme="dark"] { --ink: #f5f5f4; --muted: #a8a29e; --paper: #121110; --card: #1c1a18; --line: rgba(255,255,255,.1); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Cairo', sans-serif; }
+
+.ann { background: var(--primary); color: #fff; text-align: center; padding: 8px 14px; font-weight: 700; font-size: .92rem; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); line-height: 1.7; overflow-x: hidden; transition: background .3s, color .3s; }
+nav { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
+nav b { font-weight: 800; font-size: 1.05rem; }
+nav .links { display: flex; gap: 14px; align-items: center; font-size: .9rem; }
+nav a { color: var(--ink); text-decoration: none; opacity: .8; }
+nav a:hover { color: var(--primary); opacity: 1; }
+#theme { background: none; border: 1px solid var(--line); color: var(--ink); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1rem; }
+.hero { position: relative; min-height: 78vh; display: flex; align-items: center; justify-content: center; text-align: center; color: #fff; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background-image: url('HERO.jpg'); background-size: cover; background-position: center; animation: kenburns 18s ease-in-out infinite alternate; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.68)); }
+.hero-inner { position: relative; z-index: 2; padding: 32px 20px; max-width: 760px; }
+.hero h1 { font-size: clamp(2rem, 7vw, 3.4rem); font-weight: 800; animation: rise .9s ease both; }
+.tagline { font-size: 1.3rem; font-weight: 700; color: var(--primary); margin: 8px 0; animation: rise .9s .15s ease both; filter: brightness(1.35); }
+.sub { opacity: .92; margin: 0 auto 26px; animation: rise .9s .3s ease both; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: rise .9s .45s ease both; }
+.btn { padding: 13px 28px; border-radius: 999px; font-weight: 700; text-decoration: none; border: 0; cursor: pointer; font-size: 1rem; transition: transform .25s, box-shadow .25s; }
+.btn:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-call { background: rgba(255,255,255,.15); border: 2px solid #fff; color: #fff; backdrop-filter: blur(4px); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 20px; }
+h2.t { font-size: 1.7rem; font-weight: 800; margin-bottom: 22px; position: relative; padding-bottom: 10px; }
+h2.t::after { content: ''; position: absolute; right: 0; bottom: 0; width: 56px; height: 4px; border-radius: 4px; background: var(--primary); }
+.feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 40px; }
+.feat { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; text-align: center; }
+.feat .ico { font-size: 2rem; margin-bottom: 6px; }
+.feat h4 { font-size: 1.05rem; } .feat p { color: var(--muted); font-size: .88rem; }
+.revs { display: grid; gap: 14px; } .rev { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.rev .stars { color: #f5b301; letter-spacing: 2px; } .rev p { margin: 8px 0; }
+.gal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; } .gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; }
+.social { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; } .social a { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: inherit; text-decoration: none; font-weight: 700; }
+.panel { background: var(--card); border-radius: 18px; padding: 26px; box-shadow: 0 8px 30px rgba(0,0,0,.06); margin-bottom: 40px; border: 1px solid var(--line); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+.chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-bottom: 46px; }
+.pimg { width: calc(100% + 44px); max-width: none; margin: -22px -22px 14px; height: 180px; object-fit: cover; border-radius: 14px 14px 0 0; display: block; }
+.card { background: var(--card); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 6px 22px rgba(0,0,0,.07); border-top: 4px solid var(--primary); transition: transform .3s, box-shadow .3s; }
+.card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,.14); }
+.card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.card p { color: var(--muted); font-size: .92rem; margin-bottom: 12px; }
+.badge { background: var(--primary); color: #fff; font-size: .7rem; padding: 2px 9px; border-radius: 999px; margin-right: 6px; }
+.price { font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.old { color: var(--muted); font-size: .9rem; font-weight: 400; margin-right: 6px; }
+.off { background: #dc2626; color: #fff; font-size: .72rem; padding: 2px 8px; border-radius: 6px; margin-right: 6px; font-weight: 700; }
+.order-btn { background: var(--primary); color: #fff; text-align: center; padding: 11px; border-radius: 12px; font-weight: 700; text-decoration: none; transition: filter .2s; }
+.order-btn:hover { filter: brightness(1.12); }
+.form { display: grid; gap: 12px; }
+.form input, .form select, .form textarea { width: 100%; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); font-size: 1rem; }
+.form button { justify-self: start; }
+details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+summary { cursor: pointer; font-weight: 700; }
+details p { color: var(--muted); margin-top: 8px; }
+.map { border-radius: 18px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--line); }
+.map iframe { width: 100%; height: 300px; border: 0; display: block; }
+.contact { text-align: center; }
+.contact h2.t::after { right: 50%; transform: translateX(50%); }
+footer { text-align: center; padding: 28px; color: var(--muted); font-size: .85rem; }
+.fab { position: fixed; bottom: 20px; left: 20px; z-index: 10; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; padding: 14px 22px; border-radius: 999px; box-shadow: 0 8px 22px rgba(0,0,0,.3); animation: pulse 2.2s infinite; }
+#top { position: fixed; bottom: 20px; right: 20px; z-index: 10; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--primary); color: #fff; font-size: 1.2rem; cursor: pointer; display: none; box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.12) translateY(-1.5%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,.6); } 70% { box-shadow: 0 0 0 16px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.add-btn { margin-top: 8px; background: transparent; color: var(--primary); border: 2px solid var(--primary); padding: 9px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.add-btn:hover { background: var(--primary); color: #fff; }
+.card { cursor: pointer; }
+#lang { background: none; border: 1px solid var(--line); color: var(--ink); height: 36px; padding: 0 12px; border-radius: 999px; cursor: pointer; font-weight: 700; }
+.share { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; margin: 0 0 30px; }
+.share a, .share button { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); text-decoration: none; cursor: pointer; font-weight: 600; font-size: .9rem; }
+#cartbtn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 12; background: var(--primary); color: #fff; border: 0; padding: 13px 24px; border-radius: 999px; font-weight: 800; box-shadow: 0 8px 22px rgba(0,0,0,.3); cursor: pointer; display: none; }
+.sheet { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.55); display: none; align-items: flex-end; justify-content: center; }
+.sheet.open { display: flex; }
+.sheet-in { background: var(--card); color: var(--ink); width: min(560px, 100%); max-height: 86vh; overflow: auto; border-radius: 22px 22px 0 0; padding: 22px; }
+.sheet-in h3 { margin-bottom: 12px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.crow .q button { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; font-weight: 800; }
+.ctotal { font-weight: 800; font-size: 1.15rem; margin: 14px 0; }
+.sheet-in .x { float: left; background: none; border: 0; color: var(--ink); font-size: 1.4rem; cursor: pointer; }
+.sheet-in .pimg { width: 100%; margin: 0 0 12px; border-radius: 14px; }
+@media (max-width: 560px) { nav .links a { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-bg, .fab { animation: none; } .reveal { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <b>&lt;b&gt;اسم&lt;/b&gt;</b>
+  <div class="links">
+    <a href="#menu">الخدمات</a><a href="#book">احجز</a><a href="#faq">أسئلة</a><a href="#contact">تواصل</a>
+    <button id="lang" title="English / عربي">EN</button><button id="theme" title="الوضع الليلي">]]>&#x1f319;<![CDATA[</button>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <h1>&lt;b&gt;اسم&lt;/b&gt;</h1>
+    <div class="tagline">إقامتك عندنا راحة كاملة</div>
+    <p class="sub">غرف وشاليهات مع إفطار وخدمات متكاملة</p>
+    <div class="cta">
+      <a href="https://wa.me/201012345678" class="btn btn-wa" target="_blank" rel="noopener">اطلب عبر واتساب</a>
+      <a href="tel:01012345678" class="btn btn-call">اتصل بنا: 01012345678</a>
+    </div>
+  </div>
+</section>
+<div class="wrap">
+  <div class="feats">
+<div class="feat reveal"><div class="ico">]]>&#x1f6cf;<![CDATA[️</div><h4>غرف مريحة</h4><p>نظافة وراحة وخدمة على مدار الساعة</p></div>
+<div class="feat reveal"><div class="ico">]]>&#x1f373;<![CDATA[</div><h4>إفطار مشمول</h4><p>وجبة إفطار متنوعة كل صباح</p></div>
+<div class="feat reveal"><div class="ico">]]>&#x1f4cd;<![CDATA[</div><h4>موقع مميز</h4><p>قريب من أهم الأماكن والخدمات</p></div>
+  </div>
+  <section class="panel reveal">
+    <h2 class="t">نبذة عنا</h2>
+    <p>فندق وشاليهات يقدم غرفاً مريحة وإفطاراً وخدمات ترفيهية ومواقف مجانية.</p>
+  </section>
+
+  <section id="menu">
+    <h2 class="t reveal">قائمة المنتجات والخدمات</h2>
+    <div class="chips"><button class="chip on" data-cat="__all">الكل</button><button class="chip" data-cat="الغرف">الغرف</button><button class="chip" data-cat="الأجنحة">الأجنحة</button><button class="chip" data-cat="الشاليهات">الشاليهات</button><button class="chip" data-cat="العروض">العروض</button></div>
+    <div class="grid">
+<div class="card reveal" data-cat="الغرف" data-name="غرفة مزدوجة بإفطار" data-en="Double Room" data-price="1400">
+    
+    <div class="card-body">
+        <h3>غرفة مزدوجة بإفطار <span class="badge">الأكثر حجزاً</span></h3>
+        <p>غرفة مكيفة مع إفطار وواي فاي</p>
+        <div class="price">1400 ج.م <s class="old">1700</s><span class="off">خصم 17%</span></div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%BA%D8%B1%D9%81%D8%A9+%D9%85%D8%B2%D8%AF%D9%88%D8%AC%D8%A9+%D8%A8%D8%A5%D9%81%D8%B7%D8%A7%D8%B1" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="الأجنحة" data-name="جناح عائلي" data-en="Family Suite" data-price="2600">
+    
+    <div class="card-body">
+        <h3>جناح عائلي </h3>
+        <p>غرفتين وصالة لحد 5 أفراد</p>
+        <div class="price">2600 ج.م </div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%AC%D9%86%D8%A7%D8%AD+%D8%B9%D8%A7%D8%A6%D9%84%D9%8A" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="الشاليهات" data-name="شاليه بإطلالة البحر" data-en="Sea View Chalet" data-price="3200">
+    
+    <div class="card-body">
+        <h3>شاليه بإطلالة البحر </h3>
+        <p>شاليه كامل بمطبخ وشرفة</p>
+        <div class="price">3200 ج.م <s class="old">3800</s><span class="off">خصم 15%</span></div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%B4%D8%A7%D9%84%D9%8A%D9%87+%D8%A8%D8%A5%D8%B7%D9%84%D8%A7%D9%84%D8%A9+%D8%A7%D9%84%D8%A8%D8%AD%D8%B1" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+<div class="card reveal" data-cat="العروض" data-name="باقة شهر العسل" data-en="Honeymoon Package" data-price="4500">
+    
+    <div class="card-body">
+        <h3>باقة شهر العسل <span class="badge">عرض</span></h3>
+        <p>ليلتين مع عشاء وتزيين الغرفة</p>
+        <div class="price">4500 ج.م </div>
+    </div>
+    <a href="https://wa.me/201012345678?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B+%D8%A3%D9%88%D8%AF+%D8%B7%D9%84%D8%A8%3A+%D8%A8%D8%A7%D9%82%D8%A9+%D8%B4%D9%87%D8%B1+%D8%A7%D9%84%D8%B9%D8%B3%D9%84" class="order-btn" target="_blank" rel="noopener" data-t="طلب الآن|Order now">طلب الآن</a>
+    <button type="button" class="add-btn" data-t="+ أضف للسلة|+ Add to cart">+ أضف للسلة</button>
+</div>
+    </div>
+  </section>
+
+  <section id="book" class="panel reveal">
+    <h2 class="t">احجز أو اطلب الآن</h2>
+    <form id="bf" class="form">
+      <input id="f-name" placeholder="الاسم" required>
+      <input id="f-phone" type="tel" placeholder="رقم الموبايل" required>
+      <select id="f-item"><option value="">اختر الخدمة أو المنتج</option><option>غرفة مزدوجة بإفطار</option><option>جناح عائلي</option><option>شاليه بإطلالة البحر</option><option>باقة شهر العسل</option></select>
+      <input id="f-when" placeholder="الموعد المناسب (اختياري)">
+      <textarea id="f-note" rows="3" placeholder="ملاحظات (اختياري)"></textarea>
+
+      <button type="submit" class="btn btn-wa">إرسال عبر واتساب</button>
+    </form>
+  </section>
+<section id="reviews" class="panel reveal"><h2 class="t">آراء عملائنا</h2><div class="revs"><div class="rev"><div class="stars">★★★★★</div><p>خدمة ممتازة</p><b>سارة</b></div></div></section><section id="gallery" class="panel reveal"><h2 class="t">معرض الصور</h2><div class="gal"><img loading="lazy" alt="" src="https://example.com/a.jpg"></div></section><div class="social reveal"><a href="https://instagram.com/fokof2" target="_blank" rel="noopener">إنستجرام</a></div>
+
+  <section id="faq" class="panel reveal">
+    <h2 class="t">أسئلة شائعة</h2>
+    <details><summary>إزاي أطلب أو أحجز؟</summary><p>املأ النموذج أعلاه أو راسلنا مباشرة على واتساب وهنرد عليك في أسرع وقت.</p></details>
+    <details><summary>إيه مواعيد العمل؟</summary><p>استقبال على مدار 24 ساعة</p></details>
+    <details><summary>فين مكانكم؟</summary><p>طريق الساحل الشمالي، مرسى مطروح</p></details>
+  </section>
+  <section id="contact" class="panel contact reveal">
+    <h2 class="t">العنوان ومواعيد العمل</h2>
+    <p>]]>&#x1f4cd;<![CDATA[ طريق الساحل الشمالي، مرسى مطروح</p>
+    <p>⏰ استقبال على مدار 24 ساعة</p>
+  </section>
+<div class="map"><iframe title="map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=%D8%B7%D8%B1%D9%8A%D9%82+%D8%A7%D9%84%D8%B3%D8%A7%D8%AD%D9%84+%D8%A7%D9%84%D8%B4%D9%85%D8%A7%D9%84%D9%8A%D8%8C+%D9%85%D8%B1%D8%B3%D9%89+%D9%85%D8%B7%D8%B1%D9%88%D8%AD&output=embed"></iframe></div>
+</div>
+<div class="share">
+  <span data-t="شارك الموقع:|Share this site:">شارك الموقع:</span>
+  <a id="sh-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  <a id="sh-fb" href="#" target="_blank" rel="noopener">Facebook</a>
+  <button id="sh-cp" type="button" data-t="نسخ الرابط|Copy link">نسخ الرابط</button>
+</div>
+<footer data-t="تم إنشاء هذا الموقع بواسطة منصة FOKOF2|Built with FOKOF2">تم إنشاء هذا الموقع بواسطة منصة FOKOF2</footer>
+<button id="cartbtn" type="button"></button>
+<div id="cartsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><h3 data-t="سلتك|Your cart">سلتك</h3><div id="clines"></div><div class="ctotal" id="ctotal"></div><div class="form"><input id="c-name" placeholder="الاسم" data-p="الاسم|Name"><input id="c-phone" type="tel" placeholder="رقم الموبايل" data-p="رقم الموبايل|Mobile number"><button id="c-send" type="button" class="btn btn-wa" data-t="إرسال الطلب عبر واتساب|Send order on WhatsApp">إرسال الطلب عبر واتساب</button></div></div></div>
+<div id="detsheet" class="sheet"><div class="sheet-in"><button class="x" type="button" data-close="1">✕</button><div id="detbody"></div></div></div>
+<a class="fab" href="https://wa.me/201012345678" target="_blank" rel="noopener">واتساب</a>
+<button id="top" title="لأعلى">↑</button>
+<script>
+(function () {
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e, i) { e.style.transitionDelay = ((i % 4) * 90) + 'ms'; io.observe(e); });
+  }
+  var root = document.documentElement, tb = document.getElementById('theme');
+  if (root.getAttribute('data-theme') === 'dark') tb.textContent = '☀️';
+  tb.addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') === 'dark';
+    if (dark) { root.removeAttribute('data-theme'); tb.textContent = ']]>&#x1f319;<![CDATA['; } else { root.setAttribute('data-theme', 'dark'); tb.textContent = '☀️'; }
+  });
+  var top = document.getElementById('top');
+  window.addEventListener('scroll', function () { top.style.display = window.scrollY > 500 ? 'block' : 'none'; });
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      var cat = c.getAttribute('data-cat');
+      document.querySelectorAll('.card').forEach(function (card) {
+        card.style.display = (cat === '__all' || card.getAttribute('data-cat') === cat) ? '' : 'none';
+      });
+    });
+  });
+  var WA = 'https://wa.me/201012345678';
+  var CPN = '', CPN_P = 0, cpnOn = false;
+  var en = false, cart = {};
+  function T(k) { var p = k.split('|'); return en ? p[1] : p[0]; }
+  function applyLang() {
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    document.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = T(e.getAttribute('data-t')); });
+    document.querySelectorAll('[data-p]').forEach(function (e) { e.placeholder = T(e.getAttribute('data-p')); });
+    document.getElementById('lang').textContent = en ? 'عربي' : 'EN';
+    document.querySelectorAll('.card').forEach(function (c) {
+      var h = c.querySelector('h3'); var tn = h && h.firstChild;
+      if (tn && tn.nodeType === 3) { var n = c.getAttribute('data-en'); tn.textContent = (en && n ? n : c.getAttribute('data-name')) + ' '; }
+    });
+    renderCart();
+  }
+  document.getElementById('lang').addEventListener('click', function () { en = !en; applyLang(); });
+  function nm(k) { var c = document.querySelector('.card[data-name="' + k.replace(/"/g, '\\"') + '"]'); var e = c && c.getAttribute('data-en'); return en && e ? e : k; }
+  function renderCart() {
+    var keys = Object.keys(cart), total = 0, count = 0, html = '';
+    keys.forEach(function (k) {
+      var it = cart[k]; total += it.p * it.q; count += it.q;
+      html += '<div class="crow"><span></span><span class="q"><button data-d="-1" data-k="' + encodeURIComponent(k) + '">-</button> ' + it.q + ' <button data-d="1" data-k="' + encodeURIComponent(k) + '">+</button></span><b>' + (it.p * it.q) + '</b></div>';
+    });
+    var box = document.getElementById('clines'); box.innerHTML = html;
+    box.querySelectorAll('.crow').forEach(function (row, i) { row.firstChild.textContent = nm(keys[i]); });
+    box.querySelectorAll('button[data-d]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = decodeURIComponent(b.getAttribute('data-k')); cart[k].q += parseInt(b.getAttribute('data-d'), 10);
+        if (cart[k].q <= 0) delete cart[k]; renderCart();
+      });
+    });
+    var ctotalEl = document.getElementById('ctotal');
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    ctotalEl.textContent = disc > 0
+      ? T('الإجمالي|Total') + ': ' + total + ' - ' + T('خصم|Discount') + ' ' + disc + ' = ' + (total - disc) + ' ' + T('ج.م|EGP')
+      : T('الإجمالي|Total') + ': ' + total + ' ' + T('ج.م|EGP');
+    var cb = document.getElementById('cartbtn');
+    cb.style.display = count ? 'block' : 'none';
+    cb.textContent = ']]>&#x1f6d2;<![CDATA[ ' + T('السلة|Cart') + ' (' + count + ') - ' + (total - disc) + ' ' + T('ج.م|EGP');
+    if (!count) document.getElementById('cartsheet').classList.remove('open');
+  }
+  document.querySelectorAll('.add-btn').forEach(function (b) {
+    b.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var c = b.closest('.card'), k = c.getAttribute('data-name');
+      if (!cart[k]) cart[k] = { p: parseInt(c.getAttribute('data-price'), 10) || 0, q: 0 };
+      cart[k].q += 1; renderCart();
+    });
+  });
+  document.getElementById('cartbtn').addEventListener('click', function () { document.getElementById('cartsheet').classList.add('open'); });
+  document.querySelectorAll('.sheet').forEach(function (sh) {
+    sh.addEventListener('click', function (ev) { if (ev.target === sh || ev.target.getAttribute('data-close')) sh.classList.remove('open'); });
+  });
+  document.getElementById('c-send').addEventListener('click', function () {
+    var keys = Object.keys(cart); if (!keys.length) return;
+    var total = 0, lines = [T('مرحباً، أود طلب:|Hello, I would like to order:')];
+    keys.forEach(function (k) { var it = cart[k]; total += it.p * it.q; lines.push('- ' + nm(k) + ' x' + it.q + ' = ' + (it.p * it.q) + ' ' + T('ج.م|EGP')); });
+    var disc = (cpnOn && CPN_P > 0) ? Math.round(total * CPN_P / 100) : 0;
+    if (disc > 0) { lines.push(T('الإجمالي قبل الخصم|Subtotal') + ': ' + total + ' ' + T('ج.م|EGP')); lines.push(T('خصم|Discount') + ' (' + CPN + '): -' + disc + ' ' + T('ج.م|EGP')); }
+    lines.push(T('الإجمالي|Total') + ': ' + (total - disc) + ' ' + T('ج.م|EGP'));
+    var n = document.getElementById('c-name').value, p = document.getElementById('c-phone').value;
+    if (n) lines.push(T('الاسم|Name') + ': ' + n); if (p) lines.push(T('الموبايل|Mobile') + ': ' + p);
+    window.open(WA + '?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('click', function (ev) {
+      if (ev.target.closest('a,button')) return;
+      var copy = c.cloneNode(true);
+      copy.querySelectorAll('a,button').forEach(function (x) { x.remove(); });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'btn btn-wa'; add.textContent = T('+ أضف للسلة|+ Add to cart');
+      add.addEventListener('click', function () { var b = c.querySelector('.add-btn'); if (b) b.click(); document.getElementById('detsheet').classList.remove('open'); });
+      var body = document.getElementById('detbody'); body.innerHTML = '';
+      var inner = copy.querySelector('.card-body'); var im = copy.querySelector('.pimg');
+      if (im) body.appendChild(im); if (inner) body.appendChild(inner);
+      if (c.querySelector('.add-btn')) body.appendChild(add);
+      document.getElementById('detsheet').classList.add('open');
+    });
+  });
+  var pageUrl = location.href;
+  document.getElementById('sh-wa').href = 'https://wa.me/?text=' + encodeURIComponent(document.title + ' ' + pageUrl);
+  document.getElementById('sh-fb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl);
+  document.getElementById('sh-cp').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: document.title, url: pageUrl }).catch(function () {}); }
+    else if (navigator.clipboard) { navigator.clipboard.writeText(pageUrl); this.textContent = T('تم النسخ ✓|Copied ✓'); }
+  });
+  var cpnBtn = document.getElementById('c-cpn-btn');
+  if (cpnBtn) cpnBtn.addEventListener('click', function () {
+    var v = document.getElementById('c-cpn').value.trim();
+    if (v && v === CPN) { cpnOn = true; cpnBtn.textContent = T('تم ✓|Applied ✓'); }
+    else { cpnOn = false; cpnBtn.textContent = T('كود غير صحيح|Invalid code'); }
+    renderCart();
+  });
+  var bf = document.getElementById('bf');
+  if (bf) bf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var lines = ['مرحباً، أود التواصل بخصوص:'];
+    var item = document.getElementById('f-item').value;
+    if (item) lines.push('الخدمة: ' + item);
+    lines.push('الاسم: ' + document.getElementById('f-name').value);
+    lines.push('الموبايل: ' + document.getElementById('f-phone').value);
+    var w = document.getElementById('f-when').value; if (w) lines.push('الموعد: ' + w);
+    var n = document.getElementById('f-note').value; if (n) lines.push('ملاحظات: ' + n);
+    document.querySelectorAll('#bf .cf').forEach(function (el) { var v = el.value; if (v) lines.push(el.getAttribute('data-l') + ': ' + v); });
+    window.open('https://wa.me/201012345678?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+  });
+})();
+</script>
+</body>
+</html>
+SITE_HTML_END
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.SiteImagesTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:55:20.579Z" hostname="runnervm3lb7s" time="0.053">
+  <properties/>
+  <testcase name="product_and_cover_images_are_embedded" classname="com.example.SiteImagesTest" time="0.043"/>
+  <system-out><![CDATA[SITE_IMAGES_OK
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

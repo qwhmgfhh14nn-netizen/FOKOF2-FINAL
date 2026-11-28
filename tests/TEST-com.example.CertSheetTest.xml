@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.CertSheetTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:51:42.025Z" hostname="runnervm3lb7s" time="4.755">
+  <properties/>
+  <testcase name="cert_sheets" classname="com.example.CertSheetTest" time="4.752"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

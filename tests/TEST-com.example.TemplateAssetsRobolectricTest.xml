@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.TemplateAssetsRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:55:20.635Z" hostname="runnervm3lb7s" time="0.136">
+  <properties/>
+  <testcase name="all_64_artworks_decode" classname="com.example.TemplateAssetsRobolectricTest" time="0.134"/>
+  <system-out><![CDATA[ARTWORK_DECODE_OK=64/64
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

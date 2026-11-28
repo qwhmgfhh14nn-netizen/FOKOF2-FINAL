@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.CatalogTemplatesTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:50:34.909Z" hostname="runnervm3lb7s" time="67.113">
+  <properties/>
+  <testcase name="photo_templates_have_images_and_render" classname="com.example.CatalogTemplatesTest" time="61.514"/>
+  <testcase name="sample_sheets_render" classname="com.example.CatalogTemplatesTest" time="5.265"/>
+  <testcase name="catalog_integrity_and_no_repeats" classname="com.example.CatalogTemplatesTest" time="0.318"/>
+  <system-out><![CDATA[CATALOG_OK templates=852 categories=22 problems=0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

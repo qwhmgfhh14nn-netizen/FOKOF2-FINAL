@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.InviteSheetTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:52:14.353Z" hostname="runnervm3lb7s" time="5.813">
+  <properties/>
+  <testcase name="invite_sheets" classname="com.example.InviteSheetTest" time="5.81"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

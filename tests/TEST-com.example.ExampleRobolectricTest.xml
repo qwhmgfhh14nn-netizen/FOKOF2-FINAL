@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.ExampleRobolectricTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:51:56.244Z" hostname="runnervm3lb7s" time="5.207">
+  <properties/>
+  <testcase name="read string from context" classname="com.example.ExampleRobolectricTest" time="2.987"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

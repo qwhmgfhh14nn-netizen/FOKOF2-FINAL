@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.ExampleUnitTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:52:01.453Z" hostname="runnervm3lb7s" time="2.736">
+  <properties/>
+  <testcase name="verify bundles and subscription plans editable prices in EGP" classname="com.example.ExampleUnitTest" time="0.001"/>
+  <testcase name="verify public template library is empty by default until owner adds designs" classname="com.example.ExampleUnitTest" time="0.0"/>
+  <testcase name="verify owner authorization password hashing and verification" classname="com.example.ExampleUnitTest" time="1.721"/>
+  <testcase name="verify owner template creation with pricing types and EGP price" classname="com.example.ExampleUnitTest" time="0.001"/>
+  <testcase name="verify admin template editing duplicating and publish toggle" classname="com.example.ExampleUnitTest" time="0.0"/>
+  <testcase name="identify default owner credentials from previous builds" classname="com.example.ExampleUnitTest" time="0.202"/>
+  <testcase name="verify categories management data structures" classname="com.example.ExampleUnitTest" time="0.001"/>
+  <testcase name="verify password hashes use unique salts and support safe legacy upgrades" classname="com.example.ExampleUnitTest" time="0.81"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

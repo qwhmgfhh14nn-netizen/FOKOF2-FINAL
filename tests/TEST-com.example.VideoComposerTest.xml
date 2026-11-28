@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.VideoComposerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-28T12:56:12.637Z" hostname="runnervm3lb7s" time="0.086">
+  <properties/>
+  <testcase name="frame_count_matches_duration" classname="com.example.VideoComposerTest" time="0.04"/>
+  <testcase name="caption_is_drawn_on_a_gradient_not_a_box" classname="com.example.VideoComposerTest" time="0.027"/>
+  <testcase name="frames_show_first_then_second_slide_and_blend_between" classname="com.example.VideoComposerTest" time="0.017"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
