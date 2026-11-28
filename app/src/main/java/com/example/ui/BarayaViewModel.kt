@@ -702,6 +702,11 @@ class BarayaViewModel(application: Application) : AndroidViewModel(application) 
         showToast(if (_currentLanguage.value == AppLanguage.ARABIC) "تم إدراج العنصر في اللوحة" else "Graphic added to canvas")
     }
 
+    fun addDrawElement(el: CanvasElement) {
+        _canvasElements.value = _canvasElements.value + el
+        _selectedElementId.value = el.id
+    }
+
     fun addImageElement(uri: String) {
         val e = CanvasElement(id = UUID.randomUUID().toString(), type = CanvasElementType.IMAGE, imageUri = uri, x = 180f, y = 160f, width = 160f, height = 160f, imgShape = 1)
         _canvasElements.value = _canvasElements.value + e

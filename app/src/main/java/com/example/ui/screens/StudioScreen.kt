@@ -252,6 +252,9 @@ fun StudioScreen(
                 IconButton(onClick = onRedo, enabled = canRedo) {
                     Text("↷", color = if (canRedo) GoldPrimary else GoldPrimary.copy(alpha = 0.3f), style = MaterialTheme.typography.titleLarge)
                 }
+                IconButton(onClick = { drawMode = !drawMode; onSelectElement(null) }) {
+                    Icon(imageVector = Icons.Default.Brush, contentDescription = "رسم حر", tint = if (drawMode) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 IconButton(onClick = { showResizeDialog = true }) {
                     Icon(imageVector = Icons.Default.AspectRatio, contentDescription = "Resize", tint = GoldPrimary)
                 }
@@ -338,6 +341,30 @@ fun StudioScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
+        if (drawMode) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                listOf("#D4AF37", "#FFFFFF", "#1A1A1A", "#E53935", "#1E88E5", "#43A047").forEach { c ->
+                    Box(
+                        Modifier
+                            .size(26.dp)
+                            .clip(CircleShape)
+                            .background(parseColor(c, GoldPrimary))
+                            .border(2.dp, if (drawColor == c) GoldPrimary else Color.Transparent, CircleShape)
+                            .clickable { drawColor = c }
+                    )
+                }
+                Slider(
+                    value = drawStroke,
+                    onValueChange = { drawStroke = it },
+                    valueRange = 2f..18f,
+                    modifier = Modifier.weight(1f),
+                    colors = SliderDefaults.colors(thumbColor = GoldPrimary, activeTrackColor = GoldPrimary)
+                )
+            }
+            Text("ارسم بصباعك على التصميم. كل خط بيتحفظ كعنصر تقدر تحركه أو تحجمه أو تمسحه.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
         // THE INTERACTIVE DESIGN CANVAS (same element renderer + design space as gallery/preview)
         val canvasRatio = aspectRatioValue(canvasAspectRatio)
 
@@ -369,17 +396,72 @@ fun StudioScreen(
                         elements = canvasElements,
                         k = k,
                         modifier = Modifier.fillMaxSize(),
-                        selectedId = selectedElementId,
-                        onSelect = onSelectElement,
-                        onMove = { id, dx, dy ->
+                        selectedId = if (drawMode) null else selectedElementId,
+                        onSelect = if (drawMode) null else onSelectElement,
+                        onMove = if (drawMode) null else ({ id, dx, dy ->
                             if (id !in lockedIds) onUpdateElementById(id) { cur ->
                                 cur.copy(
                                     x = (cur.x + dx).coerceIn(0f, DESIGN_W),
                                     y = (cur.y + dy).coerceIn(0f, DESIGN_W / canvasRatio)
                                 )
                             }
-                        }
+                        })
                     )
+                    if (drawMode) {
+                        val densityNow = LocalDensity.current.density
+                        val pxPerUnit = k * densityNow
+                        androidx.compose.foundation.Canvas(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .pointerInput(drawColor, drawStroke) {
+                                    detectDragGestures(
+                                        onDragStart = { o -> drawPts.clear(); drawPts.add(o) },
+                                        onDragEnd = {
+                                            if (drawPts.size > 1) {
+                                                val pts = drawPts.map { Offset(it.x / pxPerUnit, it.y / pxPerUnit) }
+                                                val minX = pts.minOf { it.x }; val maxX = pts.maxOf { it.x }
+                                                val minY = pts.minOf { it.y }; val maxY = pts.maxOf { it.y }
+                                                val w = (maxX - minX).coerceAtLeast(8f)
+                                                val h = (maxY - minY).coerceAtLeast(8f)
+                                                val rel = pts.joinToString(";") { "${(it.x - minX).roundToInt()},${(it.y - minY).roundToInt()}" }
+                                                onAddDraw(
+                                                    CanvasElement(
+                                                        type = CanvasElementType.DRAW,
+                                                        x = minX + w / 2f,
+                                                        y = minY + h / 2f,
+                                                        width = w,
+                                                        height = h,
+                                                        colorHex = drawColor,
+                                                        strokeW = drawStroke,
+                                                        points = rel
+                                                    )
+                                                )
+                                            }
+                                            drawPts.clear()
+                                        }
+                                    ) { change, _ ->
+                                        change.consume()
+                                        drawPts.add(change.position)
+                                    }
+                                }
+                        ) {
+                            if (drawPts.size > 1) {
+                                val live = androidx.compose.ui.graphics.Path().apply {
+                                    moveTo(drawPts[0].x, drawPts[0].y)
+                                    for (i in 1 until drawPts.size) lineTo(drawPts[i].x, drawPts[i].y)
+                                }
+                                drawPath(
+                                    live,
+                                    parseColor(drawColor, GoldPrimary),
+                                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                        width = drawStroke * pxPerUnit,
+                                        cap = androidx.compose.ui.graphics.StrokeCap.Round,
+                                        join = androidx.compose.ui.graphics.StrokeJoin.Round
+                                    )
+                                )
+                            }
+                        }
+                    }
                     if (canvasElements.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
@@ -1284,6 +1366,7 @@ fun RenderElement(element: CanvasElement) {
             }
         }
         CanvasElementType.IMAGE -> {}
+        CanvasElementType.DRAW -> {}
         CanvasElementType.IMAGE_BADGE -> {
             Box(
                 modifier = Modifier
