@@ -69,6 +69,7 @@ enum class AppNavDestination {
     MOCKUP_STUDIO,
     CV_MAKER,
     ENGINE_MAKER,
+    CHART_MAKER,
     VIDEO_MAKER,
     VIDEO_TRIM,
     PHOTO_TOOLS,

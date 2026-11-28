@@ -625,6 +625,13 @@ fun BarayaApp(
                                     com.example.ui.screens.VideoMakerScreen(onBack = { viewModel.setDestination(AppNavDestination.HOME) })
                                 }
 
+                                AppNavDestination.CHART_MAKER -> {
+                                    com.example.ui.screens.ChartMakerScreen(
+                                        onBack = { viewModel.setDestination(AppNavDestination.MORE) },
+                                        onAddToDesign = { path -> viewModel.addImageElement(path); viewModel.setDestination(AppNavDestination.STUDIO) }
+                                    )
+                                }
+
                                 AppNavDestination.ENGINE_MAKER -> {
                                     com.example.ui.screens.EngineMakerScreen(
                                         onOpenInStudio = {
@@ -825,5 +832,5 @@ fun BarayaFixedNavRail(
 private val moreGroup = setOf(
     AppNavDestination.ACCOUNT, AppNavDestination.SETTINGS, AppNavDestination.PURCHASES, AppNavDestination.ADMIN,
     AppNavDestination.BRAND_KIT, AppNavDestination.WEBSITES, AppNavDestination.AI_IMAGE, AppNavDestination.AI_MARKETING,
-    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER, AppNavDestination.VIDEO_MAKER, AppNavDestination.VIDEO_TRIM, AppNavDestination.PHOTO_TOOLS
+    AppNavDestination.MOCKUP_STUDIO, AppNavDestination.CV_MAKER, AppNavDestination.ENGINE_MAKER, AppNavDestination.CHART_MAKER, AppNavDestination.VIDEO_MAKER, AppNavDestination.VIDEO_TRIM, AppNavDestination.PHOTO_TOOLS
 )

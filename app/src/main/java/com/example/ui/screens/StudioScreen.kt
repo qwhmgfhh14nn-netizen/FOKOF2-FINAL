@@ -774,6 +774,48 @@ fun StudioScreen(
                         onSelectPage(startPage)
                         val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, bmps, name)
                         onShowToast(if (u != null) "تم حفظ PDF بـ ${bmps.size} صفحة في Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
+                    } else if (mode == "video") {
+                        val startPage = pageIndex
+                        val bmps = ArrayList<android.graphics.Bitmap>()
+                        for (pi in 0 until pageCount) {
+                            onSelectPage(pi)
+                            kotlinx.coroutines.delay(500)
+                            bmps.add(exportLayer.toImageBitmap().asAndroidBitmap().copy(android.graphics.Bitmap.Config.ARGB_8888, false))
+                        }
+                        onSelectPage(startPage)
+                        onShowToast("بنصدّر الفيديو... ${bmps.size} صفحة × 3 ثواني")
+                        val fps = 24
+                        val secsPerPage = 3
+                        val frames = fps * secsPerPage * bmps.size
+                        val vw = 1080
+                        val vh = (vw / aspectRatioValue(canvasAspectRatio)).toInt() / 2 * 2
+                        val outFile = java.io.File(galleryContext.cacheDir, "FOKOF2_export_" + System.currentTimeMillis() + ".mp4")
+                        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG or android.graphics.Paint.FILTER_BITMAP_FLAG)
+                        val ok = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            com.example.ui.util.VideoEncoder.encode(outFile, vw, vh, fps, frames, { c, f ->
+                                val page = (f / (fps * secsPerPage)).coerceAtMost(bmps.size - 1)
+                                val within = (f % (fps * secsPerPage)) / (fps * secsPerPage).toFloat()
+                                c.drawColor(android.graphics.Color.BLACK)
+                                val src = bmps[page]
+                                val dst = android.graphics.RectF(0f, 0f, vw.toFloat(), vh.toFloat())
+                                val scale = 1.0f + 0.05f * within
+                                val cx = vw / 2f; val cy = vh / 2f
+                                c.save()
+                                c.translate(cx, cy); c.scale(scale, scale); c.translate(-cx, -cy)
+                                paint.alpha = (255 * minOf(1f, within * 2f)).toInt()
+                                c.drawBitmap(src, null, dst, paint)
+                                c.restore()
+                            }, { })
+                        }
+                        val u = if (ok) kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            com.example.ui.util.VideoEncoder.saveToMovies(galleryContext, outFile, name)
+                        } else null
+                        outFile.delete()
+                        if (u == null) onShowToast("تعذر إنشاء الفيديو (يحتاج أندرويد 10 أو أحدث)")
+                        else {
+                            onShowToast("تم حفظ الفيديو في معرض الفيديوهات (مجلد FOKOF2)")
+                            com.example.ui.util.DesignExporter.share(galleryContext, u, "video/mp4")
+                        }
                     } else if (mode == "pdf") {
                         val u = com.example.ui.util.DesignExporter.savePdf(galleryContext, listOf(bmp), name)
                         onShowToast(if (u != null) "تم حفظ ملف PDF في مجلد Download/FOKOF2" else "تعذر حفظ الملف (يحتاج أندرويد 10 أو أحدث)")
@@ -799,6 +841,7 @@ fun StudioScreen(
                     Button(onClick = { doExport("png") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ صورة PNG في المعرض") }
                     Button(onClick = { doExport("pdf") }, modifier = Modifier.fillMaxWidth()) { Text(if (pageCount > 1) "حفظ PDF (الصفحة الحالية)" else "حفظ PDF") }
                     if (pageCount > 1) Button(onClick = { doExport("pdfall") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ PDF لكل الصفحات ($pageCount)") }
+                    Button(onClick = { doExport("video") }, modifier = Modifier.fillMaxWidth()) { Text("حفظ كفيديو MP4 (3 ثواني لكل صفحة)") }
                     OutlinedButton(onClick = { doExport("share") }, modifier = Modifier.fillMaxWidth()) { Text("مشاركة الصورة") }
                 }
             },

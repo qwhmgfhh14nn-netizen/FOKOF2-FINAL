@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.DarkMode
@@ -199,6 +200,7 @@ fun MoreScreen(
                 MenuRow(if (ar) "اعمل سيرتك الذاتية" else "CV maker", Icons.Default.Description, GoldPrimary, { onNavigate(AppNavDestination.CV_MAKER) }, "more_cv")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "صمم بالنموذج (شهادة، كارت، منيو...)" else "Design by form", Icons.Default.DashboardCustomize, GoldPrimary, { onNavigate(AppNavDestination.ENGINE_MAKER) }, "more_engine")
+                MenuRow(if (ar) "رسوم بيانية (أعمدة، دائري، خطي)" else "Charts (bars, pie, line)", Icons.Default.BarChart, GoldPrimary, { onNavigate(AppNavDestination.CHART_MAKER) }, "more_charts")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
                 MenuRow(if (ar) "صانع الفيديو (صور وانتقالات)" else "Video maker", Icons.Default.Videocam, GoldPrimary, { onNavigate(AppNavDestination.VIDEO_MAKER) }, "more_video")
                 HorizontalDivider(color = GoldBorder.copy(alpha = 0.35f))
