@@ -26,6 +26,12 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ColorLens
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.ContentCut
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Reply
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PersonOutline
