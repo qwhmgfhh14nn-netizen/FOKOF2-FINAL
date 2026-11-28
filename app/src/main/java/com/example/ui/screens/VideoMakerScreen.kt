@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -33,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.ui.theme.GoldPrimary
 import com.example.ui.util.DesignExporter
+import com.example.ui.util.MusicTrack
 import com.example.ui.util.VideoComposer
 import com.example.ui.util.VideoEncoder
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +73,8 @@ fun VideoMakerScreen(onBack: () -> Unit) {
     var t by remember { mutableFloatStateOf(0f) }
     var voice by remember { mutableStateOf(false) }
     var voiceLang by remember { mutableStateOf("ar") }
+    var musicUri by remember { mutableStateOf<Uri?>(null) }
+    var musicName by remember { mutableStateOf("") }
     var progress by remember { mutableFloatStateOf(-1f) }
     val sizes = listOf(Triple("9:16 (ريلز/ستوري)", 720, 1280), Triple("1:1 (مربع)", 720, 720), Triple("16:9 (عريض)", 1280, 720))
     val (_, vw, vh) = sizes[aspect]
@@ -80,6 +85,18 @@ fun VideoMakerScreen(onBack: () -> Unit) {
             val loaded = withContext(Dispatchers.IO) { uris.take(20).mapNotNull { u -> decodeSlide(ctx, u)?.let { VSlide(it, "") } } }
             slides = (slides + loaded).take(20)
             if (loaded.isEmpty() && uris.isNotEmpty()) Toast.makeText(ctx, "تعذر فتح الصور", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val pickMusic = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { u ->
+        if (u != null) {
+            musicUri = u
+            musicName = runCatching {
+                ctx.contentResolver.query(u, null, null, null, null)?.use { c ->
+                    val i = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    if (c.moveToFirst() && i >= 0) c.getString(i) else null
+                }
+            }.getOrNull() ?: "موسيقى مختارة"
         }
     }
 
@@ -116,6 +133,12 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                     items(langs.size) { i -> FilterChip(selected = voiceLang == langs[i].second, onClick = { voiceLang = langs[i].second }, label = { Text(langs[i].first) }) }
                 }
             }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { pickMusic.launch(arrayOf("audio/*")) }) {
+                    Text(if (musicUri == null) "🎵 ضيف موسيقى خلفية" else "🎵 " + musicName.take(28))
+                }
+                if (musicUri != null) TextButton(onClick = { musicUri = null }) { Text("شيل", color = MaterialTheme.colorScheme.error) }
+            }
             Text("المقاس")
             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 items(sizes.size) { i -> FilterChip(selected = aspect == i, onClick = { aspect = i }, label = { Text(sizes[i].first) }) }
@@ -136,7 +159,7 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                 enabled = progress < 0f || progress >= 1f,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    val snap = slides; val sp = secPer; val tr = transition; val w = vw; val h = vh; val wantVoice = voice && slides.any { it.caption.isNotBlank() }
+                    val snap = slides; val sp = secPer; val tr = transition; val w = vw; val h = vh; val wantVoice = voice && slides.any { it.caption.isNotBlank() }; val pickedMusic = musicUri
                     progress = 0f
                     scope.launch {
                         val file = File(ctx.cacheDir, "video_" + System.currentTimeMillis() + ".mp4")
@@ -147,14 +170,22 @@ fun VideoMakerScreen(onBack: () -> Unit) {
                         }
                         var finalFile = file
                         var voiceNote = ""
-                        if (ok && wantVoice) {
-                            val wavs = com.example.ui.util.VoiceOver.synth(ctx, snap.map { it.caption }, ctx.cacheDir, voiceLang)
-                            val pcm = if (wavs == null) null else com.example.ui.util.VoiceOver.buildPcm(wavs, sp)
-                            if (pcm == null) voiceNote = " (من غير صوت: مفيش صوت قراءة باللغة دي على الموبايل)"
-                            else withContext(Dispatchers.Default) {
-                                val aac = File(ctx.cacheDir, "vo.m4a"); val mixed = File(ctx.cacheDir, "mixed.mp4")
-                                if (com.example.ui.util.VoiceOver.encodeAac(pcm.first, pcm.second, aac) && com.example.ui.util.VoiceOver.mux(file, aac, mixed)) finalFile = mixed
-                                else voiceNote = " (من غير صوت: تعذر دمج الصوت)"
+                        if (ok && (wantVoice || pickedMusic != null)) {
+                            val target = 44100
+                            val videoSecs = frames / 24f
+                            val voicePcm = if (wantVoice) {
+                                val wavs = com.example.ui.util.VoiceOver.synth(ctx, snap.map { it.caption }, ctx.cacheDir, voiceLang)
+                                val p = if (wavs == null) null else com.example.ui.util.VoiceOver.buildPcm(wavs, sp)
+                                if (p == null) voiceNote = " (من غير تعليق صوتي: مفيش صوت قراءة باللغة دي على الموبايل)"
+                                p?.let { MusicTrack.resample(it.first, it.second, target) }
+                            } else null
+                            val musicPcm = if (pickedMusic != null) withContext(Dispatchers.IO) { MusicTrack.decodeToPcm(ctx, pickedMusic, videoSecs, target) } else null
+                            if (pickedMusic != null && musicPcm == null) voiceNote += " (من غير موسيقى: الملف ده مش مدعوم)"
+                            if (voicePcm != null || musicPcm != null) withContext(Dispatchers.Default) {
+                                val mixedPcm = MusicTrack.mix(voicePcm, musicPcm, (videoSecs * target).toInt())
+                                val aac = File(ctx.cacheDir, "mx.m4a"); val mixed = File(ctx.cacheDir, "mixed.mp4")
+                                if (com.example.ui.util.VoiceOver.encodeAac(mixedPcm, target, aac) && com.example.ui.util.VoiceOver.mux(file, aac, mixed)) finalFile = mixed
+                                else voiceNote += " (من غير صوت: تعذر دمج الصوت)"
                                 aac.delete()
                             }
                         }

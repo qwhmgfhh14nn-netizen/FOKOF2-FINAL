@@ -524,6 +524,22 @@ fun StudioScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(6.dp))
+                        Text("تأثير النص", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(listOf(0 to "بدون", 1 to "ظل", 2 to "حد خارجي", 3 to "ظل + حد")) { (fx, label) ->
+                                val on = selectedElement.textFx == fx
+                                Text(
+                                    text = label,
+                                    color = if (on) GoldPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier
+                                        .border(1.dp, if (on) GoldPrimary else MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
+                                        .clickable { onUpdateElement { it.copy(textFx = fx) } }
+                                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             items(com.example.ui.theme.DesignFonts.all) { fnt ->
                                 val on = selectedElement.font == fnt.key

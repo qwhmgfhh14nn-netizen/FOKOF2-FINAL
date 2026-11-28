@@ -1521,6 +1521,7 @@ class BarayaRepository(context: Context) {
                 put("imageUri", elem.imageUri)
                 put("imgShape", elem.imgShape)
                 put("filter", elem.filter)
+                put("textFx", elem.textFx)
             }
             jsonArray.put(obj)
         }
@@ -1556,7 +1557,8 @@ class BarayaRepository(context: Context) {
                         font = obj.optString("font", ""),
                         imageUri = obj.optString("imageUri", ""),
                         imgShape = obj.optInt("imgShape", 0),
-                        filter = obj.optInt("filter", 0)
+                        filter = obj.optInt("filter", 0),
+                        textFx = obj.optInt("textFx", 0)
                     )
                 )
             }
